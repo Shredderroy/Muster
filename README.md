@@ -1,4 +1,4 @@
-Muster is a collection of data structures and algorithms, written in F#, that are useful for data analysis and mining.
+`Muster` is a collection of data structures and algorithms, written in F#, that are useful for data analysis and mining.
 
 The following data structures and algorithms have been implemented at this time:
 
