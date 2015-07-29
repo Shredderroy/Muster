@@ -1,2 +1,4 @@
-Test/obj/*
-Test/bin/*
+Test/obj/Debug/*
+Test/obj/Release/*
+Test/bin/Debug/*
+Test/bin/Release/*
