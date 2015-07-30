@@ -62,7 +62,7 @@ module KDTree =
         | End of Node<'A> * Zipper<'A>
 
 
-    let unzipAndZip
+    let applyZipperOp
         (kDT : Node<'A>)
         (endFunc : Node<'A> -> 'B -> bool)
         (pathFunc : Node<'A> -> 'B -> Path)
@@ -223,7 +223,7 @@ module KDTree =
             if insVec.[node.SplittingAxis] < node.Vec.[node.SplittingAxis]
             then {node with Node.LeftChild = Some newNode}
             else {node with Node.RightChild = Some newNode}
-        unzipAndZip kDT endFunc pathFunc modFunc (vec, newNodeID)
+        applyZipperOp kDT endFunc pathFunc modFunc (vec, newNodeID)
 
 
     let buildFromChildNodes (parNode : Node<'A>) (newRootNodeID : int) : option<Node<'A>> =
@@ -256,7 +256,7 @@ module KDTree =
             if leftFlg then {node with Node.LeftChild = modNode} else {node with Node.RightChild = modNode}
         if kDT.ID = remNode.ID
         then buildFromChildNodes kDT newRootNodeID
-        else Some(unzipAndZip kDT endFunc pathFunc modFunc (remNode.Vec, remNode.ID, newRootNodeID))
+        else Some(applyZipperOp kDT endFunc pathFunc modFunc (remNode.Vec, remNode.ID, newRootNodeID))
 
 
     let removeNodeAndDescendants (kDT : Node<'A>) (remNode : Node<'A>) : option<Node<'A>> =
@@ -271,7 +271,7 @@ module KDTree =
             else {node with Node.RightChild = None}
         if kDT.ID = remNode.ID
         then None
-        else Some(unzipAndZip kDT endFunc pathFunc modFunc (remNode.Vec, remNode.ID))
+        else Some(applyZipperOp kDT endFunc pathFunc modFunc (remNode.Vec, remNode.ID))
 
 
     let findNodesWithVec (kDT : Node<'A>) (vec : array<'A>) : list<Node<'A>> =
