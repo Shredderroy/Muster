@@ -19,23 +19,20 @@ module CART =
         classVals
         |> coreImpurityFn
         |> List.map (fun s -> s * Math.Log(s, 2.0))
-        |> List.sum
-        |> (*) (-1.0)
+        |> (List.sum >> ((*) (-1.0)))
 
 
     let giniIndex (classVals : list<_>) : float =
         classVals
         |> coreImpurityFn
         |> List.map (fun s -> s * s)
-        |> List.sum
-        |> (-) 1.0
+        |> (List.sum >> ((-) 1.0))
 
 
     let classificationError (classVals : list<_>) : float =
         classVals
         |> coreImpurityFn
-        |> List.max
-        |> (-) 1.0
+        |> (List.max >> ((-) 1.0))
 
 
 //    let getInfoGainForCatVar (subTblDat : list<list<_>>) (impurityFn : (list<_> -> float)) (datSetImpurity : float) =
