@@ -4,6 +4,7 @@
 #load "KDTree.fs"
 #load "ANN.fs"
 #load "PCA.fs"
+#load "CART.fs"
 
 open System
 open System.Diagnostics
@@ -201,4 +202,12 @@ let pcaTest () : unit =
     let rVec = PCA.reduceVecDim ((numOfCols + 1) - (Matrix.columnCount rMat)) newBasisMat vec
     printfn "%A" rVec
 
+
+let cartTest () : unit =
+    let classVals = [1; 2; 1; 3; 3; 2; 5; 1; 4; 5]
+    let res = CART.entropy classVals
+    printfn "%A" res
+
+
+cartTest()
 
