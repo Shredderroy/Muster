@@ -13,8 +13,13 @@ module CART =
         | Str of string
 
 
-    [<RequireQualifiedAccess>]
-    type ContType = | Flt of float
+    [<RequireQualifiedAccess; StructuralComparison; StructuralEquality>]
+    type ContType =
+        | Flt of float
+        static member (+) (s, t) = match s, t with | ContType.Flt u, ContType.Flt v -> ContType.Flt (u + v)
+        static member (-) (s, t) = match s, t with | ContType.Flt u, ContType.Flt v -> ContType.Flt (u - v)
+        static member (*) (s, t) = match s, t with | ContType.Flt u, ContType.Flt v -> ContType.Flt (u * v)
+        static member (/) (s, t) = match s, t with | ContType.Flt u, ContType.Flt v -> ContType.Flt (u / v)
 
 
     [<RequireQualifiedAccess>]
@@ -55,19 +60,32 @@ module CART =
 
 
     let getInfoGainForCatVar
-        (subTbl : DataTable)
+        (subTblDat : list<CatType * CatType>)
         (impurityFunc : (list<_> -> float))
         (datSetImpurity : float)
         : list<float> =
-        let subTblDat = List.tail subTbl
         let subTblDatLen = float (List.length subTblDat)
         subTblDat
-        |> Seq.groupBy (Seq.head)
-        |> Seq.map (fun s -> s |> snd |> Seq.last)
-        |> Seq.map (fun s -> (List.length s), (impurityFunc s))
-        |> Seq.map (fun (s, t) -> (float s) * t)
+        |> Seq.groupBy (fst)
+        |> Seq.map (fun (_, s) -> s |> Seq.map snd)
+        |> Seq.map (fun s -> float (Seq.length s), ((impurityFunc << List.ofSeq) s))
+        |> Seq.map (fun (s, t) -> s * t)
         |> Seq.sum
         |> (fun s -> [datSetImpurity - (s / subTblDatLen)])
+
+
+    let getInfoGainForContVar
+        (subTblDat : list<ContType * ContType>)
+        (inpurityFunc : (list<_> -> float))
+        (datSetImpurity : float)
+        : list<float> =
+        let sortedSubTblDat = List.sortBy (fst) subTblDat
+        let subTblDatLen = float (List.length subTblDat)
+        let res =
+            ((snd << List.head) subTblDat, List.tail subTblDat)
+            ||> List.scan (fun s t -> s + (snd t))
+            |> List.tail
+        []
 
 
     let test () : unit = ()
