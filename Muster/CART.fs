@@ -11,6 +11,7 @@ module CART =
     type CatType =
         | Int of int
         | Str of string
+        | Bool of bool
 
 
     [<RequireQualifiedAccess; StructuralComparison; StructuralEquality>]
@@ -64,28 +65,37 @@ module CART =
         (impurityFunc : (list<_> -> float))
         (datSetImpurity : float)
         : list<float> =
-        let subTblDatLen = float (List.length subTblDat)
+        let subTblDatLen = float(List.length subTblDat)
         subTblDat
         |> Seq.groupBy (fst)
-        |> Seq.map (fun (_, s) -> s |> Seq.map snd)
-        |> Seq.map (fun s -> float (Seq.length s), ((impurityFunc << List.ofSeq) s))
-        |> Seq.map (fun (s, t) -> s * t)
+        |> Seq.map (fun (_, s) ->
+            s
+            |> Seq.map snd
+            |> (fun s -> float(Seq.length s), (impurityFunc << List.ofSeq) s)
+            |> (fun (s, t) -> s * t))
         |> Seq.sum
         |> (fun s -> [datSetImpurity - (s / subTblDatLen)])
 
 
     let getInfoGainForContVar
         (subTblDat : list<ContType * ContType>)
-        (inpurityFunc : (list<_> -> float))
+        (impurityFunc : (list<_> -> float))
         (datSetImpurity : float)
         : list<float> =
-        let sortedSubTblDat = List.sortBy (fst) subTblDat
-        let subTblDatLen = float (List.length subTblDat)
-        let res =
-            ((snd << List.head) subTblDat, List.tail subTblDat)
-            ||> List.scan (fun s t -> s + (snd t))
-            |> List.tail
-        []
+        let sortedSubTblDat = List.sortBy fst subTblDat
+        let subTblDatLen = float(List.length sortedSubTblDat)
+        ((snd << List.head) subTblDat, List.tail subTblDat)
+        ||> List.scan (fun s t -> s + (snd t))
+        |> List.tail
+        |> List.map (fun s ->
+            sortedSubTblDat
+            |> List.partition (fun t -> (fst t) < s)
+            |> (fun (t, u) -> [t; u])
+            |> List.map (fun t -> (float(List.length t), impurityFunc(List.map snd t)) ||> (*))
+            |> List.sum
+            |> (fun t -> (match s with ContType.Flt u -> u), datSetImpurity - (t / subTblDatLen)))
+        |> (fun s -> List.fold (fun (t, u) (v, w) -> if t > u then (t, u) else (v, w)) (List.head s) (List.tail s))
+        |> (fun (s, t) -> [s; t])
 
 
     let test () : unit = ()
