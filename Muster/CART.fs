@@ -78,6 +78,27 @@ module CART =
         |> (fun s -> [|datSetImpurity - (s / tblDatLen)|])
 
 
+    let contErrorMsg idx =
+        sprintf "Expected a continuous variable at position %d but encountered a categorical one" idx
+
+
+    let applyContVarOp
+        (lst : list<DataType>)
+        (op : (list<float> -> 'A))
+        (errorMsg : string)
+        : 'A =
+        let emptyLstErrorMsg = "The given list is empty"
+        match lst with
+        | [] -> failwith emptyLstErrorMsg
+        | _ ->
+            lst
+            |> List.map (fun s ->
+                match s with
+                | DataType.Cont(ContType.Flt t) -> t
+                | _ -> failwith errorMsg)
+            |> op
+
+
     let getInfoGainForContVar
         (tblDat : DataTable)
         (idx : int)
@@ -87,14 +108,12 @@ module CART =
         let sortedTblDat = tblDat |> List.sortBy (fun s -> s.[idx])
         let tblDatLen = float(List.length sortedTblDat)
         let rowLen = tblDat |> List.head |> Array.length
-        let contErrorMsg idx2 =
-            sprintf "Expected a continuous variable at position %d but encountered a categorical one" idx2
         ((List.head tblDat).[rowLen - 1], List.tail tblDat)
         ||> List.scan (fun s t ->
-            match s, t.[idx] with
-            | DataType.Cont(ContType.Flt u), DataType.Cont(ContType.Flt v) ->
-                DataType.Cont(ContType.Flt((u + v) / 2.0))
-            | _ -> failwith(contErrorMsg idx))
+            applyContVarOp
+                [s; t.[idx]]
+                (fun (u : list<float>) -> DataType.Cont(ContType.Flt(List.reduce (+) u)))
+                (contErrorMsg idx))
         |> List.tail
         |> List.map (fun s ->
             sortedTblDat
@@ -105,7 +124,7 @@ module CART =
                 ||> (*))
             |> List.sum
             |> (fun t ->
-                (match s with DataType.Cont(ContType.Flt u) -> u | _ -> failwith(contErrorMsg(rowLen - 1))),
+                (applyContVarOp [s] (List.head) (contErrorMsg(rowLen - 1))),
                 datSetImpurity - (t / tblDatLen)))
         |> (fun s ->
             List.fold
@@ -130,6 +149,21 @@ module CART =
         |> Seq.groupBy (fun s -> s.[idx])
         |> Seq.map (snd >> List.ofSeq)
         |> List.ofSeq
+
+
+    let getTblDatSplitsForContVar
+        (tblDat : DataTable)
+        (idx : int)
+        (splittingValAndImpurity : array<float>)
+        : list<DataTable> =
+        let res =
+            tblDat
+            |> List.sortBy (fun s -> s.[idx])
+            |> List.partition (fun s ->
+                (match s.[idx] with
+                | DataType.Cont(ContType.Flt t) -> t
+                | _ -> failwith(contErrorMsg idx)) < splittingValAndImpurity.[0])
+        []
 
 
     let test () : unit = ()

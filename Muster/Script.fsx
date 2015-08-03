@@ -205,7 +205,7 @@ let pcaTest () : unit =
 
 let cartTest () : unit =
     let classVals = [1; 2; 1; 3; 3; 2; 5; 1; 4; 5]
-    let res = CART.entropy classVals
+    let res = CART.entropy (classVals |> List.map (fun s -> CART.DataType.Cat(CART.CatType.Int s)))
     printfn "%A" res
 
 
