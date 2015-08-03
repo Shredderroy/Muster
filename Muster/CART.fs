@@ -23,7 +23,7 @@ module CART =
         static member (/) (s, t) = match s, t with ContType.Flt u, ContType.Flt v -> ContType.Flt (u / v)
 
 
-    [<RequireQualifiedAccess>]
+    [<RequireQualifiedAccess; StructuralComparison; StructuralEquality>]
     type DataType =
         | Cat of CatType
         | Cont of ContType
@@ -32,7 +32,7 @@ module CART =
     type DataTable = list<array<DataType>>
 
 
-    let coreImpurityFunc (classVals : list<_>) : list<float> =
+    let inline coreImpurityFunc<'A when 'A : equality> (classVals : list<'A>) : list<float> =
         let classValsLen = float (List.length classVals)
         classVals
         |> Seq.groupBy (id)
@@ -40,21 +40,21 @@ module CART =
         |> List.ofSeq
 
 
-    let entropy (classVals : list<_>) : float =
+    let entropy (classVals : list<DataType>) : float =
         classVals
         |> coreImpurityFunc
         |> List.map (fun s -> s * Math.Log(s, 2.0))
         |> (List.sum >> ((*) (-1.0)))
 
 
-    let giniIndex (classVals : list<_>) : float =
+    let giniIndex (classVals : list<DataType>) : float =
         classVals
         |> coreImpurityFunc
         |> List.map (fun s -> s * s)
         |> (List.sum >> ((-) 1.0))
 
 
-    let classificationError (classVals : list<_>) : float =
+    let classificationError (classVals : list<DataType>) : float =
         classVals
         |> coreImpurityFunc
         |> (List.max >> ((-) 1.0))
@@ -63,7 +63,7 @@ module CART =
     let getInfoGainForCatVar
         (tblDat : DataTable)
         (idx : int)
-        (impurityFunc : (list<_> -> float))
+        (impurityFunc : (list<DataType> -> float))
         (datSetImpurity : float)
         : array<float> =
         let tblDatLen = float(List.length tblDat)
@@ -81,7 +81,7 @@ module CART =
     let getInfoGainForContVar
         (tblDat : DataTable)
         (idx : int)
-        (impurityFunc : (list<_> -> float))
+        (impurityFunc : (list<DataType> -> float))
         (datSetImpurity : float)
         : array<float> =
         let sortedTblDat = tblDat |> List.sortBy (fun s -> s.[idx])
@@ -101,14 +101,7 @@ module CART =
             |> List.partition (fun t -> t.[idx] < s)
             |> (fun (t, u) -> [t; u])
             |> List.map (fun t ->
-                (
-                float(List.length t),
-                impurityFunc(
-                    t
-                    |> List.map (fun u ->
-                        match u.[idx] with
-                        | DataType.Cont(ContType.Flt v) -> v
-                        | _ -> failwith(contErrorMsg idx))))
+                (float(List.length t), impurityFunc(t |> List.map (fun u -> u.[rowLen - 1])))
                 ||> (*))
             |> List.sum
             |> (fun t ->
@@ -122,11 +115,15 @@ module CART =
 
 
     let getInfoGain
-        (subTbl : DataTable)
+        (tbl : DataTable)
+        (idx : int)
         (impurityFunc : (list<_> -> float))
         (datSetImpurity : float)
         : array<float> =
-        [||]
+        let tblDat = List.tail tbl
+        match (List.head tbl).[idx] with
+        | DataType.Cat(_) -> getInfoGainForCatVar tblDat idx impurityFunc datSetImpurity
+        | _ -> getInfoGainForContVar tblDat idx impurityFunc datSetImpurity
 
 
     let test () : unit = ()
