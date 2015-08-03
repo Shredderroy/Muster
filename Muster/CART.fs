@@ -78,16 +78,12 @@ module CART =
         |> (fun s -> [|datSetImpurity - (s / tblDatLen)|])
 
 
-    let contErrorMsg idx =
-        sprintf "Expected a continuous variable at position %d but encountered a categorical one" idx
-
-
     let applyContVarOp
         (lst : list<DataType>)
         (op : (list<float> -> 'A))
-        (errorMsg : string)
         : 'A =
         let emptyLstErrorMsg = "The given list is empty"
+        let contErrorMsg = "Expected a continuous variable but encountered a categorical one"
         match lst with
         | [] -> failwith emptyLstErrorMsg
         | _ ->
@@ -95,7 +91,7 @@ module CART =
             |> List.map (fun s ->
                 match s with
                 | DataType.Cont(ContType.Flt t) -> t
-                | _ -> failwith errorMsg)
+                | _ -> failwith contErrorMsg)
             |> op
 
 
@@ -112,8 +108,7 @@ module CART =
         ||> List.scan (fun s t ->
             applyContVarOp
                 [s; t.[idx]]
-                (fun (u : list<float>) -> DataType.Cont(ContType.Flt(List.reduce (+) u)))
-                (contErrorMsg idx))
+                (fun (u : list<float>) -> DataType.Cont(ContType.Flt(List.reduce (+) u))))
         |> List.tail
         |> List.map (fun s ->
             sortedTblDat
@@ -123,9 +118,7 @@ module CART =
                 (float(List.length t), impurityFunc(t |> List.map (fun u -> u.[rowLen - 1])))
                 ||> (*))
             |> List.sum
-            |> (fun t ->
-                (applyContVarOp [s] (List.head) (contErrorMsg(rowLen - 1))),
-                datSetImpurity - (t / tblDatLen)))
+            |> (fun t -> (applyContVarOp [s] (List.head)), datSetImpurity - (t / tblDatLen)))
         |> (fun s ->
             List.fold
                 (fun t (u, v) -> if t.[0] > u then t else [|u; v|])
@@ -160,9 +153,8 @@ module CART =
             tblDat
             |> List.sortBy (fun s -> s.[idx])
             |> List.partition (fun s ->
-                (match s.[idx] with
-                | DataType.Cont(ContType.Flt t) -> t
-                | _ -> failwith(contErrorMsg idx)) < splittingValAndImpurity.[0])
+                
+                )
         []
 
 
