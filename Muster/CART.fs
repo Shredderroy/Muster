@@ -110,7 +110,7 @@ module CART =
         |> (fun s ->
             List.fold
                 (fun t (u, v) -> if t.[0] > u then t else [|u; v|])
-                (let h = List.head s in [|fst h; snd h|])
+                (let (t, u) = List.head s in [|t; u|])
                 (List.tail s))
 
 
