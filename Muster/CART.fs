@@ -87,8 +87,8 @@ module CART =
         let sortedTblDat = tblDat |> List.sortBy (fun s -> s.[idx])
         let tblDatLen = float(List.length sortedTblDat)
         let rowLen = tblDat |> List.head |> Array.length
-        let contErrorMsg idx =
-            sprintf "Expected a continuous variable at position %d but encountered a categorical one" idx
+        let contErrorMsg idx2 =
+            sprintf "Expected a continuous variable at position %d but encountered a categorical one" idx2
         ((List.head tblDat).[rowLen - 1], List.tail tblDat)
         ||> List.scan (fun s t ->
             match s, t.[idx] with
