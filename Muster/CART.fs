@@ -7,7 +7,7 @@ open System
 module CART =
 
 
-    [<RequireQualifiedAccess>]
+    [<RequireQualifiedAccess; StructuralComparison; StructuralEquality>]
     type CatType =
         | Int of int
         | Str of string
@@ -17,10 +17,10 @@ module CART =
     [<RequireQualifiedAccess; StructuralComparison; StructuralEquality>]
     type ContType =
         | Flt of float
-        static member (+) (s, t) = match s, t with | ContType.Flt u, ContType.Flt v -> ContType.Flt (u + v)
-        static member (-) (s, t) = match s, t with | ContType.Flt u, ContType.Flt v -> ContType.Flt (u - v)
-        static member (*) (s, t) = match s, t with | ContType.Flt u, ContType.Flt v -> ContType.Flt (u * v)
-        static member (/) (s, t) = match s, t with | ContType.Flt u, ContType.Flt v -> ContType.Flt (u / v)
+        static member (+) (s, t) = match s, t with ContType.Flt u, ContType.Flt v -> ContType.Flt (u + v)
+        static member (-) (s, t) = match s, t with ContType.Flt u, ContType.Flt v -> ContType.Flt (u - v)
+        static member (*) (s, t) = match s, t with ContType.Flt u, ContType.Flt v -> ContType.Flt (u * v)
+        static member (/) (s, t) = match s, t with ContType.Flt u, ContType.Flt v -> ContType.Flt (u / v)
 
 
     [<RequireQualifiedAccess>]
@@ -29,7 +29,7 @@ module CART =
         | Cont of ContType
 
 
-    type DataTable = list<list<DataType>>
+    type DataTable = list<array<DataType>>
 
 
     let coreImpurityFunc (classVals : list<_>) : list<float> =
@@ -61,41 +61,72 @@ module CART =
 
 
     let getInfoGainForCatVar
-        (subTblDat : list<CatType * CatType>)
+        (tblDat : DataTable)
+        (idx : int)
         (impurityFunc : (list<_> -> float))
         (datSetImpurity : float)
-        : list<float> =
-        let subTblDatLen = float(List.length subTblDat)
-        subTblDat
-        |> Seq.groupBy (fst)
+        : array<float> =
+        let tblDatLen = float(List.length tblDat)
+        tblDat
+        |> Seq.groupBy (fun s -> s.[idx])
         |> Seq.map (fun (_, s) ->
             s
-            |> Seq.map snd
-            |> (fun s -> float(Seq.length s), (impurityFunc << List.ofSeq) s)
-            |> (fun (s, t) -> s * t))
+            |> Seq.map (fun t -> t.[idx])
+            |> (fun t -> float(Seq.length t), (impurityFunc << List.ofSeq) t)
+            |> (fun (t, u) -> t * u))
         |> Seq.sum
-        |> (fun s -> [datSetImpurity - (s / subTblDatLen)])
+        |> (fun s -> [|datSetImpurity - (s / tblDatLen)|])
 
 
     let getInfoGainForContVar
-        (subTblDat : list<ContType * ContType>)
+        (tblDat : DataTable)
+        (idx : int)
         (impurityFunc : (list<_> -> float))
         (datSetImpurity : float)
-        : list<float> =
-        let sortedSubTblDat = List.sortBy fst subTblDat
-        let subTblDatLen = float(List.length sortedSubTblDat)
-        ((snd << List.head) subTblDat, List.tail subTblDat)
-        ||> List.scan (fun s t -> s + (snd t))
+        : array<float> =
+        let sortedTblDat = tblDat |> List.sortBy (fun s -> s.[idx])
+        let tblDatLen = float(List.length sortedTblDat)
+        let rowLen = tblDat |> List.head |> Array.length
+        let contErrorMsg idx =
+            sprintf "Expected a continuous variable at position %d but encountered a categorical one" idx
+        ((List.head tblDat).[rowLen - 1], List.tail tblDat)
+        ||> List.scan (fun s t ->
+            match s, t.[idx] with
+            | DataType.Cont(ContType.Flt u), DataType.Cont(ContType.Flt v) ->
+                DataType.Cont(ContType.Flt((u + v) / 2.0))
+            | _ -> failwith(contErrorMsg idx))
         |> List.tail
         |> List.map (fun s ->
-            sortedSubTblDat
-            |> List.partition (fun t -> (fst t) < s)
+            sortedTblDat
+            |> List.partition (fun t -> t.[idx] < s)
             |> (fun (t, u) -> [t; u])
-            |> List.map (fun t -> (float(List.length t), impurityFunc(List.map snd t)) ||> (*))
+            |> List.map (fun t ->
+                (
+                float(List.length t),
+                impurityFunc(
+                    t
+                    |> List.map (fun u ->
+                        match u.[idx] with
+                        | DataType.Cont(ContType.Flt v) -> v
+                        | _ -> failwith(contErrorMsg idx))))
+                ||> (*))
             |> List.sum
-            |> (fun t -> (match s with ContType.Flt u -> u), datSetImpurity - (t / subTblDatLen)))
-        |> (fun s -> List.fold (fun (t, u) (v, w) -> if t > u then (t, u) else (v, w)) (List.head s) (List.tail s))
-        |> (fun (s, t) -> [s; t])
+            |> (fun t ->
+                (match s with DataType.Cont(ContType.Flt u) -> u | _ -> failwith(contErrorMsg(rowLen - 1))),
+                datSetImpurity - (t / tblDatLen)))
+        |> (fun s ->
+            List.fold
+                (fun t (u, v) -> if t.[0] > u then t else [|u; v|])
+                (let h = List.head s in [|fst h; snd h|])
+                (List.tail s))
+
+
+    let getInfoGain
+        (subTbl : DataTable)
+        (impurityFunc : (list<_> -> float))
+        (datSetImpurity : float)
+        : array<float> =
+        [||]
 
 
     let test () : unit = ()
