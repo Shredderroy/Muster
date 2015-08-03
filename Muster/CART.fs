@@ -115,15 +115,21 @@ module CART =
 
 
     let getInfoGain
-        (tbl : DataTable)
+        (tblDat : DataTable)
         (idx : int)
         (impurityFunc : (list<_> -> float))
         (datSetImpurity : float)
         : array<float> =
-        let tblDat = List.tail tbl
-        match (List.head tbl).[idx] with
+        match (List.head tblDat).[idx] with
         | DataType.Cat(_) -> getInfoGainForCatVar tblDat idx impurityFunc datSetImpurity
         | _ -> getInfoGainForContVar tblDat idx impurityFunc datSetImpurity
+
+
+    let getTblDatSplitsForCatVar (tblDat : DataTable) (idx : int) : list<DataTable> =
+        tblDat
+        |> Seq.groupBy (fun s -> s.[idx])
+        |> Seq.map (snd >> List.ofSeq)
+        |> List.ofSeq
 
 
     let test () : unit = ()
