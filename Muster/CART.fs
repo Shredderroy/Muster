@@ -152,9 +152,9 @@ module CART =
         let res =
             tblDat
             |> List.sortBy (fun s -> s.[idx])
-            |> List.partition (fun s ->
-                
-                )
+//            |> List.partition (fun s ->
+//                
+//                )
         []
 
 
