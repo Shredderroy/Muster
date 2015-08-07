@@ -78,12 +78,16 @@ module CART =
         |> (fun s -> [|datSetImpurity - (s / tblDatLen)|])
 
 
+    let emptyLstErrorMsg = "The given list is empty"
+    
+    
+    let contErrorMsg = "Expected a continuous variable but encountered a categorical one"
+
+
     let applyContVarOp
         (lst : list<DataType>)
         (op : (list<float> -> 'A))
         : 'A =
-        let emptyLstErrorMsg = "The given list is empty"
-        let contErrorMsg = "Expected a continuous variable but encountered a categorical one"
         match lst with
         | [] -> failwith emptyLstErrorMsg
         | _ ->
@@ -149,13 +153,13 @@ module CART =
         (idx : int)
         (splittingValAndImpurity : array<float>)
         : list<DataTable> =
-        let res =
-            tblDat
-            |> List.sortBy (fun s -> s.[idx])
-//            |> List.partition (fun s ->
-//                
-//                )
-        []
+        tblDat
+        |> List.sortBy (fun s -> s.[idx])
+        |> List.partition (fun s ->
+            match s.[idx] with
+            | DataType.Cont(ContType.Flt v) -> v < splittingValAndImpurity.[0]
+            | _ -> failwith contErrorMsg)
+        |> (fun (s, t) -> [s; t])
 
 
     let test () : unit = ()
