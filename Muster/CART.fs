@@ -133,7 +133,7 @@ module CART =
     let getInfoGain
         (tblDat : DataTable)
         (idx : int)
-        (impurityFunc : (list<_> -> float))
+        (impurityFunc : (list<DataType> -> float))
         (datSetImpurity : float)
         : array<float> =
         match (List.head tblDat).[idx] with
