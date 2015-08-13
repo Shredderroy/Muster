@@ -2,6 +2,7 @@
 
 
 open System
+open Muster.Extensions
 
 
 module CART =
@@ -137,7 +138,7 @@ module CART =
         (datSetImpurity : float)
         : array<float> =
         match (List.head tblDat).[idx] with
-        | DataType.Cat(_) -> getInfoGainForCatVar tblDat idx impurityFunc datSetImpurity
+        | DataType.Cat _ -> getInfoGainForCatVar tblDat idx impurityFunc datSetImpurity
         | _ -> getInfoGainForContVar tblDat idx impurityFunc datSetImpurity
 
 
@@ -160,6 +161,25 @@ module CART =
             | DataType.Cont(ContType.Flt v) -> v < splittingValAndImpurity.[0]
             | _ -> failwith contErrorMsg)
         |> (fun (s, t) -> [s; t])
+
+
+    let getTblDatSplits
+        (tblDat : DataTable)
+        (idx : int)
+        (splittingValAndImpurityOpt : option<array<float>>)
+        : list<DataTable> =
+        let errorMsg = "Incompatible DataType and splittingValAndImpurity"
+        match (List.head tblDat).[idx], splittingValAndImpurityOpt with
+        | DataType.Cat _, None -> getTblDatSplitsForCatVar tblDat idx
+        | _, Some splittingValAndImpurity -> getTblDatSplitsForContVar tblDat idx splittingValAndImpurity
+        | _ -> failwith errorMsg
+
+
+    let getPrunedTblForCatVar (tblLst : list<DataTable>) (idx : int) : list<DataTable> =
+        let res =
+            tblLst
+            |> List.map ((List.map List.ofArray) >> (ListExtensions.mapThread id))
+        []
 
 
     let test () : unit = ()
