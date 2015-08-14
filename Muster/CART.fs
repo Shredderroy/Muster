@@ -33,6 +33,9 @@ module CART =
     type DataTable = list<array<DataType>>
 
 
+    type PrunedComponents = {ColName : String; ColVal : DataType; PrunedTable : DataTable}
+
+
     let inline coreImpurityFunc<'A when 'A : equality> (classVals : list<'A>) : list<float> =
         let classValsLen = float (List.length classVals)
         classVals
@@ -175,10 +178,14 @@ module CART =
         | _ -> failwith errorMsg
 
 
-    let getPrunedTblForCatVar (tblLst : list<DataTable>) (idx : int) : list<DataType * DataType * DataTable> =
+    let getPrunedTblForCatVar (tblLst : list<DataTable>) (idx : int) : list<PrunedComponents> =
         let res =
             tblLst
-            |> List.map ((List.map List.ofArray) >> (ListExtensions.mapThread id))
+            |> List.map ((List.map List.ofArray) >> ListExtensions.transpose)
+            |> List.map (fun s ->
+                let colName = (List.head >> List.head) s
+                s
+                )
         []
 
 

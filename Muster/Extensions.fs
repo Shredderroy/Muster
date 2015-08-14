@@ -11,3 +11,6 @@ module ListExtensions =
             | _ -> helper (currLst |> List.map List.tail) ((currLst |> List.map (List.head) |> f) :: currAcc)
         match lst with [] -> [] | _ -> helper lst []
 
+
+    let transpose (lst : list<list<'A>>) : list<list<'A>> = mapThread id lst
+
