@@ -175,7 +175,7 @@ module CART =
         | _ -> failwith errorMsg
 
 
-    let getPrunedTblForCatVar (tblLst : list<DataTable>) (idx : int) : list<DataTable> =
+    let getPrunedTblForCatVar (tblLst : list<DataTable>) (idx : int) : list<DataType * DataType * DataTable> =
         let res =
             tblLst
             |> List.map ((List.map List.ofArray) >> (ListExtensions.mapThread id))
