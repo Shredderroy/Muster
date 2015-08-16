@@ -88,10 +88,7 @@ module CART =
     let contErrorMsg = "Expected a continuous variable but encountered a categorical one"
 
 
-    let applyContVarOp
-        (lst : list<DataType>)
-        (op : (list<float> -> 'A))
-        : 'A =
+    let applyContVarOp (lst : list<DataType>) (op : (list<float> -> 'A)) : 'A =
         match lst with
         | [] -> failwith emptyLstErrorMsg
         | _ ->
@@ -183,7 +180,10 @@ module CART =
             tblLst
             |> List.map ((List.map List.ofArray) >> ListExtensions.transpose)
             |> List.map (fun s ->
-                let colName = (List.head >> List.head) s
+                let colName =
+                    match (List.head >> List.head) s with
+                    | DataType.Cat(CatType.Str c) -> c
+                    | _ -> failwith ""
                 s
                 )
         []
