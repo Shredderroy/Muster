@@ -96,7 +96,7 @@ module CART =
             | _ -> failwith contErrorMsg)
 
 
-    let applyDataTableOp
+    let applyDataTableRankOneOp
         (sq : seq<DataType>)
         (exFn : seq<DataType> -> seq<'A>)
         (op : seq<'A> -> 'B)
@@ -116,7 +116,7 @@ module CART =
         let rowLen = tblDat |> List.head |> Array.length
         ((List.head tblDat).[rowLen - 1], List.tail tblDat)
         ||> List.scan (fun s t ->
-            applyDataTableOp
+            applyDataTableRankOneOp
                 [s; t.[idx]]
                 defFltExtractorFn
                 ((Seq.reduce (+)) >> ContType.Flt >> DataType.Cont))
@@ -129,7 +129,7 @@ module CART =
                 (float(List.length t), impurityFunc(t |> List.map (fun u -> u.[rowLen - 1])))
                 ||> (*))
             |> List.sum
-            |> (fun t -> applyDataTableOp [s] defFltExtractorFn (Seq.head), datSetImpurity - (t / tblDatLen)))
+            |> (fun t -> applyDataTableRankOneOp [s] defFltExtractorFn (Seq.head), datSetImpurity - (t / tblDatLen)))
         |> (fun s ->
             List.fold
                 (fun t (u, v) -> if t.[0] > u then t else [|u; v|])
