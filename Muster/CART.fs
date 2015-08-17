@@ -105,6 +105,16 @@ module CART =
         else sq |> exFn |> op
 
 
+    let applyDataTableRankTwoOp
+        (tbl : DataTable)
+        (rankTwoExFn : seq<array<DataType>> -> seq<'A>)
+        (rankOneExFn : seq<'A> -> seq<'B>)
+        (op : seq<'B> -> 'C)
+        : 'C =
+        if Seq.isEmpty tbl then failwith emptyLstErrorMsg
+        else tbl |> rankTwoExFn |> rankOneExFn |> op
+
+
     let getInfoGainForContVar
         (tblDat : DataTable)
         (idx : int)
