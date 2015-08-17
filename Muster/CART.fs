@@ -88,16 +88,21 @@ module CART =
     let contErrorMsg = "Expected a continuous variable but encountered a categorical one"
 
 
-    let applyContVarOp (lst : list<DataType>) (op : (list<float> -> 'A)) : 'A =
-        match lst with
-        | [] -> failwith emptyLstErrorMsg
-        | _ ->
-            lst
-            |> List.map (fun s ->
-                match s with
-                | DataType.Cont(ContType.Flt t) -> t
-                | _ -> failwith contErrorMsg)
-            |> op
+    let defFltExtractorFn (sq : seq<DataType>) : seq<float> =
+        sq
+        |> Seq.map (fun s ->
+            match s with
+            | DataType.Cont(ContType.Flt t) -> t
+            | _ -> failwith contErrorMsg)
+
+
+    let applyDataTableOp
+        (sq : seq<DataType>)
+        (exFn : seq<DataType> -> seq<'A>)
+        (op : seq<'A> -> 'B)
+        : 'B =
+        if Seq.isEmpty sq then failwith emptyLstErrorMsg
+        else sq |> exFn |> op
 
 
     let getInfoGainForContVar
@@ -111,9 +116,10 @@ module CART =
         let rowLen = tblDat |> List.head |> Array.length
         ((List.head tblDat).[rowLen - 1], List.tail tblDat)
         ||> List.scan (fun s t ->
-            applyContVarOp
+            applyDataTableOp
                 [s; t.[idx]]
-                (fun (u : list<float>) -> DataType.Cont(ContType.Flt(List.reduce (+) u))))
+                defFltExtractorFn
+                ((Seq.reduce (+)) >> ContType.Flt >> DataType.Cont))
         |> List.tail
         |> List.map (fun s ->
             sortedTblDat
@@ -123,7 +129,7 @@ module CART =
                 (float(List.length t), impurityFunc(t |> List.map (fun u -> u.[rowLen - 1])))
                 ||> (*))
             |> List.sum
-            |> (fun t -> (applyContVarOp [s] (List.head)), datSetImpurity - (t / tblDatLen)))
+            |> (fun t -> applyDataTableOp [s] defFltExtractorFn (Seq.head), datSetImpurity - (t / tblDatLen)))
         |> (fun s ->
             List.fold
                 (fun t (u, v) -> if t.[0] > u then t else [|u; v|])
