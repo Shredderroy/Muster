@@ -186,7 +186,7 @@ module CART =
         let errorMsg = "Incompatible DataType and splittingValAndImpurity"
         match (List.head tblDat).[idx], splittingValAndImpurityOpt with
         | DataType.Cat _, None -> getTblDatSplitsForCatVar tblDat idx
-        | _, Some splittingValAndImpurity -> getTblDatSplitsForContVar tblDat idx splittingValAndImpurity
+        | DataType.Cont _, Some splittingValAndImpurity -> getTblDatSplitsForContVar tblDat idx splittingValAndImpurity
         | _ -> failwith errorMsg
 
 
