@@ -160,27 +160,22 @@ module CART =
         (idx : int)
         (splittingValAndImpurity : array<float>)
         : list<DataTable> =
-        tblDat
-        |> List.sortBy (fun s -> s.[idx])
-        |> List.partition (fun s ->
-            match s.[idx] with
-            | DataType.Cont(ContType.Flt v) -> v < splittingValAndImpurity.[0]
-            | _ -> failwith contErrorMsg)
-        |> (fun (s, t) -> [s; t])
-
-
-    let getTblDatSplitsForContVar2
-        (tblDat : DataTable)
-        (idx : int)
-        (splittingValAndImpurity : array<float>)
-        : list<DataTable> =
-        tblDat
-        |> List.sortBy (fun s -> s.[idx])
-        |> List.partition (fun s ->
-            match s.[idx] with
-            | DataType.Cont(ContType.Flt v) -> v < splittingValAndImpurity.[0]
-            | _ -> failwith contErrorMsg)
-        |> (fun (s, t) -> [s; t])
+        let exFn (sq : seq<array<DataType>>) : seq<bool * array<DataType>> =
+            sq
+            |> Seq.map (fun s ->
+                match s.[idx] with
+                | DataType.Cont(ContType.Flt v) -> (v < splittingValAndImpurity.[0]), s
+                | _ -> failwith contErrorMsg)
+        let op (sq : seq<bool * array<DataType>>) : seq<DataTable> =
+            sq
+            |> List.ofSeq
+            |> List.partition (fst)
+            |> (fun (s, t) -> [List.map (snd) s; List.map (snd) t] |> Seq.ofList)
+        (applyContVarOp
+            (tblDat |> List.sortBy (fun s -> s.[idx]))
+            exFn
+            op)
+        |> List.ofSeq
 
 
     let getTblDatSplits
