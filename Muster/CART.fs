@@ -96,23 +96,13 @@ module CART =
             | _ -> failwith contErrorMsg)
 
 
-    let applyDataTableRankOneOp
-        (sq : seq<DataType>)
-        (exFn : seq<DataType> -> seq<'A>)
-        (op : seq<'A> -> 'B)
-        : 'B =
-        if Seq.isEmpty sq then failwith emptyLstErrorMsg
-        else sq |> exFn |> op
-
-
-    let applyDataTableRankTwoOp
-        (tbl : DataTable)
-        (rankTwoExFn : seq<array<DataType>> -> seq<'A>)
-        (rankOneExFn : seq<'A> -> seq<'B>)
+    let applyContVarOp
+        (sq : seq<'A>)
+        (exFn : seq<'A> -> seq<'B>)
         (op : seq<'B> -> 'C)
         : 'C =
-        if Seq.isEmpty tbl then failwith emptyLstErrorMsg
-        else tbl |> rankTwoExFn |> rankOneExFn |> op
+        if Seq.isEmpty sq then failwith emptyLstErrorMsg
+        else sq |> exFn |> op
 
 
     let getInfoGainForContVar
@@ -126,7 +116,7 @@ module CART =
         let rowLen = tblDat |> List.head |> Array.length
         ((List.head tblDat).[rowLen - 1], List.tail tblDat)
         ||> List.scan (fun s t ->
-            applyDataTableRankOneOp
+            applyContVarOp
                 [s; t.[idx]]
                 defFltExtractorFn
                 ((Seq.reduce (+)) >> ContType.Flt >> DataType.Cont))
@@ -139,7 +129,7 @@ module CART =
                 (float(List.length t), impurityFunc(t |> List.map (fun u -> u.[rowLen - 1])))
                 ||> (*))
             |> List.sum
-            |> (fun t -> applyDataTableRankOneOp [s] defFltExtractorFn (Seq.head), datSetImpurity - (t / tblDatLen)))
+            |> (fun t -> applyContVarOp [s] defFltExtractorFn (Seq.head), datSetImpurity - (t / tblDatLen)))
         |> (fun s ->
             List.fold
                 (fun t (u, v) -> if t.[0] > u then t else [|u; v|])
@@ -166,6 +156,20 @@ module CART =
 
 
     let getTblDatSplitsForContVar
+        (tblDat : DataTable)
+        (idx : int)
+        (splittingValAndImpurity : array<float>)
+        : list<DataTable> =
+        tblDat
+        |> List.sortBy (fun s -> s.[idx])
+        |> List.partition (fun s ->
+            match s.[idx] with
+            | DataType.Cont(ContType.Flt v) -> v < splittingValAndImpurity.[0]
+            | _ -> failwith contErrorMsg)
+        |> (fun (s, t) -> [s; t])
+
+
+    let getTblDatSplitsForContVar2
         (tblDat : DataTable)
         (idx : int)
         (splittingValAndImpurity : array<float>)
