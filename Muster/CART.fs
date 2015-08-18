@@ -33,6 +33,16 @@ module CART =
     type DataTable = list<array<DataType>>
 
 
+    type DataTable2 =
+        | Tbl of list<array<DataType>>
+        static member splitBy (datTbl : DataTable2) (splittingFn : array<DataType> -> bool) : list<DataTable2> =
+            match datTbl with
+            | DataTable2.Tbl(tbl) ->
+                tbl
+                |> List.partition splittingFn
+                |> (fun (s, t) -> [DataTable2.Tbl s; DataTable2.Tbl t])
+
+
     type PrunedComponents = {ColName : String; ColVal : DataType; PrunedTable : DataTable}
 
 
