@@ -10,8 +10,7 @@ module KDTree =
     type Vec<'A when 'A : comparison> = array<option<'A>>
 
 
-    [<RequireQualifiedAccess>]
-    [<CustomEquality; CustomComparison>]
+    [<RequireQualifiedAccess; CustomEquality; CustomComparison>]
     type Node<'A when 'A : comparison> =
         {
         LeftChild : option<Node<'A>>;

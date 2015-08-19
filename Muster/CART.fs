@@ -33,16 +33,6 @@ module CART =
     type DataTable = list<array<DataType>>
 
 
-    type DataTable2 =
-        | Tbl of list<array<DataType>>
-        static member splitBy (datTbl : DataTable2) (splittingFn : array<DataType> -> bool) : list<DataTable2> =
-            match datTbl with
-            | DataTable2.Tbl(tbl) ->
-                tbl
-                |> List.partition splittingFn
-                |> (fun (s, t) -> [DataTable2.Tbl s; DataTable2.Tbl t])
-
-
     type PrunedComponents = {ColName : String; ColVal : DataType; PrunedTable : DataTable}
 
 
@@ -113,6 +103,18 @@ module CART =
         : 'C =
         if Seq.isEmpty sq then failwith emptyLstErrorMsg
         else sq |> exFn |> op
+
+
+    let defFltExFn2 (sq : seq<DataType>) : seq<option<float>> =
+        Seq.map (fun s -> match s with DataType.Cont(ContType.Flt v) -> Some v | _ -> None) sq
+
+
+    let applyContVarOp2
+        (sq : seq<'A>)
+        (exFn : seq<'A> -> seq<option<'B>>)
+        (op : seq<option<'B>> -> 'C)
+        : option<'C> =
+        if Seq.isEmpty sq then None else sq |> exFn |> op |> Some
 
 
     let getInfoGainForContVar
