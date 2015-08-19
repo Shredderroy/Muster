@@ -96,25 +96,13 @@ module CART =
             | _ -> failwith contErrorMsg)
 
 
-    let applyContVarOp
+    let applyExOp
         (sq : seq<'A>)
         (exFn : seq<'A> -> seq<'B>)
         (op : seq<'B> -> 'C)
         : 'C =
         if Seq.isEmpty sq then failwith emptyLstErrorMsg
         else sq |> exFn |> op
-
-
-    let defFltExFn2 (sq : seq<DataType>) : seq<option<float>> =
-        Seq.map (fun s -> match s with DataType.Cont(ContType.Flt v) -> Some v | _ -> None) sq
-
-
-    let applyContVarOp2
-        (sq : seq<'A>)
-        (exFn : seq<'A> -> seq<option<'B>>)
-        (op : seq<option<'B>> -> 'C)
-        : option<'C> =
-        if Seq.isEmpty sq then None else sq |> exFn |> op |> Some
 
 
     let getInfoGainForContVar
@@ -128,7 +116,7 @@ module CART =
         let rowLen = tblDat |> List.head |> Array.length
         ((List.head tblDat).[rowLen - 1], List.tail tblDat)
         ||> List.scan (fun s t ->
-            applyContVarOp
+            applyExOp
                 [s; t.[idx]]
                 defFltExtractorFn
                 ((Seq.reduce (+)) >> ContType.Flt >> DataType.Cont))
@@ -141,7 +129,7 @@ module CART =
                 (float(List.length t), impurityFunc(t |> List.map (fun u -> u.[rowLen - 1])))
                 ||> (*))
             |> List.sum
-            |> (fun t -> applyContVarOp [s] defFltExtractorFn (Seq.head), datSetImpurity - (t / tblDatLen)))
+            |> (fun t -> applyExOp [s] defFltExtractorFn (Seq.head), datSetImpurity - (t / tblDatLen)))
         |> (fun s ->
             List.fold
                 (fun t (u, v) -> if t.[0] > u then t else [|u; v|])
@@ -183,10 +171,7 @@ module CART =
             |> List.ofSeq
             |> List.partition (fst)
             |> (fun (s, t) -> [List.map (snd) s; List.map (snd) t] |> Seq.ofList)
-        (applyContVarOp
-            (tblDat |> List.sortBy (fun s -> s.[idx]))
-            exFn
-            op)
+        (applyExOp (tblDat |> List.sortBy (fun s -> s.[idx])) exFn op)
         |> List.ofSeq
 
 
