@@ -198,8 +198,8 @@ module CART =
             tblLst
             |> List.map ((List.map List.ofArray) >> ListExtensions.transpose)
             |> List.map (fun s ->
-                let sq = (Seq.ofList << (List.map Seq.ofList)) s
-                //
+                let tblSq = (Seq.ofList << (List.map Seq.ofList)) s
+                let targetRow = ((Seq.skip idx) >> Seq.head) tblSq
                 s
                 )
         []
