@@ -83,6 +83,9 @@ module CART =
 
 
     let emptyLstErrorMsg = "The given list is empty"
+
+
+    let catStrErrorMsg = "Expected a categorical variable of type string but encountered a different type"
     
     
     let contErrorMsg = "Expected a continuous variable but encountered a categorical one"
@@ -192,10 +195,15 @@ module CART =
             tblLst
             |> List.map ((List.map List.ofArray) >> ListExtensions.transpose)
             |> List.map (fun s ->
-                let colName =
-                    match (List.head >> List.head) s with
-                    | DataType.Cat(CatType.Str c) -> c
-                    | _ -> failwith ""
+                let sq = (Seq.ofList << (List.map Seq.ofList)) s
+                let colNameExFn (sq : seq<seq<DataType>>) : seq<string> =
+                    if (Seq.isEmpty sq) || (Seq.isEmpty(Seq.head sq)) then failwith emptyLstErrorMsg
+                    else
+                        match (Seq.head >> Seq.head) sq with
+                        | DataType.Cat(CatType.Str c) -> seq [c]
+                        | _ -> failwith catStrErrorMsg
+                let colNameOp (sq : seq<string>) : string = Seq.head sq
+                let colName = applyExOp sq colNameExFn colNameOp
                 s
                 )
         []
