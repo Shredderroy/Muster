@@ -187,7 +187,7 @@ module CART =
 
 
     let getPrunedTblForCatVar (tblLst : list<DataTable>) (idx : int) _ _ : list<PrunedComponents> =
-        let exFn (tblSq: seq<seq<DataType>>) : seq<string * DataType * seq<seq<DataType>>> =
+        let exFn (idx : int) (tblSq: seq<seq<DataType>>) : seq<string * DataType * seq<seq<DataType>>> =
             if (Seq.isEmpty tblSq) || (((Seq.skip idx) >> Seq.head >> Seq.length) tblSq) < 2
             then failwith emptyLstErrorMsg
             else
@@ -213,7 +213,7 @@ module CART =
         tblLst
         |> List.map ((List.map List.ofArray) >> ListExtensions.transpose)
         |> List.map (Seq.map Seq.ofList)
-        |> List.map (applyExOp exFn op)
+        |> List.map (applyExOp (exFn idx) op)
 
 
     let epsilon = 0.001
@@ -226,8 +226,15 @@ module CART =
         (tblLst : list<DataTable>)
         (idx : int)
         (splittingValAndImpurity : array<float>)
-        (splitStopCriterion : 'A -> bool)
+        (splitStopCriterion : list<list<DataType>> -> bool)
         : list<PrunedComponents> =
+        let res =
+            tblLst
+            |> List.map ((List.map List.ofArray) >> ListExtensions.transpose)
+            |> List.map (fun s ->
+                let splitStopFlg = splitStopCriterion s
+                s
+                )
         []
 
 
