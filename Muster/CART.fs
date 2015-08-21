@@ -205,7 +205,18 @@ module CART =
                     | _ -> failwith catErrorMsg
             let op (sq : seq<string * DataType * seq<seq<DataType>>>) : PrunedComponents =
                 let colName, colVal, tblSq = Seq.head sq
-                {ColName = colName; ColVal = colVal; PrunedTable = tblSq |> Seq.map (Array.ofSeq) |> List.ofSeq}
+                {
+                ColName = colName;
+                ColVal = colVal;
+                PrunedTable =
+                    if idx < 1 then ((Seq.skip 1) >> (Seq.map Array.ofSeq) >> List.ofSeq) tblSq
+                    else
+                        seq {
+                            yield! (Seq.take idx tblSq)
+                            yield! (Seq.skip(idx + 1) tblSq)
+                        }
+                        |> ((Seq.map Array.ofSeq) >> List.ofSeq)
+                }
             tblLst
             |> List.map ((List.map List.ofArray) >> ListExtensions.transpose)
             |> List.map (fun s -> s
