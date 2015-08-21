@@ -88,7 +88,7 @@ module CART =
     let catErrorMsg = "Expected a categorical variable but encountered a continuous one"
 
 
-    let catStrErrorMsg = "Expected a categorical variable of type string but encountered a different type"
+    let catStrErrorMsg = "Expected a categorical variable of type string but encountered something else"
     
     
     let contErrorMsg = "Expected a continuous variable but encountered a categorical one"
