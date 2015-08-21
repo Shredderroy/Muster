@@ -103,9 +103,9 @@ module CART =
 
 
     let applyExOp
-        (sq : seq<'A>)
         (exFn : seq<'A> -> seq<'B>)
         (op : seq<'B> -> 'C)
+        (sq : seq<'A>)
         : 'C =
         if Seq.isEmpty sq then failwith emptyLstErrorMsg
         else sq |> exFn |> op
@@ -123,9 +123,9 @@ module CART =
         ((List.head tblDat).[rowLen - 1], List.tail tblDat)
         ||> List.scan (fun s t ->
             applyExOp
-                [s; t.[idx]]
                 defFltExtractorFn
-                ((Seq.reduce (+)) >> ContType.Flt >> DataType.Cont))
+                ((Seq.reduce (+)) >> ContType.Flt >> DataType.Cont)
+                [s; t.[idx]])
         |> List.tail
         |> List.map (fun s ->
             sortedTblDat
@@ -135,7 +135,7 @@ module CART =
                 (float(List.length t), impurityFunc(t |> List.map (fun u -> u.[rowLen - 1])))
                 ||> (*))
             |> List.sum
-            |> (fun t -> applyExOp [s] defFltExtractorFn (Seq.head), datSetImpurity - (t / tblDatLen)))
+            |> (fun t -> applyExOp defFltExtractorFn (Seq.head) [s], datSetImpurity - (t / tblDatLen)))
         |> (fun s ->
             List.fold
                 (fun t (u, v) -> if t.[0] > u then t else [|u; v|])
@@ -154,7 +154,7 @@ module CART =
         | _ -> getInfoGainForContVar tblDat idx impurityFunc datSetImpurity
 
 
-    let getTblDatSplitsForCatVar (tblDat : DataTable) (idx : int) : list<DataTable> =
+    let getTblDatSplitsForCatVar (tblDat : DataTable) (idx : int) _ : list<DataTable> =
         tblDat
         |> Seq.groupBy (fun s -> s.[idx])
         |> Seq.map (snd >> List.ofSeq)
@@ -177,7 +177,7 @@ module CART =
             |> List.ofSeq
             |> List.partition (fst)
             |> (fun (s, t) -> [List.map (snd) s; List.map (snd) t] |> Seq.ofList)
-        (applyExOp (tblDat |> List.sortBy (fun s -> s.[idx])) exFn op)
+        (applyExOp exFn op (tblDat |> List.sortBy (fun s -> s.[idx])))
         |> List.ofSeq
 
 
@@ -186,11 +186,9 @@ module CART =
         (idx : int)
         (splittingValAndImpurityOpt : option<array<float>>)
         : list<DataTable> =
-        let errorMsg = "Incompatible DataType and splittingValAndImpurity"
-        match (List.head tblDat).[idx], splittingValAndImpurityOpt with
-        | DataType.Cat _, None -> getTblDatSplitsForCatVar tblDat idx
-        | DataType.Cont _, Some splittingValAndImpurity -> getTblDatSplitsForContVar tblDat idx splittingValAndImpurity
-        | _ -> failwith errorMsg
+        match (List.head tblDat).[idx] with
+        | DataType.Cat _ -> getTblDatSplitsForCatVar tblDat idx None
+        | DataType.Cont _ -> getTblDatSplitsForContVar tblDat idx splittingValAndImpurityOpt.Value
 
 
     let getPrunedTblForCatVar (tblLst : list<DataTable>) (idx : int) : list<PrunedComponents> =
@@ -220,7 +218,7 @@ module CART =
         tblLst
         |> List.map ((List.map List.ofArray) >> ListExtensions.transpose)
         |> List.map (Seq.map Seq.ofList)
-        |> List.map (exFn >> op)
+        |> List.map (applyExOp exFn op)
 
 
     let test () : unit = ()
