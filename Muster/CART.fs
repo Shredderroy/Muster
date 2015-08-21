@@ -208,14 +208,15 @@ module CART =
             ColName = colName;
             ColVal = colVal;
             PrunedTable =
-                if idx < 1 then ((Seq.skip 1) >> (Seq.map Array.ofSeq) >> List.ofSeq) tblSq
+                (
+                if idx < 1 then tblSq |> Seq.skip 1
                 else
                     seq {
                         yield! (Seq.take idx tblSq)
-                        yield! (Seq.skip(idx + 1) tblSq)
-                    }
-                    |> ((Seq.map Array.ofSeq) >> List.ofSeq)
-            }
+                        yield! (Seq.skip(idx + 1) tblSq)})
+                |> ((Seq.map (List.ofSeq)) >> List.ofSeq)
+                |> ListExtensions.transpose
+                |> List.map (Array.ofList)}
         tblLst
         |> List.map ((List.map List.ofArray) >> ListExtensions.transpose)
         |> List.map (Seq.map Seq.ofList)
