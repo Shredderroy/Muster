@@ -194,34 +194,32 @@ module CART =
 
 
     let getPrunedTblForCatVar (tblLst : list<DataTable>) (idx : int) : list<PrunedComponents> =
-        let res =
-            let exFn (tblSq: seq<seq<DataType>>) : seq<string * DataType * seq<seq<DataType>>> =
-                if (Seq.isEmpty tblSq) || (((Seq.skip idx) >> Seq.head >> Seq.length) tblSq) < 2
-                then failwith emptyLstErrorMsg
+        let exFn (tblSq: seq<seq<DataType>>) : seq<string * DataType * seq<seq<DataType>>> =
+            if (Seq.isEmpty tblSq) || (((Seq.skip idx) >> Seq.head >> Seq.length) tblSq) < 2
+            then failwith emptyLstErrorMsg
+            else
+                let colNameAndVal = ((Seq.skip idx) >> Seq.head >> (Seq.take 2)) tblSq
+                match Seq.head colNameAndVal, Seq.last colNameAndVal with
+                | DataType.Cat(CatType.Str colName), DataType.Cat _ -> seq [colName, Seq.last colNameAndVal, tblSq]
+                | _ -> failwith catErrorMsg
+        let op (sq : seq<string * DataType * seq<seq<DataType>>>) : PrunedComponents =
+            let colName, colVal, tblSq = Seq.head sq
+            {
+            ColName = colName;
+            ColVal = colVal;
+            PrunedTable =
+                if idx < 1 then ((Seq.skip 1) >> (Seq.map Array.ofSeq) >> List.ofSeq) tblSq
                 else
-                    let colNameAndVal = ((Seq.skip idx) >> Seq.head >> (Seq.take 2)) tblSq
-                    match Seq.head colNameAndVal, Seq.last colNameAndVal with
-                    | DataType.Cat(CatType.Str colName), DataType.Cat _ -> seq [colName, Seq.last colNameAndVal, tblSq]
-                    | _ -> failwith catErrorMsg
-            let op (sq : seq<string * DataType * seq<seq<DataType>>>) : PrunedComponents =
-                let colName, colVal, tblSq = Seq.head sq
-                {
-                ColName = colName;
-                ColVal = colVal;
-                PrunedTable =
-                    if idx < 1 then ((Seq.skip 1) >> (Seq.map Array.ofSeq) >> List.ofSeq) tblSq
-                    else
-                        seq {
-                            yield! (Seq.take idx tblSq)
-                            yield! (Seq.skip(idx + 1) tblSq)
-                        }
-                        |> ((Seq.map Array.ofSeq) >> List.ofSeq)
-                }
-            tblLst
-            |> List.map ((List.map List.ofArray) >> ListExtensions.transpose)
-            |> List.map (fun s -> s
-                )
-        []
+                    seq {
+                        yield! (Seq.take idx tblSq)
+                        yield! (Seq.skip(idx + 1) tblSq)
+                    }
+                    |> ((Seq.map Array.ofSeq) >> List.ofSeq)
+            }
+        tblLst
+        |> List.map ((List.map List.ofArray) >> ListExtensions.transpose)
+        |> List.map (Seq.map Seq.ofList)
+        |> List.map (exFn >> op)
 
 
     let test () : unit = ()
