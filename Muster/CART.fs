@@ -122,18 +122,13 @@ module CART =
         let rowLen = tblDat |> List.head |> Array.length
         ((List.head tblDat).[rowLen - 1], List.tail tblDat)
         ||> List.scan (fun s t ->
-            applyExOp
-                defFltExtractorFn
-                ((Seq.reduce (+)) >> ContType.Flt >> DataType.Cont)
-                [s; t.[idx]])
+            applyExOp defFltExtractorFn ((Seq.reduce (+)) >> ContType.Flt >> DataType.Cont) [s; t.[idx]])
         |> List.tail
         |> List.map (fun s ->
             sortedTblDat
             |> List.partition (fun t -> t.[idx] < s)
             |> (fun (t, u) -> [t; u])
-            |> List.map (fun t ->
-                (float(List.length t), impurityFunc(t |> List.map (fun u -> u.[rowLen - 1])))
-                ||> (*))
+            |> List.map (fun t -> float(List.length t) * impurityFunc(t |> List.map (fun u -> u.[rowLen - 1])))
             |> List.sum
             |> (fun t -> applyExOp defFltExtractorFn (Seq.head) [s], datSetImpurity - (t / tblDatLen)))
         |> (fun s ->
@@ -191,7 +186,7 @@ module CART =
         | DataType.Cont _ -> getTblDatSplitsForContVar tblDat idx splittingValAndImpurityOpt.Value
 
 
-    let getPrunedTblForCatVar (tblLst : list<DataTable>) (idx : int) : list<PrunedComponents> =
+    let getPrunedTblForCatVar (tblLst : list<DataTable>) (idx : int) _ _ : list<PrunedComponents> =
         let exFn (tblSq: seq<seq<DataType>>) : seq<string * DataType * seq<seq<DataType>>> =
             if (Seq.isEmpty tblSq) || (((Seq.skip idx) >> Seq.head >> Seq.length) tblSq) < 2
             then failwith emptyLstErrorMsg
@@ -212,13 +207,28 @@ module CART =
                     seq {
                         yield! (Seq.take idx tblSq)
                         yield! (Seq.skip(idx + 1) tblSq)})
-                |> ((Seq.map (List.ofSeq)) >> List.ofSeq)
+                |> ((Seq.map List.ofSeq) >> List.ofSeq)
                 |> ListExtensions.transpose
                 |> List.map (Array.ofList)}
         tblLst
         |> List.map ((List.map List.ofArray) >> ListExtensions.transpose)
         |> List.map (Seq.map Seq.ofList)
         |> List.map (applyExOp exFn op)
+
+
+    let epsilon = 0.001
+
+
+    let defSplitStopCriterion (tbl : DataTable) : bool = (List.length tbl) < 4
+
+
+    let getPrunedTblForContVar
+        (tblLst : list<DataTable>)
+        (idx : int)
+        (splittingValAndImpurity : array<float>)
+        (splitStopCriterion : 'A -> bool)
+        : list<PrunedComponents> =
+        []
 
 
     let test () : unit = ()
