@@ -228,6 +228,10 @@ module CART =
         (splittingValAndImpurity : array<float>)
         (splitStopCriterion : list<list<DataType>> -> bool)
         : list<PrunedComponents> =
+        let exFn (idx : int) (tblSq : seq<seq<DataType>>) : seq<string * DataType * seq<seq<DataType>>> =
+            Seq.empty
+        let op (sq : seq<seq<DataType>>) : PrunedComponents =
+            {ColName = ""; ColVal = DataType.Cont(ContType.Flt 0.0); PrunedTable = []}
         let res =
             tblLst
             |> List.map ((List.map List.ofArray) >> ListExtensions.transpose)
