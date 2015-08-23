@@ -238,7 +238,8 @@ module CART =
                 match colName, colVal with
                 | DataType.Cat(CatType.Str colNameStr), DataType.Cont _ -> seq [colNameStr, colVal, tblSq]
                 | _ -> failwith contErrorMsg
-        let op (sq : seq<seq<DataType>>) : PrunedComponents =
+        let op (sq : seq<string * DataType * seq<seq<DataType>>>) : PrunedComponents =
+            let colName, colVal, tblSq = Seq.head sq
             {ColName = ""; ColVal = DataType.Cont(ContType.Flt 0.0); PrunedTable = []}
         let res =
             tblLst
