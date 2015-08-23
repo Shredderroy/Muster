@@ -187,27 +187,27 @@ module CART =
 
 
     let getPrunedTblForCatVar (tblLst : list<DataTable>) (idx : int) _ _ : list<PrunedComponents> =
-        let exFn (idx : int) (tblSq: seq<seq<DataType>>) : seq<string * DataType * seq<seq<DataType>>> =
-            if (Seq.isEmpty tblSq) || (((Seq.skip idx) >> Seq.head >> Seq.length) tblSq) < 2
+        let exFn (idx : int) (sqTbl: seq<seq<DataType>>) : seq<string * DataType * seq<seq<DataType>>> =
+            if (Seq.isEmpty sqTbl) || (((Seq.skip idx) >> Seq.head >> Seq.length) sqTbl) < 2
             then failwith emptyLstErrorMsg
             else
                 let colName, colVal =
-                    let tmp = ((Seq.skip idx) >> Seq.head >> (Seq.take 2)) tblSq in Seq.head tmp, Seq.last tmp
+                    let tmp = ((Seq.skip idx) >> Seq.head >> (Seq.take 2)) sqTbl in Seq.head tmp, Seq.last tmp
                 match colName, colVal with
-                | DataType.Cat(CatType.Str colNameStr), DataType.Cat _ -> seq [colNameStr, colVal, tblSq]
+                | DataType.Cat(CatType.Str colNameStr), DataType.Cat _ -> seq [colNameStr, colVal, sqTbl]
                 | _ -> failwith catErrorMsg
         let op (sq : seq<string * DataType * seq<seq<DataType>>>) : PrunedComponents =
-            let colName, colVal, tblSq = Seq.head sq
+            let colName, colVal, sqTbl = Seq.head sq
             {
             ColName = colName;
             ColVal = colVal;
             PrunedTable =
                 (
-                if idx < 1 then tblSq |> Seq.skip 1
+                if idx < 1 then sqTbl |> Seq.skip 1
                 else
                     seq {
-                        yield! (Seq.take idx tblSq)
-                        yield! (Seq.skip(idx + 1) tblSq)})
+                        yield! (Seq.take idx sqTbl)
+                        yield! (Seq.skip(idx + 1) sqTbl)})
                 |> ((Seq.map List.ofSeq) >> List.ofSeq)
                 |> ListExtensions.transpose
                 |> List.map (Array.ofList)}
@@ -220,7 +220,7 @@ module CART =
     let epsilon = 0.001
 
 
-    let defSplitStopCriterion (tbl : DataTable) : bool = (List.length tbl) < 4
+    let defSplitStopCriterion (sqTbl : seq<seq<DataType>>) : bool = (Seq.length sqTbl) < 4
 
 
     let getPrunedTblForContVar
@@ -229,26 +229,36 @@ module CART =
         (splittingValAndImpurity : array<float>)
         (splitStopCriterion : list<list<DataType>> -> bool)
         : list<PrunedComponents> =
-        let exFn (idx : int) (tblSq : seq<seq<DataType>>) : seq<string * DataType * seq<seq<DataType>>> =
-            if (Seq.isEmpty tblSq) || (((Seq.skip idx) >> Seq.head >> Seq.length) tblSq) < 2
+        let exFn (idx : int) (sqTbl : seq<seq<DataType>>) : seq<string * float * seq<seq<DataType>>> =
+            if (Seq.isEmpty sqTbl) || (((Seq.skip idx) >> Seq.head >> Seq.length) sqTbl) < 2
             then failwith emptyLstErrorMsg
             else
                 let colName, colVal =
-                    let tmp = ((Seq.skip idx) >> Seq.head >> (Seq.take 2)) tblSq in Seq.head tmp, Seq.last tmp
+                    let tmp = ((Seq.skip idx) >> Seq.head >> (Seq.take 2)) sqTbl in Seq.head tmp, Seq.last tmp
                 match colName, colVal with
-                | DataType.Cat(CatType.Str colNameStr), DataType.Cont _ -> seq [colNameStr, colVal, tblSq]
+                | DataType.Cat(CatType.Str colNameStr), DataType.Cont(ContType.Flt v) -> seq [colNameStr, v, sqTbl]
                 | _ -> failwith contErrorMsg
-        let op (sq : seq<string * DataType * seq<seq<DataType>>>) : PrunedComponents =
-            let colName, colVal, tblSq = Seq.head sq
-            {ColName = ""; ColVal = DataType.Cont(ContType.Flt 0.0); PrunedTable = []}
-        let res =
-            tblLst
-            |> List.map ((List.map List.ofArray) >> ListExtensions.transpose)
-            |> List.map (fun s ->
-                let splitStopFlg = splitStopCriterion s
-                s
-                )
-        []
+        let op (idx : int) (sq : seq<string * float * seq<seq<DataType>>>) : PrunedComponents =
+            let colName, colVal, sqTbl = Seq.head sq
+            {
+            ColName = colName;
+            ColVal =
+                let sv = splittingValAndImpurity.[0]
+                (if colVal < sv then sv - epsilon else sv) |> (DataType.Cont << ContType.Flt);
+            PrunedTable =
+                (
+                if idx < 1 then Seq.skip 1 sqTbl
+                else
+                    seq {
+                        yield! (Seq.take idx sqTbl)
+                        yield! (Seq.skip(idx + 1) sqTbl)})
+                |> ((Seq.map List.ofSeq) >> List.ofSeq)
+                |> ListExtensions.transpose
+                |> List.map (Array.ofList)}
+        tblLst
+        |> List.map ((List.map List.ofArray) >> ListExtensions.transpose)
+        |> List.map (Seq.map Seq.ofList)
+        |> List.map (applyExOp (exFn idx) (op idx))
 
 
     let test () : unit = ()
