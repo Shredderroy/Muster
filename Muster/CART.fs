@@ -191,9 +191,10 @@ module CART =
             if (Seq.isEmpty tblSq) || (((Seq.skip idx) >> Seq.head >> Seq.length) tblSq) < 2
             then failwith emptyLstErrorMsg
             else
-                let colNameAndVal = ((Seq.skip idx) >> Seq.head >> (Seq.take 2)) tblSq
-                match Seq.head colNameAndVal, Seq.last colNameAndVal with
-                | DataType.Cat(CatType.Str colName), DataType.Cat _ -> seq [colName, Seq.last colNameAndVal, tblSq]
+                let colName, colVal =
+                    let tmp = ((Seq.skip idx) >> Seq.head >> (Seq.take 2)) tblSq in Seq.head tmp, Seq.last tmp
+                match colName, colVal with
+                | DataType.Cat(CatType.Str colNameStr), DataType.Cat _ -> seq [colNameStr, colVal, tblSq]
                 | _ -> failwith catErrorMsg
         let op (sq : seq<string * DataType * seq<seq<DataType>>>) : PrunedComponents =
             let colName, colVal, tblSq = Seq.head sq
@@ -229,7 +230,14 @@ module CART =
         (splitStopCriterion : list<list<DataType>> -> bool)
         : list<PrunedComponents> =
         let exFn (idx : int) (tblSq : seq<seq<DataType>>) : seq<string * DataType * seq<seq<DataType>>> =
-            Seq.empty
+            if (Seq.isEmpty tblSq) || (((Seq.skip idx) >> Seq.head >> Seq.length) tblSq) < 2
+            then failwith emptyLstErrorMsg
+            else
+                let colName, colVal =
+                    let tmp = ((Seq.skip idx) >> Seq.head >> (Seq.take 2)) tblSq in Seq.head tmp, Seq.last tmp
+                match colName, colVal with
+                | DataType.Cat(CatType.Str colNameStr), DataType.Cont _ -> seq [colNameStr, colVal, tblSq]
+                | _ -> failwith contErrorMsg
         let op (sq : seq<seq<DataType>>) : PrunedComponents =
             {ColName = ""; ColVal = DataType.Cont(ContType.Flt 0.0); PrunedTable = []}
         let res =
