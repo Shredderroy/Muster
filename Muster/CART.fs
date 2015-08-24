@@ -186,7 +186,7 @@ module CART =
         | DataType.Cont _ -> getTblDatSplitsForContVar tblDat idx splittingValAndImpurityOpt.Value
 
 
-    let getPrunedTblForCatVar (tblLst : list<DataTable>) (idx : int) _ _ : list<PrunedComponents> =
+    let getPrunedTblsForCatVar (tblLst : list<DataTable>) (idx : int) _ _ : list<PrunedComponents> =
         let exFn (idx : int) (sqTbl: seq<seq<DataType>>) : seq<string * DataType * seq<seq<DataType>>> =
             if (Seq.isEmpty sqTbl) || (((Seq.skip idx) >> Seq.head >> Seq.length) sqTbl) < 2
             then failwith emptyLstErrorMsg
@@ -223,7 +223,7 @@ module CART =
     let defSplitStopCriterion (sqTbl : seq<seq<DataType>>) : bool = (Seq.length sqTbl) < 4
 
 
-    let getPrunedTblForContVar
+    let getPrunedTblsForContVar
         (tblLst : list<DataTable>)
         (idx : int)
         (splittingValAndImpurity : array<float>)
@@ -259,6 +259,15 @@ module CART =
         |> List.map ((List.map List.ofArray) >> ListExtensions.transpose)
         |> List.map (Seq.map Seq.ofList)
         |> List.map (applyExOp (exFn idx) (op idx))
+
+
+    let getPrunedTbls
+        (tblLst : list<DataTable>)
+        (idx : int)
+        (splittingValAndImpurity : array<float>)
+        (splitStopCriterion : list<list<DataType>> -> bool)
+        : list<PrunedComponents> =
+        []
 
 
     let test () : unit = ()
