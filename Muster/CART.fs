@@ -186,7 +186,7 @@ module CART =
         | DataType.Cont _ -> getTblDatSplitsForContVar tblDat idx splittingValAndImpurityOpt.Value
 
 
-    let getPrunedTblsForCatVar (tblsLst : list<DataTable>) (idx : int) _ _ : list<PrunedComponents> =
+    let getPrunedComponentsForCatVar (tblsLst : list<DataTable>) (idx : int) _ _ : list<PrunedComponents> =
         let exFn (idx : int) (sqTbl: seq<seq<DataType>>) : seq<string * DataType * seq<seq<DataType>>> =
             if (Seq.isEmpty sqTbl) || (((Seq.skip idx) >> Seq.head >> Seq.length) sqTbl) < 2
             then failwith emptyLstErrorMsg
@@ -223,7 +223,7 @@ module CART =
     let defSplitStopCriterion (sqTbl : seq<seq<DataType>>) : bool = (Seq.length sqTbl) < 4
 
 
-    let getPrunedTblsForContVar
+    let getPrunedComponentsForContVar
         (tblsLst : list<DataTable>)
         (idx : int)
         (splittingValAndImpurity : array<float>)
@@ -267,7 +267,19 @@ module CART =
         (splittingValAndImpurity : array<float>)
         (splitStopCriterion : list<list<DataType>> -> bool)
         : list<PrunedComponents> =
-        []
+        let exFn (idx : int) (tblsSq : seq<DataTable>) : seq<bool * seq<DataTable>> =
+            let colType = ((Seq.head << Seq.head) tblsSq).[idx]
+            match colType with
+            | DataType.Cat(CatType.Str _) -> seq [true, tblsSq]
+            | _ -> failwith catErrorMsg
+        let op (idx : int) (catFlgAndTblsSq : seq<bool * seq<DataTable>>) : list<PrunedComponents> =
+            let catFlg, tblsSq = Seq.head catFlgAndTblsSq
+            (if catFlg then getPrunedComponentsForCatVar else getPrunedComponentsForContVar)
+                (List.ofSeq tblsSq)
+                idx
+                splittingValAndImpurity
+                splitStopCriterion
+        applyExOp (exFn idx) (op idx) tblsLst
 
 
     let test () : unit = ()
