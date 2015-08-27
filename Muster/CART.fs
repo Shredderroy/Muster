@@ -227,7 +227,7 @@ module CART =
         (tblsLst : list<DataTable>)
         (idx : int)
         (splittingValAndImpurity : array<float>)
-        (splitStopCriterion : list<list<DataType>> -> bool)
+        (splitStopCriterion : seq<seq<DataType>> -> bool)
         : list<PrunedComponents> =
         let exFn (idx : int) (sqTbl : seq<seq<DataType>>) : seq<string * float * seq<seq<DataType>>> =
             if (Seq.isEmpty sqTbl) || (((Seq.skip idx) >> Seq.head >> Seq.length) sqTbl) < 2
@@ -247,7 +247,8 @@ module CART =
                 (if colVal < sv then sv - epsilon else sv) |> (DataType.Cont << ContType.Flt);
             PrunedTable =
                 (
-                if idx < 1 then Seq.skip 1 sqTbl
+                if splitStopCriterion sqTbl then sqTbl
+                elif idx < 1 then Seq.skip 1 sqTbl
                 else
                     seq {
                         yield! (Seq.take idx sqTbl)
@@ -265,7 +266,7 @@ module CART =
         (tblsLst : list<DataTable>)
         (idx : int)
         (splittingValAndImpurity : array<float>)
-        (splitStopCriterion : list<list<DataType>> -> bool)
+        (splitStopCriterion : seq<seq<DataType>> -> bool)
         : list<PrunedComponents> =
         let exFn (idx : int) (tblsSq : seq<DataTable>) : seq<bool * seq<DataTable>> =
             let colType = ((Seq.head << Seq.head) tblsSq).[idx]
@@ -280,6 +281,14 @@ module CART =
                 splittingValAndImpurity
                 splitStopCriterion
         applyExOp (exFn idx) (op idx) tblsLst
+
+
+    let buildC45
+        (currTbl : DataTable)
+        (impurityFn : list<DataType> -> float)
+        (splitStopCriterion : seq<seq<DataType>> -> bool)
+        =
+        []
 
 
     let test () : unit = ()
