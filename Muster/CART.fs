@@ -172,8 +172,7 @@ module CART =
             |> List.ofSeq
             |> List.partition (fst)
             |> (fun (s, t) -> [List.map (snd) s; List.map (snd) t] |> Seq.ofList)
-        (applyExOp exFn op (tblDat |> List.sortBy (fun s -> s.[idx])))
-        |> List.ofSeq
+        (applyExOp exFn op (tblDat |> List.sortBy (fun s -> s.[idx]))) |> List.ofSeq
 
 
     let getTblDatSplits
