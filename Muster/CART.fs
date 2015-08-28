@@ -75,7 +75,7 @@ module CART =
         |> Seq.groupBy (fun s -> s.[idx])
         |> Seq.map (fun (_, s) ->
             s
-            |> Seq.map (fun t -> t.[idx])
+            |> Seq.map (fun t -> t.[(Array.length t) - 1])
             |> (fun t -> float(Seq.length t), (impurityFunc << List.ofSeq) t)
             |> (fun (t, u) -> t * u))
         |> Seq.sum

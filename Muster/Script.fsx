@@ -222,8 +222,11 @@ let cartTest () : unit =
     let tblDat = List.tail tbl
     let impurityFn = CART.entropy
     let datSetImpurity = impurityFn (tblDat |> List.map (fun s -> s.[4]))
-    let infoGain = CART.getInfoGain tblDat 2 impurityFn datSetImpurity
-    printfn "%A" infoGain
+    printfn "datSetImpurity = %A" datSetImpurity
+    let infoGainVals =
+        [|1 .. ((Array.length << List.head) tbl)|]
+        |> Array.map (fun s -> CART.getInfoGain tblDat (s - 1) impurityFn datSetImpurity)
+    printfn "%A" infoGainVals
 
 
 cartTest()
