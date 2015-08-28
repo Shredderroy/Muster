@@ -119,7 +119,7 @@ module CART =
         : array<float> =
         let sortedTblDat = tblDat |> List.sortBy (fun s -> s.[idx])
         let tblDatLen = float(List.length sortedTblDat)
-        let rowLen = tblDat |> List.head |> Array.length
+        let rowLen = (Array.length << List.head) tblDat
         ((List.head tblDat).[rowLen - 1], List.tail tblDat)
         ||> List.scan (fun s t ->
             applyExOp defFltExtractorFn ((Seq.reduce (+)) >> ContType.Flt >> DataType.Cont) [s; t.[idx]])

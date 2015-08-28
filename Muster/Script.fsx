@@ -220,13 +220,21 @@ let cartTest () : unit =
         [|DataType.Cat(CatType.Str "F"); DataType.Cat(CatType.Str "2"); DataType.Cat(CatType.Str "ex"); DataType.Cat(CatType.Str "hh"); DataType.Cat(CatType.Str "car")|]
         ]
     let tblDat = List.tail tbl
-    let impurityFn = CART.entropy
+    let impurityFn = entropy
     let datSetImpurity = impurityFn (tblDat |> List.map (fun s -> s.[4]))
-    printfn "datSetImpurity = %A" datSetImpurity
     let infoGainVals =
         [|1 .. ((Array.length << List.head) tbl)|]
-        |> Array.map (fun s -> CART.getInfoGain tblDat (s - 1) impurityFn datSetImpurity)
-    printfn "%A" infoGainVals
+        |> Array.collect (fun s -> getInfoGain tblDat (s - 1) impurityFn datSetImpurity)
+    let idx = 2
+    let tblsLst = getTblDatSplits tblDat idx None
+    let prunedTblsLst =
+        getPrunedTbls
+            tblsLst
+            idx
+            [||]
+            (fun _ -> true)
+    printfn "%A" (Array.ofList prunedTblsLst).[0]
+    ()
 
 
 cartTest()
