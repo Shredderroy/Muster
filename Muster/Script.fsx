@@ -13,6 +13,7 @@ open MathNet.Numerics.LinearAlgebra
 open MathNet.Numerics.LinearAlgebra.Double
 open Muster.Extensions
 open Muster.DataStructuresAndAlgorithms
+open Muster.DataStructuresAndAlgorithms.CART
 
 
 let rnd = Random()
@@ -204,9 +205,25 @@ let pcaTest () : unit =
 
 
 let cartTest () : unit =
-    let classVals = [1; 2; 1; 3; 3; 2; 5; 1; 4; 5]
-    let res = CART.entropy (classVals |> List.map (fun s -> CART.DataType.Cat(CART.CatType.Int s)))
-    printfn "%A" res
+    let (tbl : DataTable) =
+        [
+        [|DataType.Cat(CatType.Str "G"); DataType.Cat(CatType.Str "CO"); DataType.Cat(CatType.Str "TC"); DataType.Cat(CatType.Str "IL"); DataType.Cat(CatType.Str "T")|];
+        [|DataType.Cat(CatType.Str "M"); DataType.Cat(CatType.Str "0"); DataType.Cat(CatType.Str "ch"); DataType.Cat(CatType.Str "lw"); DataType.Cat(CatType.Str "bus")|];
+        [|DataType.Cat(CatType.Str "M"); DataType.Cat(CatType.Str "1"); DataType.Cat(CatType.Str "ch"); DataType.Cat(CatType.Str "md"); DataType.Cat(CatType.Str "bus")|];
+        [|DataType.Cat(CatType.Str "F"); DataType.Cat(CatType.Str "1"); DataType.Cat(CatType.Str "ch"); DataType.Cat(CatType.Str "md"); DataType.Cat(CatType.Str "trn")|];
+        [|DataType.Cat(CatType.Str "F"); DataType.Cat(CatType.Str "0"); DataType.Cat(CatType.Str "ch"); DataType.Cat(CatType.Str "lw"); DataType.Cat(CatType.Str "bus")|];
+        [|DataType.Cat(CatType.Str "M"); DataType.Cat(CatType.Str "1"); DataType.Cat(CatType.Str "ch"); DataType.Cat(CatType.Str "md"); DataType.Cat(CatType.Str "bus")|];
+        [|DataType.Cat(CatType.Str "M"); DataType.Cat(CatType.Str "0"); DataType.Cat(CatType.Str "st"); DataType.Cat(CatType.Str "md"); DataType.Cat(CatType.Str "trn")|];
+        [|DataType.Cat(CatType.Str "F"); DataType.Cat(CatType.Str "1"); DataType.Cat(CatType.Str "st"); DataType.Cat(CatType.Str "md"); DataType.Cat(CatType.Str "trn")|];
+        [|DataType.Cat(CatType.Str "F"); DataType.Cat(CatType.Str "1"); DataType.Cat(CatType.Str "ex"); DataType.Cat(CatType.Str "hh"); DataType.Cat(CatType.Str "car")|];
+        [|DataType.Cat(CatType.Str "M"); DataType.Cat(CatType.Str "2"); DataType.Cat(CatType.Str "ex"); DataType.Cat(CatType.Str "md"); DataType.Cat(CatType.Str "car")|];
+        [|DataType.Cat(CatType.Str "F"); DataType.Cat(CatType.Str "2"); DataType.Cat(CatType.Str "ex"); DataType.Cat(CatType.Str "hh"); DataType.Cat(CatType.Str "car")|]
+        ]
+    let tblDat = List.tail tbl
+    let impurityFn = CART.entropy
+    let datSetImpurity = impurityFn (tblDat |> List.map (fun s -> s.[4]))
+    let infoGain = CART.getInfoGain tblDat 2 impurityFn datSetImpurity
+    printfn "%A" infoGain
 
 
 cartTest()

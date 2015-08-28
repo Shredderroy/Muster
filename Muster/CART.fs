@@ -36,7 +36,7 @@ module CART =
     type PrunedComponents = {ColName : String; ColVal : DataType; PrunedTable : DataTable}
 
 
-    let inline coreImpurityFunc<'A when 'A : equality> (classVals : list<'A>) : list<float> =
+    let coreImpurityFunc<'A when 'A : equality> (classVals : list<'A>) : list<float> =
         let classValsLen = float (List.length classVals)
         classVals
         |> Seq.groupBy (id)
