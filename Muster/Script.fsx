@@ -234,7 +234,6 @@ let cartTest1 () : unit =
             [||]
             (fun _ -> true)
     printfn "%A" (Array.ofList prunedTblsLst).[2]
-    ()
 
 
 let cartTest2 () : unit =
@@ -256,5 +255,12 @@ let cartTest2 () : unit =
         [|DataType.Cat(CatType.Str "ov"); DataType.Cont(ContType.Flt 81.0); DataType.Cont(ContType.Flt 75.0); DataType.Cat(CatType.Bool false); DataType.Cat(CatType.Str "Y")|];
         [|DataType.Cat(CatType.Str "rn"); DataType.Cont(ContType.Flt 71.0); DataType.Cont(ContType.Flt 80.0); DataType.Cat(CatType.Bool true); DataType.Cat(CatType.Str "N")|]
         ]
-    ()
+    let tblDat = List.tail tbl
+    let impurityFn = entropy
+    let datSetImpurity = impurityFn (tblDat |> List.map (fun s -> s.[4]))
+    printfn "%A" datSetImpurity
+    let infoGain = getInfoGain tblDat 1 impurityFn datSetImpurity
+    printfn "%A" infoGain
+
+cartTest2()
 

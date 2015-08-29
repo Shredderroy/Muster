@@ -120,22 +120,25 @@ module CART =
         let sortedTblDat = tblDat |> List.sortBy (fun s -> s.[idx])
         let tblDatLen = float(List.length sortedTblDat)
         let rowLen = (Array.length << List.head) tblDat
-        ((List.head tblDat).[rowLen - 1], List.tail tblDat)
-        ||> List.scan (fun s t ->
-            applyExOp defFltExtractorFn ((Seq.reduce (+)) >> ContType.Flt >> DataType.Cont) [s; t.[idx]])
-        |> List.tail
-        |> List.map (fun s ->
-            sortedTblDat
-            |> List.partition (fun t -> t.[idx] < s)
-            |> (fun (t, u) -> [t; u])
-            |> List.map (fun t -> float(List.length t) * impurityFunc(t |> List.map (fun u -> u.[rowLen - 1])))
-            |> List.sum
-            |> (fun t -> applyExOp defFltExtractorFn (Seq.head) [s], datSetImpurity - (t / tblDatLen)))
-        |> (fun s ->
-            List.fold
-                (fun t (u, v) -> if t.[0] > u then t else [|u; v|])
-                (let (t, u) = List.head s in [|t; u|])
-                (List.tail s))
+        let res =
+            ((List.head tblDat).[idx], List.tail tblDat)
+            ||> List.scan (fun s t ->
+                applyExOp defFltExtractorFn ((Seq.reduce (+)) >> ContType.Flt >> DataType.Cont) [s; t.[idx]])
+            |> List.tail
+            |> List.map (fun s ->
+                sortedTblDat
+                |> List.partition (fun t -> t.[idx] < s)
+                |> (fun (t, u) -> [t; u])
+                |> List.map (fun t -> float(List.length t) * impurityFunc(t |> List.map (fun u -> u.[rowLen - 1])))
+                |> List.sum
+                |> (fun t -> applyExOp defFltExtractorFn (Seq.head) [s], datSetImpurity - (t / tblDatLen)))
+            |> (fun s ->
+                List.fold
+                    (fun (t : array<float>) (u, v) -> if t.[0] > u then t else [|u; v|])
+                    (let (t, u) = List.head s in [|t; u|])
+                    (List.tail s))
+        printfn "%A" res
+        [|0.0; 0.1|]
 
 
     let getInfoGain
