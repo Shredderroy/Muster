@@ -204,7 +204,7 @@ let pcaTest () : unit =
     printfn "%A" rVec
 
 
-let cartTest () : unit =
+let cartTest1 () : unit =
     let (tbl : DataTable) =
         [
         [|DataType.Cat(CatType.Str "G"); DataType.Cat(CatType.Str "CO"); DataType.Cat(CatType.Str "TC"); DataType.Cat(CatType.Str "IL"); DataType.Cat(CatType.Str "T")|];
@@ -237,5 +237,24 @@ let cartTest () : unit =
     ()
 
 
-cartTest()
+let cartTest2 () : unit =
+    let (tbl : DataTable) =
+        [
+        [|DataType.Cat(CatType.Str "OL"); DataType.Cat(CatType.Str "TM"); DataType.Cat(CatType.Str "HM"); DataType.Cat(CatType.Str "WN"); DataType.Cat(CatType.Str "PL")|];
+        [|DataType.Cat(CatType.Str "sn"); DataType.Cont(ContType.Flt 85.0); DataType.Cont(ContType.Flt 85.0); DataType.Cat(CatType.Bool false); DataType.Cat(CatType.Str "N")|];
+        [|DataType.Cat(CatType.Str "sn"); DataType.Cont(ContType.Flt 80.0); DataType.Cont(ContType.Flt 90.0); DataType.Cat(CatType.Bool true); DataType.Cat(CatType.Str "N")|];
+        [|DataType.Cat(CatType.Str "ov"); DataType.Cont(ContType.Flt 83.0); DataType.Cont(ContType.Flt 78.0); DataType.Cat(CatType.Bool false); DataType.Cat(CatType.Str "Y")|];
+        [|DataType.Cat(CatType.Str "rn"); DataType.Cont(ContType.Flt 70.0); DataType.Cont(ContType.Flt 96.0); DataType.Cat(CatType.Bool false); DataType.Cat(CatType.Str "Y")|];
+        [|DataType.Cat(CatType.Str "rn"); DataType.Cont(ContType.Flt 68.0); DataType.Cont(ContType.Flt 80.0); DataType.Cat(CatType.Bool false); DataType.Cat(CatType.Str "Y")|];
+        [|DataType.Cat(CatType.Str "rn"); DataType.Cont(ContType.Flt 65.0); DataType.Cont(ContType.Flt 70.0); DataType.Cat(CatType.Bool true); DataType.Cat(CatType.Str "N")|];
+        [|DataType.Cat(CatType.Str "ov"); DataType.Cont(ContType.Flt 64.0); DataType.Cont(ContType.Flt 65.0); DataType.Cat(CatType.Bool true); DataType.Cat(CatType.Str "N")|];
+        [|DataType.Cat(CatType.Str "sn"); DataType.Cont(ContType.Flt 72.0); DataType.Cont(ContType.Flt 95.0); DataType.Cat(CatType.Bool false); DataType.Cat(CatType.Str "N")|];
+        [|DataType.Cat(CatType.Str "sn"); DataType.Cont(ContType.Flt 69.0); DataType.Cont(ContType.Flt 70.0); DataType.Cat(CatType.Bool false); DataType.Cat(CatType.Str "Y")|];
+        [|DataType.Cat(CatType.Str "rn"); DataType.Cont(ContType.Flt 75.0); DataType.Cont(ContType.Flt 80.0); DataType.Cat(CatType.Bool false); DataType.Cat(CatType.Str "Y")|];
+        [|DataType.Cat(CatType.Str "sn"); DataType.Cont(ContType.Flt 75.0); DataType.Cont(ContType.Flt 70.0); DataType.Cat(CatType.Bool true); DataType.Cat(CatType.Str "Y")|];
+        [|DataType.Cat(CatType.Str "ov"); DataType.Cont(ContType.Flt 72.0); DataType.Cont(ContType.Flt 90.0); DataType.Cat(CatType.Bool true); DataType.Cat(CatType.Str "Y")|];
+        [|DataType.Cat(CatType.Str "ov"); DataType.Cont(ContType.Flt 81.0); DataType.Cont(ContType.Flt 75.0); DataType.Cat(CatType.Bool false); DataType.Cat(CatType.Str "Y")|];
+        [|DataType.Cat(CatType.Str "rn"); DataType.Cont(ContType.Flt 71.0); DataType.Cont(ContType.Flt 80.0); DataType.Cat(CatType.Bool true); DataType.Cat(CatType.Str "N")|]
+        ]
+    ()
 
