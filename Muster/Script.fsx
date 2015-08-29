@@ -233,7 +233,7 @@ let cartTest () : unit =
             idx
             [||]
             (fun _ -> true)
-    printfn "%A" (Array.ofList prunedTblsLst).[0]
+    printfn "%A" (Array.ofList prunedTblsLst).[2]
     ()
 
 
