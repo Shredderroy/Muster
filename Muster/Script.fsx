@@ -228,8 +228,12 @@ let cartTest1 () : unit =
     let idx = 2
     let tblsLst = getTblDatSplits tblDat idx None
     let prunedTblsLst =
-        getPrunedComponents tblsLst idx None None
+        let colHdrs = List.head tbl
+        getPrunedComponents (tblsLst |> List.map (fun s -> colHdrs :: s)) idx None None
     printfn "%A" (Array.ofList prunedTblsLst).[2]
+
+
+cartTest1()
 
 
 let cartTest2 () : unit =
