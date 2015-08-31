@@ -8,11 +8,32 @@ open Muster.Extensions
 module CART =
 
 
+    let operatorErrorMsg (op : string) =
+        op + " operator called with incompatible arguments"
+
+
     [<RequireQualifiedAccess; StructuralComparison; StructuralEquality>]
     type CatType =
         | Int of int
         | Str of string
         | Bool of bool
+        static member (+) (s, t) =
+            match s, t with
+            | CatType.Int u, CatType.Int v -> CatType.Int(u + v)
+            | CatType.Str u, CatType.Str v -> CatType.Str(u + v)
+            | _ -> failwith (operatorErrorMsg "+")
+        static member (-) (s, t) =
+            match s, t with
+            | CatType.Int u, CatType.Int v -> CatType.Int(u - v)
+            | _ -> failwith (operatorErrorMsg "-")
+        static member (*) (s, t) =
+            match s, t with
+            | CatType.Int u, CatType.Int v -> CatType.Int(u * v)
+            | _ -> failwith (operatorErrorMsg "*")
+        static member (/) (s, t) =
+            match s, t with
+            | CatType.Int u, CatType.Int v -> CatType.Int(u / v)
+            | _ -> failwith (operatorErrorMsg "/")
 
 
     [<RequireQualifiedAccess; StructuralComparison; StructuralEquality>]
@@ -28,6 +49,26 @@ module CART =
     type DataType =
         | Cat of CatType
         | Cont of ContType
+        static member (+) (s, t) =
+            match s, t with
+            | DataType.Cat u, DataType.Cat v -> DataType.Cat(CatType.op_Addition(u, v))
+            | DataType.Cont u, DataType.Cont v -> DataType.Cont(ContType.op_Addition(u, v))
+            | _ -> failwith (operatorErrorMsg "+")
+        static member (-) (s, t) =
+            match s, t with
+            | DataType.Cat u, DataType.Cat v -> DataType.Cat(CatType.op_Subtraction(u, v))
+            | DataType.Cont u, DataType.Cont v -> DataType.Cont(ContType.op_Subtraction(u, v))
+            | _ -> failwith (operatorErrorMsg "-")
+        static member (*) (s, t) =
+            match s, t with
+            | DataType.Cat u, DataType.Cat v -> DataType.Cat(CatType.op_Multiply(u, v))
+            | DataType.Cont u, DataType.Cont v -> DataType.Cont(ContType.op_Subtraction(u, v))
+            | _ -> failwith (operatorErrorMsg "*")
+        static member (/) (s, t) =
+            match s, t with
+            | DataType.Cat u, DataType.Cat v -> DataType.Cat(CatType.op_Division(u, v))
+            | DataType.Cont u, DataType.Cont v -> DataType.Cont(ContType.op_Division(u, v))
+            | _ -> failwith (operatorErrorMsg "/")
 
 
     type DataTable = list<array<DataType>>
@@ -111,19 +152,19 @@ module CART =
         else sq |> exFn |> op
 
 
-    let getInfoGainForContVar
+    let getInfoGainForContVar1
         (tblDat : DataTable)
         (idx : int)
         (impurityFunc : (list<DataType> -> float))
         (datSetImpurity : float)
         : array<float> =
         let sortedTblDat = tblDat |> List.sortBy (fun s -> s.[idx])
-        let tblDatLen = float(List.length sortedTblDat)
-        let rowLen = (Array.length << List.head) tblDat
+        let sortedblDatLen = float(List.length sortedTblDat)
+        let rowLen = (Array.length << List.head) sortedTblDat
         let res =
-            ((List.head tblDat).[idx], List.tail tblDat)
+            ((List.head sortedTblDat).[idx], List.tail sortedTblDat)
             ||> List.scan (fun s t ->
-                applyExOp defFltExtractorFn ((Seq.reduce (+)) >> ContType.Flt >> DataType.Cont) [s; t.[idx]])
+                applyExOp defFltExtractorFn (Seq.average >> ContType.Flt >> DataType.Cont) [s; t.[idx]])
             |> List.tail
             |> List.map (fun s ->
                 sortedTblDat
@@ -131,12 +172,48 @@ module CART =
                 |> (fun (t, u) -> [t; u])
                 |> List.map (fun t -> float(List.length t) * impurityFunc(t |> List.map (fun u -> u.[rowLen - 1])))
                 |> List.sum
-                |> (fun t -> applyExOp defFltExtractorFn (Seq.head) [s], datSetImpurity - (t / tblDatLen)))
+                |> (fun t -> applyExOp defFltExtractorFn (Seq.head) [s], datSetImpurity - (t / sortedblDatLen)))
             |> (fun s ->
                 List.fold
                     (fun (t : array<float>) (u, v) -> if t.[0] > u then t else [|u; v|])
                     (let (t, u) = List.head s in [|t; u|])
                     (List.tail s))
+        printfn "%A" res
+        [|0.0; 0.1|]
+
+
+    let getInfoGainForContVar
+        (tblDat : DataTable)
+        (idx : int)
+        (impurityFunc : (list<DataType> -> float))
+        (datSetImpurity : float)
+        : array<float> =
+        let sortedTblDat = tblDat |> List.sortBy (fun s -> s.[idx])
+        let sortedTblDatLen = float(List.length sortedTblDat)
+        let rowLen = (Array.length << List.head) sortedTblDat
+        let res =
+            sortedTblDat
+            |> Seq.pairwise
+            |> Seq.map (fun (s, t) ->
+                DataType.op_Division(
+                    DataType.op_Addition(s.[idx], t.[idx]),
+                    DataType.Cont(ContType.Flt 2.0)))
+//            ((List.head sortedTblDat).[idx], List.tail sortedTblDat)
+//            ||> List.scan (fun s t ->
+//                applyExOp defFltExtractorFn (Seq.average >> ContType.Flt >> DataType.Cont) [s; t.[idx]])
+//            |> List.tail
+//            |> List.map (fun s ->
+//                sortedTblDat
+//                |> List.partition (fun t -> t.[idx] < s)
+//                |> (fun (t, u) -> [t; u])
+//                |> List.map (fun t -> float(List.length t) * impurityFunc(t |> List.map (fun u -> u.[rowLen - 1])))
+//                |> List.sum
+//                |> (fun t -> applyExOp defFltExtractorFn (Seq.head) [s], datSetImpurity - (t / sortedTblDatLen)))
+//            |> (fun s ->
+//                List.fold
+//                    (fun (t : array<float>) (u, v) -> if t.[0] > u then t else [|u; v|])
+//                    (let (t, u) = List.head s in [|t; u|])
+//                    (List.tail s))
         printfn "%A" res
         [|0.0; 0.1|]
 

@@ -256,6 +256,8 @@ let cartTest2 () : unit =
         [|DataType.Cat(CatType.Str "rn"); DataType.Cont(ContType.Flt 71.0); DataType.Cont(ContType.Flt 80.0); DataType.Cat(CatType.Bool true); DataType.Cat(CatType.Str "N")|]
         ]
     let tblDat = List.tail tbl
+    let sortedTblDat = tblDat |> List.sortBy (fun s -> s.[1])
+    printfn "%A" (sortedTblDat |> List.map (fun s -> s.[1]))
     let impurityFn = entropy
     let datSetImpurity = impurityFn (tblDat |> List.map (fun s -> s.[4]))
     printfn "%A" datSetImpurity
