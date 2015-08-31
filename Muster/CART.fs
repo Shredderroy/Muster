@@ -76,7 +76,7 @@ module CART =
     type PrunedComponents = {ColName : String; ColVal : DataType; PrunedTable : DataTable}
 
 
-    let coreImpurityFunc<'A when 'A : equality> (classVals : list<'A>) : list<float> =
+    let coreImpurityFn<'A when 'A : equality> (classVals : list<'A>) : list<float> =
         let classValsLen = float (List.length classVals)
         classVals
         |> Seq.groupBy (id)
@@ -86,28 +86,28 @@ module CART =
 
     let entropy (classVals : list<DataType>) : float =
         classVals
-        |> coreImpurityFunc
+        |> coreImpurityFn
         |> List.map (fun s -> s * Math.Log(s, 2.0))
         |> (List.sum >> ((*) (-1.0)))
 
 
     let giniIndex (classVals : list<DataType>) : float =
         classVals
-        |> coreImpurityFunc
+        |> coreImpurityFn
         |> List.map (fun s -> s * s)
         |> (List.sum >> ((-) 1.0))
 
 
     let classificationError (classVals : list<DataType>) : float =
         classVals
-        |> coreImpurityFunc
+        |> coreImpurityFn
         |> (List.max >> ((-) 1.0))
 
 
     let getInfoGainForCatVar
         (tblDat : DataTable)
         (idx : int)
-        (impurityFunc : (list<DataType> -> float))
+        (impurityFn : (list<DataType> -> float))
         (datSetImpurity : float)
         : array<float> =
         let tblDatLen = float(List.length tblDat)
@@ -116,7 +116,7 @@ module CART =
         |> Seq.map (fun (_, s) ->
             s
             |> Seq.map (fun t -> t.[(Array.length t) - 1])
-            |> (fun t -> float(Seq.length t), (impurityFunc << List.ofSeq) t)
+            |> (fun t -> float(Seq.length t), (impurityFn << List.ofSeq) t)
             |> (fun (t, u) -> t * u))
         |> Seq.sum
         |> (fun s -> [|datSetImpurity - (s / tblDatLen)|])
@@ -151,7 +151,7 @@ module CART =
     let getInfoGainForContVar
         (tblDat : DataTable)
         (idx : int)
-        (impurityFunc : (list<DataType> -> float))
+        (impurityFn : (list<DataType> -> float))
         (datSetImpurity : float)
         : array<float> =
         let sortedTblDat = tblDat |> List.sortBy (fun s -> s.[idx])
@@ -167,7 +167,7 @@ module CART =
             sortedTblDat
             |> List.partition (fun t -> t.[idx] < s)
             |> (fun (t, u) -> [t; u])
-            |> List.map (fun t -> float(List.length t) * impurityFunc(t |> List.map (fun u -> u.[rowLen - 1])))
+            |> List.map (fun t -> float(List.length t) * impurityFn(t |> List.map (fun u -> u.[rowLen - 1])))
             |> List.sum
             |> (fun t -> applyExOp defFltExtractorFn Seq.head [s], datSetImpurity - (t / sortedTblDatLen)))
         |> (fun s ->
