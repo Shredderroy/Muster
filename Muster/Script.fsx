@@ -223,16 +223,12 @@ let cartTest1 () : unit =
     let impurityFn = entropy
     let datSetImpurity = impurityFn (tblDat |> List.map (fun s -> s.[4]))
     let infoGainVals =
-        [|1 .. ((Array.length << List.head) tbl)|]
-        |> Array.collect (fun s -> getInfoGain tblDat (s - 1) impurityFn datSetImpurity)
+        [|1 .. ((Array.length << List.head) tblDat)|]
+        |> Array.map (fun s -> getInfoGain tblDat (s - 1) impurityFn datSetImpurity)
     let idx = 2
     let tblsLst = getTblDatSplits tblDat idx None
     let prunedTblsLst =
-        getPrunedTbls
-            tblsLst
-            idx
-            [||]
-            (fun _ -> true)
+        getPrunedComponents tblsLst idx None None
     printfn "%A" (Array.ofList prunedTblsLst).[2]
 
 
@@ -260,7 +256,19 @@ let cartTest2 () : unit =
     let datSetImpurity = impurityFn (tblDat |> List.map (fun s -> s.[4]))
     printfn "%A" datSetImpurity
     let infoGain = getInfoGain tblDat 1 impurityFn datSetImpurity
-    printfn "%A" infoGain
+    let infoGainVals =
+        [|1 .. (Array.length << List.head) tblDat|]
+        |> Array.map (fun s -> getInfoGain tblDat (s - 1) impurityFn datSetImpurity)
+    printfn "%A" infoGainVals
+//    let idx = 1
+//    let tblsLst = getTblDatSplits tblDat idx None
+//    let prunedTblsLst =
+//        getPrunedTbls
+//            tblsLst
+//            idx
+//            [||]
+//            (fun _ -> true)
+//    printfn "%A" (Array.ofList prunedTblsLst).[2]
 
 cartTest2()
 

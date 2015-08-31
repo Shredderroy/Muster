@@ -73,6 +73,10 @@ module CART =
     type DataTable = list<array<DataType>>
 
 
+    [<RequireQualifiedAccess>]
+    type InfoGainRes = {SplittingValOpt : option<float>; InfoGain : float}
+
+
     type PrunedComponents = {ColName : String; ColVal : DataType; PrunedTable : DataTable}
 
 
@@ -109,7 +113,7 @@ module CART =
         (idx : int)
         (impurityFn : (list<DataType> -> float))
         (datSetImpurity : float)
-        : array<float> =
+        : InfoGainRes =
         let tblDatLen = float(List.length tblDat)
         tblDat
         |> Seq.groupBy (fun s -> s.[idx])
@@ -119,7 +123,7 @@ module CART =
             |> (fun t -> float(Seq.length t), (impurityFn << List.ofSeq) t)
             |> (fun (t, u) -> t * u))
         |> Seq.sum
-        |> (fun s -> [|datSetImpurity - (s / tblDatLen)|])
+        |> (fun s -> {InfoGainRes.SplittingValOpt = None; InfoGainRes.InfoGain = datSetImpurity - (s / tblDatLen)})
 
 
     let errorMsgs =
@@ -153,7 +157,7 @@ module CART =
         (idx : int)
         (impurityFn : (list<DataType> -> float))
         (datSetImpurity : float)
-        : array<float> =
+        : InfoGainRes =
         let sortedTblDat = tblDat |> List.sortBy (fun s -> s.[idx])
         let sortedTblDatLen = float(List.length sortedTblDat)
         let rowLen = (Array.length << List.head) sortedTblDat
@@ -172,23 +176,25 @@ module CART =
             |> (fun t -> applyExOp defFltExtractorFn Seq.head [s], datSetImpurity - (t / sortedTblDatLen)))
         |> (fun s ->
                 Seq.fold
-                    (fun t (u, v) -> if t.[1] > v then t else [|u; v|])
-                    (let (t, u) = Seq.head s in [|t; u|])
+                    (fun t (u, v) ->
+                        if t.InfoGain > v then t
+                        else {InfoGainRes.SplittingValOpt = Some u; InfoGainRes.InfoGain = v})
+                    (let (t, u) = Seq.head s in {InfoGainRes.SplittingValOpt = Some t; InfoGainRes.InfoGain = u})
                     (Seq.skip 1 s))
 
 
     let getInfoGain
         (tblDat : DataTable)
         (idx : int)
-        (impurityFunc : (list<DataType> -> float))
+        (impurityFn : (list<DataType> -> float))
         (datSetImpurity : float)
-        : array<float> =
+        : InfoGainRes =
         match (List.head tblDat).[idx] with
-        | DataType.Cat _ -> getInfoGainForCatVar tblDat idx impurityFunc datSetImpurity
-        | _ -> getInfoGainForContVar tblDat idx impurityFunc datSetImpurity
+        | DataType.Cat _ -> getInfoGainForCatVar tblDat idx impurityFn datSetImpurity
+        | _ -> getInfoGainForContVar tblDat idx impurityFn datSetImpurity
 
 
-    let getTblDatSplitsForCatVar (tblDat : DataTable) (idx : int) _ : list<DataTable> =
+    let getTblDatSplitsForCatVar (tblDat : DataTable) (idx : int) : list<DataTable> =
         tblDat
         |> Seq.groupBy (fun s -> s.[idx])
         |> Seq.map (snd >> List.ofSeq)
@@ -198,33 +204,33 @@ module CART =
     let getTblDatSplitsForContVar
         (tblDat : DataTable)
         (idx : int)
-        (splittingValAndImpurity : array<float>)
+        (infoGainRes : InfoGainRes)
         : list<DataTable> =
         let exFn (sq : seq<array<DataType>>) : seq<bool * array<DataType>> =
             sq
             |> Seq.map (fun s ->
-                match s.[idx] with
-                | DataType.Cont(ContType.Flt v) -> (v < splittingValAndImpurity.[0]), s
+                match s.[idx], infoGainRes.SplittingValOpt with
+                | DataType.Cont(ContType.Flt t), Some u -> (t < u), s
                 | _ -> failwith errorMsgs.["contErrorMsg"])
         let op (sq : seq<bool * array<DataType>>) : seq<DataTable> =
             sq
             |> List.ofSeq
             |> List.partition (fst)
-            |> (fun (s, t) -> [List.map (snd) s; List.map (snd) t] |> Seq.ofList)
+            |> (fun (s, t) -> [List.map snd s; List.map snd t] |> Seq.ofList)
         (applyExOp exFn op (tblDat |> List.sortBy (fun s -> s.[idx]))) |> List.ofSeq
 
 
     let getTblDatSplits
         (tblDat : DataTable)
         (idx : int)
-        (splittingValAndImpurityOpt : option<array<float>>)
+        (infoGainResOpt : option<InfoGainRes>)
         : list<DataTable> =
         match (List.head tblDat).[idx] with
-        | DataType.Cat _ -> getTblDatSplitsForCatVar tblDat idx None
-        | DataType.Cont _ -> getTblDatSplitsForContVar tblDat idx splittingValAndImpurityOpt.Value
+        | DataType.Cat _ -> getTblDatSplitsForCatVar tblDat idx
+        | DataType.Cont _ -> getTblDatSplitsForContVar tblDat idx infoGainResOpt.Value
 
 
-    let getPrunedComponentsForCatVar (tblsLst : list<DataTable>) (idx : int) _ _ : list<PrunedComponents> =
+    let getPrunedComponentsForCatVar (tblsLst : list<DataTable>) (idx : int) : list<PrunedComponents> =
         let exFn (idx : int) (sqTbl: seq<seq<DataType>>) : seq<string * DataType * seq<seq<DataType>>> =
             if (Seq.isEmpty sqTbl) || (((Seq.skip idx) >> Seq.head >> Seq.length) sqTbl) < 2
             then failwith errorMsgs.["emptyLstErrorMsg"]
@@ -264,7 +270,7 @@ module CART =
     let getPrunedComponentsForContVar
         (tblsLst : list<DataTable>)
         (idx : int)
-        (splittingValAndImpurity : array<float>)
+        (infoGainRes : InfoGainRes)
         (splitStopCriterion : seq<seq<DataType>> -> bool)
         : list<PrunedComponents> =
         let exFn (idx : int) (sqTbl : seq<seq<DataType>>) : seq<string * float * seq<seq<DataType>>> =
@@ -281,7 +287,7 @@ module CART =
             {
             ColName = colName;
             ColVal =
-                let sv = splittingValAndImpurity.[0]
+                let sv = infoGainRes.SplittingValOpt.Value
                 (if colVal < sv then sv - epsilon else sv) |> (DataType.Cont << ContType.Flt);
             PrunedTable =
                 (
@@ -300,11 +306,11 @@ module CART =
         |> List.map (applyExOp (exFn idx) (op idx))
 
 
-    let getPrunedTbls
+    let getPrunedComponents
         (tblsLst : list<DataTable>)
         (idx : int)
-        (splittingValAndImpurity : array<float>)
-        (splitStopCriterion : seq<seq<DataType>> -> bool)
+        (infoGainResOpt : option<InfoGainRes>)
+        (splitStopCriterionOpt : option<seq<seq<DataType>> -> bool>)
         : list<PrunedComponents> =
         let exFn (idx : int) (tblsSq : seq<DataTable>) : seq<bool * seq<DataTable>> =
             let colType = ((Seq.head << Seq.head) tblsSq).[idx]
@@ -313,11 +319,8 @@ module CART =
             | _ -> failwith errorMsgs.["catErrorMsg"]
         let op (idx : int) (catFlgAndTblsSq : seq<bool * seq<DataTable>>) : list<PrunedComponents> =
             let catFlg, tblsSq = Seq.head catFlgAndTblsSq
-            (if catFlg then getPrunedComponentsForCatVar else getPrunedComponentsForContVar)
-                (List.ofSeq tblsSq)
-                idx
-                splittingValAndImpurity
-                splitStopCriterion
+            if catFlg then getPrunedComponentsForCatVar (List.ofSeq tblsSq) idx
+            else getPrunedComponentsForContVar (List.ofSeq tblsSq) idx infoGainResOpt.Value splitStopCriterionOpt.Value
         applyExOp (exFn idx) (op idx) tblsLst
 
 
