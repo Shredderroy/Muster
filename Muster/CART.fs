@@ -123,16 +123,13 @@ module CART =
         |> (fun s -> [|datSetImpurity - (s / tblDatLen)|])
 
 
-    let emptyLstErrorMsg = "The given list is empty"
-
-
-    let catErrorMsg = "Expected a categorical variable but encountered a continuous one"
-
-
-    let catStrErrorMsg = "Expected a categorical variable of type string but encountered something else"
-    
-    
-    let contErrorMsg = "Expected a continuous variable but encountered a categorical one"
+    let errorMsgs =
+        seq [
+            ("emptyLstErrorMsg", "The given list is empty");
+            ("catErrorMsg", "Expected a categorical variable but encountered a continuous one");
+            ("catStrErrorMsg", "Expected a categorical variable of type string but encountered something else");
+            ("contErrorMsg", "Expected a continuous variable but encountered a categorical one")]
+        |> Map.ofSeq
 
 
     let defFltExtractorFn (sq : seq<DataType>) : seq<float> =
@@ -140,7 +137,7 @@ module CART =
         |> Seq.map (fun s ->
             match s with
             | DataType.Cont(ContType.Flt t) -> t
-            | _ -> failwith contErrorMsg)
+            | _ -> failwith errorMsgs.["contErrorMsg"])
 
 
     let applyExOp
@@ -148,38 +145,8 @@ module CART =
         (op : seq<'B> -> 'C)
         (sq : seq<'A>)
         : 'C =
-        if Seq.isEmpty sq then failwith emptyLstErrorMsg
+        if Seq.isEmpty sq then failwith errorMsgs.["emptyLstErrorMsg"]
         else sq |> exFn |> op
-
-
-    let getInfoGainForContVar1
-        (tblDat : DataTable)
-        (idx : int)
-        (impurityFunc : (list<DataType> -> float))
-        (datSetImpurity : float)
-        : array<float> =
-        let sortedTblDat = tblDat |> List.sortBy (fun s -> s.[idx])
-        let sortedblDatLen = float(List.length sortedTblDat)
-        let rowLen = (Array.length << List.head) sortedTblDat
-        let res =
-            ((List.head sortedTblDat).[idx], List.tail sortedTblDat)
-            ||> List.scan (fun s t ->
-                applyExOp defFltExtractorFn (Seq.average >> ContType.Flt >> DataType.Cont) [s; t.[idx]])
-            |> List.tail
-            |> List.map (fun s ->
-                sortedTblDat
-                |> List.partition (fun t -> t.[idx] < s)
-                |> (fun (t, u) -> [t; u])
-                |> List.map (fun t -> float(List.length t) * impurityFunc(t |> List.map (fun u -> u.[rowLen - 1])))
-                |> List.sum
-                |> (fun t -> applyExOp defFltExtractorFn (Seq.head) [s], datSetImpurity - (t / sortedblDatLen)))
-            |> (fun s ->
-                List.fold
-                    (fun (t : array<float>) (u, v) -> if t.[0] > u then t else [|u; v|])
-                    (let (t, u) = List.head s in [|t; u|])
-                    (List.tail s))
-        printfn "%A" res
-        [|0.0; 0.1|]
 
 
     let getInfoGainForContVar
@@ -191,31 +158,24 @@ module CART =
         let sortedTblDat = tblDat |> List.sortBy (fun s -> s.[idx])
         let sortedTblDatLen = float(List.length sortedTblDat)
         let rowLen = (Array.length << List.head) sortedTblDat
-        let res =
+        sortedTblDat
+        |> Seq.pairwise
+        |> Seq.map (fun (s, t) ->
+            DataType.op_Division(
+                DataType.op_Addition(s.[idx], t.[idx]),
+                DataType.Cont(ContType.Flt 2.0)))
+        |> Seq.map (fun s ->
             sortedTblDat
-            |> Seq.pairwise
-            |> Seq.map (fun (s, t) ->
-                DataType.op_Division(
-                    DataType.op_Addition(s.[idx], t.[idx]),
-                    DataType.Cont(ContType.Flt 2.0)))
-//            ((List.head sortedTblDat).[idx], List.tail sortedTblDat)
-//            ||> List.scan (fun s t ->
-//                applyExOp defFltExtractorFn (Seq.average >> ContType.Flt >> DataType.Cont) [s; t.[idx]])
-//            |> List.tail
-//            |> List.map (fun s ->
-//                sortedTblDat
-//                |> List.partition (fun t -> t.[idx] < s)
-//                |> (fun (t, u) -> [t; u])
-//                |> List.map (fun t -> float(List.length t) * impurityFunc(t |> List.map (fun u -> u.[rowLen - 1])))
-//                |> List.sum
-//                |> (fun t -> applyExOp defFltExtractorFn (Seq.head) [s], datSetImpurity - (t / sortedTblDatLen)))
-//            |> (fun s ->
-//                List.fold
-//                    (fun (t : array<float>) (u, v) -> if t.[0] > u then t else [|u; v|])
-//                    (let (t, u) = List.head s in [|t; u|])
-//                    (List.tail s))
-        printfn "%A" res
-        [|0.0; 0.1|]
+            |> List.partition (fun t -> t.[idx] < s)
+            |> (fun (t, u) -> [t; u])
+            |> List.map (fun t -> float(List.length t) * impurityFunc(t |> List.map (fun u -> u.[rowLen - 1])))
+            |> List.sum
+            |> (fun t -> applyExOp defFltExtractorFn Seq.head [s], datSetImpurity - (t / sortedTblDatLen)))
+        |> (fun s ->
+                Seq.fold
+                    (fun (t : array<float>) (u, v) -> if t.[1] > v then t else [|u; v|])
+                    (let (t, u) = Seq.head s in [|t; u|])
+                    (Seq.skip 1 s))
 
 
     let getInfoGain
@@ -246,7 +206,7 @@ module CART =
             |> Seq.map (fun s ->
                 match s.[idx] with
                 | DataType.Cont(ContType.Flt v) -> (v < splittingValAndImpurity.[0]), s
-                | _ -> failwith contErrorMsg)
+                | _ -> failwith errorMsgs.["contErrorMsg"])
         let op (sq : seq<bool * array<DataType>>) : seq<DataTable> =
             sq
             |> List.ofSeq
@@ -268,13 +228,13 @@ module CART =
     let getPrunedComponentsForCatVar (tblsLst : list<DataTable>) (idx : int) _ _ : list<PrunedComponents> =
         let exFn (idx : int) (sqTbl: seq<seq<DataType>>) : seq<string * DataType * seq<seq<DataType>>> =
             if (Seq.isEmpty sqTbl) || (((Seq.skip idx) >> Seq.head >> Seq.length) sqTbl) < 2
-            then failwith emptyLstErrorMsg
+            then failwith errorMsgs.["emptyLstErrorMsg"]
             else
                 let colName, colVal =
                     let tmp = ((Seq.skip idx) >> Seq.head >> (Seq.take 2)) sqTbl in Seq.head tmp, Seq.last tmp
                 match colName, colVal with
                 | DataType.Cat(CatType.Str colNameStr), DataType.Cat _ -> seq [colNameStr, colVal, sqTbl]
-                | _ -> failwith catErrorMsg
+                | _ -> failwith errorMsgs.["catErrorMsg"]
         let op (sq : seq<string * DataType * seq<seq<DataType>>>) : PrunedComponents =
             let colName, colVal, sqTbl = Seq.head sq
             {
@@ -310,13 +270,13 @@ module CART =
         : list<PrunedComponents> =
         let exFn (idx : int) (sqTbl : seq<seq<DataType>>) : seq<string * float * seq<seq<DataType>>> =
             if (Seq.isEmpty sqTbl) || (((Seq.skip idx) >> Seq.head >> Seq.length) sqTbl) < 2
-            then failwith emptyLstErrorMsg
+            then failwith errorMsgs.["emptyLstErrorMsg"]
             else
                 let colName, colVal =
                     let tmp = ((Seq.skip idx) >> Seq.head >> (Seq.take 2)) sqTbl in Seq.head tmp, Seq.last tmp
                 match colName, colVal with
                 | DataType.Cat(CatType.Str colNameStr), DataType.Cont(ContType.Flt v) -> seq [colNameStr, v, sqTbl]
-                | _ -> failwith contErrorMsg
+                | _ -> failwith errorMsgs.["contErrorMsg"]
         let op (idx : int) (sq : seq<string * float * seq<seq<DataType>>>) : PrunedComponents =
             let colName, colVal, sqTbl = Seq.head sq
             {
@@ -351,7 +311,7 @@ module CART =
             let colType = ((Seq.head << Seq.head) tblsSq).[idx]
             match colType with
             | DataType.Cat(CatType.Str _) -> seq [true, tblsSq]
-            | _ -> failwith catErrorMsg
+            | _ -> failwith errorMsgs.["catErrorMsg"]
         let op (idx : int) (catFlgAndTblsSq : seq<bool * seq<DataTable>>) : list<PrunedComponents> =
             let catFlg, tblsSq = Seq.head catFlgAndTblsSq
             (if catFlg then getPrunedComponentsForCatVar else getPrunedComponentsForContVar)
