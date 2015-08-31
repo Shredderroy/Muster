@@ -172,7 +172,7 @@ module CART =
             |> (fun t -> applyExOp defFltExtractorFn Seq.head [s], datSetImpurity - (t / sortedTblDatLen)))
         |> (fun s ->
                 Seq.fold
-                    (fun (t : array<float>) (u, v) -> if t.[1] > v then t else [|u; v|])
+                    (fun t (u, v) -> if t.[1] > v then t else [|u; v|])
                     (let (t, u) = Seq.head s in [|t; u|])
                     (Seq.skip 1 s))
 
