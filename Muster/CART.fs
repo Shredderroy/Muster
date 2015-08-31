@@ -8,8 +8,7 @@ open Muster.Extensions
 module CART =
 
 
-    let operatorErrorMsg (op : string) =
-        op + " operator called with incompatible arguments"
+    let operatorErrorMsg (op : string) = op + " operator called with incompatible arguments"
 
 
     [<RequireQualifiedAccess; StructuralComparison; StructuralEquality>]
