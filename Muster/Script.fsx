@@ -234,8 +234,8 @@ let rnd = Random()
 //
 //
 //cartTest1()
-
-
+//
+//
 let cartTest2 () : unit =
     let (tbl : DataTable) =
         [
@@ -278,4 +278,10 @@ let cartTest2 () : unit =
     printfn "%A" (Array.ofList prunedTblsLst).[0]
 
 cartTest2()
+
+
+//
+// [("Col1", Val1); ("Col2", Val2); ("Col3", Val3)]
+// decisionTree.["Col1"].[Val1] - This should also be a DecisionTree.
+//
 

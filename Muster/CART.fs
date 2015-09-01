@@ -327,7 +327,7 @@ module CART =
     let buildC45
         (currTbl : DataTable)
         (impurityFn : list<DataType> -> float)
-        (splitStopCriterion : seq<seq<DataType>> -> bool)
+        (splitStopCriterionOpt : option<seq<seq<DataType>> -> bool>)
         =
         []
 
