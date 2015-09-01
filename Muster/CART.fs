@@ -313,10 +313,10 @@ module CART =
         (splitStopCriterionOpt : option<seq<seq<DataType>> -> bool>)
         : list<PrunedComponents> =
         let exFn (idx : int) (tblsSq : seq<DataTable>) : seq<bool * seq<DataTable>> =
-            let colType = ((Seq.head << Seq.head) tblsSq).[idx]
+            let colType = ((Seq.head << (Seq.skip 1) << Seq.head) tblsSq).[idx]
             match colType with
-            | DataType.Cat(CatType.Str _) -> seq [true, tblsSq]
-            | _ -> failwith errorMsgs.["catErrorMsg"]
+            | DataType.Cat _ -> seq [true, tblsSq]
+            | _ -> seq [false, tblsSq]
         let op (idx : int) (catFlgAndTblsSq : seq<bool * seq<DataTable>>) : list<PrunedComponents> =
             let catFlg, tblsSq = Seq.head catFlgAndTblsSq
             if catFlg then getPrunedComponentsForCatVar (List.ofSeq tblsSq) idx
