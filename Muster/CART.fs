@@ -80,7 +80,9 @@ module CART =
     type PrunedComponents = {ColName : String; ColVal : DataType; PrunedTable : DataTable}
 
 
-    type DecisionTreeNode = {Key : DataType; ChildNodes : list<DecisionTreeNode>}
+    type DecisionTreeNode =
+        | Leaf of DataType
+        | Internal of Map<DataType * DataType, DecisionTreeNode>
 
 
     let coreImpurityFn<'A when 'A : equality> (classVals : list<'A>) : list<float> =
