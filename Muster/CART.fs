@@ -77,9 +77,11 @@ module CART =
     type InfoGainRes = {SplittingValOpt : option<float>; InfoGain : float}
 
 
+    [<RequireQualifiedAccess>]
     type PrunedComponents = {ColName : String; ColVal : DataType; PrunedTable : DataTable}
 
 
+    [<RequireQualifiedAccess>]
     type DecisionTreeNode =
         | Leaf of DataType
         | Internal of Map<DataType * DataType, DecisionTreeNode>
@@ -335,8 +337,8 @@ module CART =
         (currTbl : DataTable)
         (impurityFn : list<DataType> -> float)
         (splitStopCriterionOpt : option<seq<seq<DataType>> -> bool>)
-        =
-        []
+        : DecisionTreeNode =
+        DecisionTreeNode.Leaf(DataType.Cat(CatType.Str ""))
 
 
     let test () : unit = ()
