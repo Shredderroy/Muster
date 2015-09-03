@@ -282,37 +282,44 @@ module CART =
         (infoGainRes : InfoGainRes)
         (splitStopCriterion : seq<seq<DataType>> -> bool)
         : list<PrunedComponents> =
-        let exFn (idx : int) (sqTbl : seq<seq<DataType>>) : seq<string * float * seq<seq<DataType>>> =
-            if (Seq.isEmpty sqTbl) || (((Seq.skip idx) >> Seq.head >> Seq.length) sqTbl) < 2
+        let exFn (idx : int) (transSqTbl : seq<seq<DataType>>) : seq<string * float * seq<seq<DataType>>> =
+            if (Seq.isEmpty transSqTbl) || (((Seq.skip idx) >> Seq.head >> Seq.length) transSqTbl) < 2
             then failwith errorMsgs.["emptyLstErrorMsg"]
             else
                 let colName, colVal =
-                    let tmp = ((Seq.skip idx) >> Seq.head >> (Seq.take 2)) sqTbl in Seq.head tmp, Seq.last tmp
+                    let tmp = ((Seq.skip idx) >> Seq.head >> (Seq.take 2)) transSqTbl in Seq.head tmp, Seq.last tmp
                 match colName, colVal with
-                | DataType.Cat(CatType.Str colNameStr), DataType.Cont(ContType.Flt v) -> seq [colNameStr, v, sqTbl]
+                | DataType.Cat(CatType.Str colNameStr), DataType.Cont(ContType.Flt v) ->
+                    seq [colNameStr, v, transSqTbl]
                 | _ -> failwith errorMsgs.["contErrorMsg"]
-        let op (idx : int) (sq : seq<string * float * seq<seq<DataType>>>) : PrunedComponents =
+        let op
+            (idx : int)
+            (splitStopCriterion : seq<seq<DataType>> -> bool)
+            (sq : seq<string * float * seq<seq<DataType>>>)
+            : PrunedComponents =
             let colName, colVal, sqTbl = Seq.head sq
             {
             ColName = colName;
             ColVal =
                 let sv = infoGainRes.SplittingValOpt.Value
                 (if colVal < sv then sv - epsilon else sv) |> (DataType.Cont << ContType.Flt);
+            // THE PROBLEM IS THAT SPLITSTOPCRITERION IS BEING CALLED ON TRANSPOSED TABLES
             PrunedTable =
                 (
-                if splitStopCriterion sqTbl then sqTbl
+                if not (splitStopCriterion sqTbl) then sqTbl
                 elif idx < 1 then Seq.skip 1 sqTbl
                 else
                     seq {
                         yield! (Seq.take idx sqTbl)
                         yield! (Seq.skip(idx + 1) sqTbl)})
-                |> ((Seq.map List.ofSeq) >> List.ofSeq)
+                |> Seq.map List.ofSeq
+                |> List.ofSeq
                 |> ListExtensions.transpose
                 |> List.map (Array.ofList)}
         tblsLst
         |> List.map ((List.map List.ofArray) >> ListExtensions.transpose)
         |> List.map (Seq.map Seq.ofList)
-        |> List.map (applyExOp (exFn idx) (op idx))
+        |> List.map (applyExOp (exFn idx) (op idx splitStopCriterion))
 
 
     let getPrunedComponents
@@ -338,6 +345,7 @@ module CART =
         (impurityFn : list<DataType> -> float)
         (splitStopCriterionOpt : option<seq<seq<DataType>> -> bool>)
         : DecisionTreeNode =
+        //
         DecisionTreeNode.Leaf(DataType.Cat(CatType.Str ""))
 
 

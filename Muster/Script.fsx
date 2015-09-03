@@ -275,7 +275,7 @@ let cartTest2 () : unit =
             idx
             (Some infoGain)
             (Some defSplitStopCriterion)
-    printfn "%A" (Array.ofList prunedTblsLst).[0]
+    printfn "%A" (Array.ofList prunedTblsLst).[1]
 
 cartTest2()
 
