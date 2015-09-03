@@ -83,6 +83,8 @@ module CART =
     type DecisionTreeNode =
         | Leaf of DataType
         | Internal of Map<DataType * DataType, DecisionTreeNode>
+        static member navigate (dt : DecisionTreeNode) (searchKey : DataType * DataType) =
+            []
 
 
     let coreImpurityFn<'A when 'A : equality> (classVals : list<'A>) : list<float> =
