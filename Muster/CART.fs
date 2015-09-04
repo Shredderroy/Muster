@@ -297,21 +297,27 @@ module CART =
             (splitStopCriterion : seq<seq<DataType>> -> bool)
             (sq : seq<string * float * seq<seq<DataType>>>)
             : PrunedComponents =
-            let colName, colVal, sqTbl = Seq.head sq
+            let colName, colVal, transSqTbl = Seq.head sq
             {
             ColName = colName;
             ColVal =
                 let sv = infoGainRes.SplittingValOpt.Value
                 (if colVal < sv then sv - epsilon else sv) |> (DataType.Cont << ContType.Flt);
-            // THE PROBLEM IS THAT SPLITSTOPCRITERION IS BEING CALLED ON TRANSPOSED TABLES
             PrunedTable =
+                let splitStopFlg =
+                    transSqTbl
+                    |> ((Seq.map List.ofSeq) >> List.ofSeq)
+                    |> ListExtensions.transpose
+                    |> ((List.map Seq.ofList) >> Seq.ofList)
+                    |> splitStopCriterion
+                printfn "splitStopFlg = %A" splitStopFlg
                 (
-                if not (splitStopCriterion sqTbl) then sqTbl
-                elif idx < 1 then Seq.skip 1 sqTbl
+                if not splitStopFlg then transSqTbl
+                elif idx < 1 then Seq.skip 1 transSqTbl
                 else
                     seq {
-                        yield! (Seq.take idx sqTbl)
-                        yield! (Seq.skip(idx + 1) sqTbl)})
+                        yield! (Seq.take idx transSqTbl)
+                        yield! (Seq.skip(idx + 1) transSqTbl)})
                 |> Seq.map List.ofSeq
                 |> List.ofSeq
                 |> ListExtensions.transpose
