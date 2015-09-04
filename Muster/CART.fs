@@ -347,12 +347,17 @@ module CART =
 
 
     let buildC45
-        (currTbl : DataTable)
+        (tbl : DataTable)
         (impurityFn : list<DataType> -> float)
         (splitStopCriterionOpt : option<seq<seq<DataType>> -> bool>)
         : DecisionTreeNode =
-        //
-        DecisionTreeNode.Leaf(DataType.Cat(CatType.Str ""))
+        let rec helper (currTbl : DataTable) : DecisionTreeNode =
+            if (List.length currTbl) < 2 then DecisionTreeNode.Leaf(DataType.Cat(CatType.Str ""))
+            else
+                let classVals = currTbl |> List.map (fun s -> s.[(Array.length s) - 1])
+                // let datSetImpurity = impurityFn classVals
+                DecisionTreeNode.Leaf(DataType.Cat(CatType.Str ""))
+        helper tbl
 
 
     let test () : unit = ()
