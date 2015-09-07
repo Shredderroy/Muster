@@ -354,7 +354,7 @@ module CART =
         let rec helper (currTbl : DataTable) : DecisionTreeNode =
             if (List.length currTbl) < 2 then DecisionTreeNode.Leaf(DataType.Cat(CatType.Str ""))
             else
-                let classVals = currTbl |> List.map (fun s -> s.[(Array.length s) - 1])
+                let classVals = currTbl |> List.map (fun s -> s.[(Array.length s) - 1]) |> List.tail
                 let datSetImpurity = impurityFn classVals
                 DecisionTreeNode.Leaf(DataType.Cat(CatType.Str ""))
         helper tbl
