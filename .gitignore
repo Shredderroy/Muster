@@ -2,3 +2,8 @@ Test/obj/Debug/*
 Test/obj/Release/*
 Test/bin/Debug/*
 Test/bin/Release/*
+Muster/obj/Debug/*
+Muster/obj/Release/*
+Muster/bin/Debug/*
+Muster/bin/Release/*
+.vs/Muster/v14/*

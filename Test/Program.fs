@@ -309,7 +309,7 @@ module Program =
 
     let testInt16KDTree () : unit =
         let dim = 8
-        let numOfVecs = 1024000 * 8
+        let numOfVecs = 1024000 * 16
         let (maxVal : int16) = 8s
         let b = 10
         let vecsArr = KDTree.genRandInt16VecsArr dim numOfVecs maxVal
