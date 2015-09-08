@@ -356,7 +356,7 @@ module CART =
             else
                 let classVals = currTbl |> List.map (fun s -> s.[(Array.length s) - 1]) |> List.tail
                 let headClassVal = List.head classVals
-                if (List.tryFind (fun s -> s = headClassVal) (List.tail classVals)).IsNone
+                if (List.tryFind ((=) headClassVal) (List.tail classVals)).IsNone
                 then DecisionTreeNode.Leaf headClassVal
                 else
                     DecisionTreeNode.Leaf(DataType.Cat(CatType.Str ""))
