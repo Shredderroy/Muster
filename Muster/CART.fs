@@ -352,14 +352,18 @@ module CART =
         (splitStopCriterionOpt : option<seq<seq<DataType>> -> bool>)
         : DecisionTreeNode =
         let rec helper (currTbl : DataTable) : DecisionTreeNode =
-            if (List.length currTbl) < 2 then DecisionTreeNode.Leaf(DataType.Cat(CatType.Str ""))
+            let currTblDat = List.tail currTbl
+            let classVals = currTblDat |> List.map (fun s -> s.[(Array.length s) - 1])
+            let headClassVal = List.head classVals
+            if (List.tryFind ((=) headClassVal) (List.tail classVals)).IsNone
+            then DecisionTreeNode.Leaf headClassVal
             else
-                let classVals = currTbl |> List.map (fun s -> s.[(Array.length s) - 1]) |> List.tail
-                let headElem = List.head classVals
-                if (List.tryFind (fun s -> s = headElem) (List.tail classVals)).IsNone
-                then DecisionTreeNode.Leaf headElem
-                else
-                    DecisionTreeNode.Leaf(DataType.Cat(CatType.Str ""))
+                let datSetImpurity = impurityFn classVals
+                let tblDatWidth = ((Array.length << List.head) tbl) - 1
+                let res =
+                    [0 .. tblDatWidth - 1]
+                    |> List.map (fun s ->  (s, getInfoGain currTblDat s impurityFn datSetImpurity))
+                DecisionTreeNode.Leaf(DataType.Cat(CatType.Str ""))
         helper tbl
 
 
