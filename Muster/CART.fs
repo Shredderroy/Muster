@@ -355,8 +355,23 @@ module CART =
             let currTblDat = List.tail currTbl
             let classVals = currTblDat |> List.map (fun s -> s.[(Array.length s) - 1])
             let headClassVal = List.head classVals
-            if (List.tryFind ((=) headClassVal) (List.tail classVals)).IsNone
-            then DecisionTreeNode.Leaf headClassVal
+            // BEGIN LOGIC
+            // If all the classVals are the same, return a leaf node with that singular value
+            // Elif the width of currTbl = 1, the terminal condition of the recursion has been reached
+            // Else
+            //      Get the infoGain values corresponding to each column
+            //      Find the column with the maximum infoGain value, note its index
+            //      Split currTbl along that index according to the class values
+            //      Prune each split table
+            //      Recursively call helper on each pruned table
+            // END LOGIC
+            // if (List.tryFind ((!=) headClassVal) (List.tail classVals)).IsNone
+            let eqClassValsFlg =
+                classVals
+                |> List.filter ((=) headClassVal)
+                |> List.length
+                |> ((=) (List.length classVals))
+            if eqClassValsFlg then DecisionTreeNode.Leaf headClassVal
             else
                 let datSetImpurity = impurityFn classVals
                 let tblDatWidth = ((Array.length << List.head) tbl) - 1
