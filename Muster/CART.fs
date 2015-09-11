@@ -366,20 +366,16 @@ module CART =
             else
                 let datSetImpurity = impurityFn classVals
                 let res =
-                    if currTblWidth = 2 then
-                        let infoGain = getInfoGain currTblDat 0 impurityFn datSetImpurity
-                        DecisionTreeNode.Leaf(DataType.Cat(CatType.Str ""))
-                    else
-                        [0 .. currTblWidth - 2]
-                        |> List.map (fun s ->  (s, getInfoGain currTblDat s impurityFn datSetImpurity))
-                        |> List.maxBy (fun (s, t) -> t.InfoGain)
-                        |> (fun (s, t) -> s, t, getTblDatSplits currTblDat s t)
-                        |> (fun (s, t, u) ->
-                            getPrunedComponents (List.map (fun v -> colHdrs :: v) u) s t splitStopCriterionOpt)
-                        |> List.map (fun s ->
-                            (DataType.Cat(CatType.Str s.ColName), s.ColVal),
-                            helper s.PrunedTable)
-                        |> (Map.ofSeq >> DecisionTreeNode.Internal)
+                    [0 .. currTblWidth - 2]
+                    |> List.map (fun s ->  (s, getInfoGain currTblDat s impurityFn datSetImpurity))
+                    |> List.maxBy (fun (s, t) -> t.InfoGain)
+                    |> (fun (s, t) -> s, t, getTblDatSplits currTblDat s t)
+                    |> (fun (s, t, u) ->
+                        getPrunedComponents (List.map (fun v -> colHdrs :: v) u) s t splitStopCriterionOpt)
+                    |> List.map (fun s ->
+                        (DataType.Cat(CatType.Str s.ColName), s.ColVal),
+                        helper s.PrunedTable)
+                    |> (Map.ofSeq >> DecisionTreeNode.Internal)
                 printfn "%A" res
                 DecisionTreeNode.Leaf(DataType.Cat(CatType.Str ""))
         helper tbl
