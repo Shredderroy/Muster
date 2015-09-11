@@ -372,9 +372,8 @@ module CART =
                     |> (fun (s, t) -> s, t, getTblDatSplits currTblDat s t)
                     |> (fun (s, t, u) ->
                         getPrunedComponents (List.map (fun v -> colHdrs :: v) u) s t splitStopCriterionOpt)
-                    |> List.map (fun s ->
-                        DecisionTreeNode.Internal()
-                        )
+                    |> List.map (fun s -> (DataType.Cat(CatType.Str s.ColName), s.ColVal), helper s.PrunedTable)
+                    |> (Map.ofSeq >> DecisionTreeNode.Internal)
                 printfn "%A" res
                 DecisionTreeNode.Leaf(DataType.Cat(CatType.Str ""))
         helper tbl
