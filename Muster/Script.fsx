@@ -204,84 +204,57 @@ let rnd = Random()
 //    printfn "%A" rVec
 //
 //
-//let cartTest1 () : unit =
-//    let (tbl : DataTable) =
-//        [
-//        [|DataType.Cat(CatType.Str "G"); DataType.Cat(CatType.Str "CO"); DataType.Cat(CatType.Str "TC"); DataType.Cat(CatType.Str "IL"); DataType.Cat(CatType.Str "T")|];
-//        [|DataType.Cat(CatType.Str "M"); DataType.Cat(CatType.Str "0"); DataType.Cat(CatType.Str "ch"); DataType.Cat(CatType.Str "lw"); DataType.Cat(CatType.Str "bus")|];
-//        [|DataType.Cat(CatType.Str "M"); DataType.Cat(CatType.Str "1"); DataType.Cat(CatType.Str "ch"); DataType.Cat(CatType.Str "md"); DataType.Cat(CatType.Str "bus")|];
-//        [|DataType.Cat(CatType.Str "F"); DataType.Cat(CatType.Str "1"); DataType.Cat(CatType.Str "ch"); DataType.Cat(CatType.Str "md"); DataType.Cat(CatType.Str "trn")|];
-//        [|DataType.Cat(CatType.Str "F"); DataType.Cat(CatType.Str "0"); DataType.Cat(CatType.Str "ch"); DataType.Cat(CatType.Str "lw"); DataType.Cat(CatType.Str "bus")|];
-//        [|DataType.Cat(CatType.Str "M"); DataType.Cat(CatType.Str "1"); DataType.Cat(CatType.Str "ch"); DataType.Cat(CatType.Str "md"); DataType.Cat(CatType.Str "bus")|];
-//        [|DataType.Cat(CatType.Str "M"); DataType.Cat(CatType.Str "0"); DataType.Cat(CatType.Str "st"); DataType.Cat(CatType.Str "md"); DataType.Cat(CatType.Str "trn")|];
-//        [|DataType.Cat(CatType.Str "F"); DataType.Cat(CatType.Str "1"); DataType.Cat(CatType.Str "st"); DataType.Cat(CatType.Str "md"); DataType.Cat(CatType.Str "trn")|];
-//        [|DataType.Cat(CatType.Str "F"); DataType.Cat(CatType.Str "1"); DataType.Cat(CatType.Str "ex"); DataType.Cat(CatType.Str "hh"); DataType.Cat(CatType.Str "car")|];
-//        [|DataType.Cat(CatType.Str "M"); DataType.Cat(CatType.Str "2"); DataType.Cat(CatType.Str "ex"); DataType.Cat(CatType.Str "md"); DataType.Cat(CatType.Str "car")|];
-//        [|DataType.Cat(CatType.Str "F"); DataType.Cat(CatType.Str "2"); DataType.Cat(CatType.Str "ex"); DataType.Cat(CatType.Str "hh"); DataType.Cat(CatType.Str "car")|]
-//        ]
-//    let tblDat = List.tail tbl
-//    let impurityFn = entropy
-//    let datSetImpurity = impurityFn (tblDat |> List.map (fun s -> s.[4]))
-//    let infoGainVals =
-//        [|1 .. ((Array.length << List.head) tblDat)|]
-//        |> Array.map (fun s -> getInfoGain tblDat (s - 1) impurityFn datSetImpurity)
-//    let idx = 2
-//    let tblsLst = getTblDatSplits tblDat idx None
-//    let prunedTblsLst =
-//        let colHdrs = List.head tbl
-//        getPrunedComponents (tblsLst |> List.map (fun s -> colHdrs :: s)) idx None None
-//    printfn "%A" (Array.ofList prunedTblsLst).[2]
-//
-//
-//cartTest1()
-//
-//
-let cartTest2 () : unit =
+let cartTest1 () : unit =
     let (tbl : DataTable) =
         [
-        [|DataType.Cat(CatType.Str "OL"); DataType.Cat(CatType.Str "TM"); DataType.Cat(CatType.Str "HM"); DataType.Cat(CatType.Str "WN"); DataType.Cat(CatType.Str "PL")|];
-        [|DataType.Cat(CatType.Str "sn"); DataType.Cont(ContType.Flt 85.0); DataType.Cont(ContType.Flt 85.0); DataType.Cat(CatType.Bool false); DataType.Cat(CatType.Str "N")|];
-        [|DataType.Cat(CatType.Str "sn"); DataType.Cont(ContType.Flt 80.0); DataType.Cont(ContType.Flt 90.0); DataType.Cat(CatType.Bool true); DataType.Cat(CatType.Str "N")|];
-        [|DataType.Cat(CatType.Str "ov"); DataType.Cont(ContType.Flt 83.0); DataType.Cont(ContType.Flt 78.0); DataType.Cat(CatType.Bool false); DataType.Cat(CatType.Str "Y")|];
-        [|DataType.Cat(CatType.Str "rn"); DataType.Cont(ContType.Flt 70.0); DataType.Cont(ContType.Flt 96.0); DataType.Cat(CatType.Bool false); DataType.Cat(CatType.Str "Y")|];
-        [|DataType.Cat(CatType.Str "rn"); DataType.Cont(ContType.Flt 68.0); DataType.Cont(ContType.Flt 80.0); DataType.Cat(CatType.Bool false); DataType.Cat(CatType.Str "Y")|];
-        [|DataType.Cat(CatType.Str "rn"); DataType.Cont(ContType.Flt 65.0); DataType.Cont(ContType.Flt 70.0); DataType.Cat(CatType.Bool true); DataType.Cat(CatType.Str "N")|];
-        [|DataType.Cat(CatType.Str "ov"); DataType.Cont(ContType.Flt 64.0); DataType.Cont(ContType.Flt 65.0); DataType.Cat(CatType.Bool true); DataType.Cat(CatType.Str "N")|];
-        [|DataType.Cat(CatType.Str "sn"); DataType.Cont(ContType.Flt 72.0); DataType.Cont(ContType.Flt 95.0); DataType.Cat(CatType.Bool false); DataType.Cat(CatType.Str "N")|];
-        [|DataType.Cat(CatType.Str "sn"); DataType.Cont(ContType.Flt 69.0); DataType.Cont(ContType.Flt 70.0); DataType.Cat(CatType.Bool false); DataType.Cat(CatType.Str "Y")|];
-        [|DataType.Cat(CatType.Str "rn"); DataType.Cont(ContType.Flt 75.0); DataType.Cont(ContType.Flt 80.0); DataType.Cat(CatType.Bool false); DataType.Cat(CatType.Str "Y")|];
-        [|DataType.Cat(CatType.Str "sn"); DataType.Cont(ContType.Flt 75.0); DataType.Cont(ContType.Flt 70.0); DataType.Cat(CatType.Bool true); DataType.Cat(CatType.Str "Y")|];
-        [|DataType.Cat(CatType.Str "ov"); DataType.Cont(ContType.Flt 72.0); DataType.Cont(ContType.Flt 90.0); DataType.Cat(CatType.Bool true); DataType.Cat(CatType.Str "Y")|];
-        [|DataType.Cat(CatType.Str "ov"); DataType.Cont(ContType.Flt 81.0); DataType.Cont(ContType.Flt 75.0); DataType.Cat(CatType.Bool false); DataType.Cat(CatType.Str "Y")|];
-        [|DataType.Cat(CatType.Str "rn"); DataType.Cont(ContType.Flt 71.0); DataType.Cont(ContType.Flt 80.0); DataType.Cat(CatType.Bool true); DataType.Cat(CatType.Str "N")|]
+        [|DataType.Cat(CatType.Str "G"); DataType.Cat(CatType.Str "CO"); DataType.Cat(CatType.Str "TC"); DataType.Cat(CatType.Str "IL"); DataType.Cat(CatType.Str "T")|];
+        [|DataType.Cat(CatType.Str "M"); DataType.Cat(CatType.Str "0"); DataType.Cat(CatType.Str "ch"); DataType.Cat(CatType.Str "lw"); DataType.Cat(CatType.Str "bus")|];
+        [|DataType.Cat(CatType.Str "M"); DataType.Cat(CatType.Str "1"); DataType.Cat(CatType.Str "ch"); DataType.Cat(CatType.Str "md"); DataType.Cat(CatType.Str "bus")|];
+        [|DataType.Cat(CatType.Str "F"); DataType.Cat(CatType.Str "1"); DataType.Cat(CatType.Str "ch"); DataType.Cat(CatType.Str "md"); DataType.Cat(CatType.Str "trn")|];
+        [|DataType.Cat(CatType.Str "F"); DataType.Cat(CatType.Str "0"); DataType.Cat(CatType.Str "ch"); DataType.Cat(CatType.Str "lw"); DataType.Cat(CatType.Str "bus")|];
+        [|DataType.Cat(CatType.Str "M"); DataType.Cat(CatType.Str "1"); DataType.Cat(CatType.Str "ch"); DataType.Cat(CatType.Str "md"); DataType.Cat(CatType.Str "bus")|];
+        [|DataType.Cat(CatType.Str "M"); DataType.Cat(CatType.Str "0"); DataType.Cat(CatType.Str "st"); DataType.Cat(CatType.Str "md"); DataType.Cat(CatType.Str "trn")|];
+        [|DataType.Cat(CatType.Str "F"); DataType.Cat(CatType.Str "1"); DataType.Cat(CatType.Str "st"); DataType.Cat(CatType.Str "md"); DataType.Cat(CatType.Str "trn")|];
+        [|DataType.Cat(CatType.Str "F"); DataType.Cat(CatType.Str "1"); DataType.Cat(CatType.Str "ex"); DataType.Cat(CatType.Str "hh"); DataType.Cat(CatType.Str "car")|];
+        [|DataType.Cat(CatType.Str "M"); DataType.Cat(CatType.Str "2"); DataType.Cat(CatType.Str "ex"); DataType.Cat(CatType.Str "md"); DataType.Cat(CatType.Str "car")|];
+        [|DataType.Cat(CatType.Str "F"); DataType.Cat(CatType.Str "2"); DataType.Cat(CatType.Str "ex"); DataType.Cat(CatType.Str "hh"); DataType.Cat(CatType.Str "car")|]
         ]
     let tblDat = List.tail tbl
     let impurityFn = entropy
-    let datSetImpurity = impurityFn (tblDat |> List.map (fun s -> s.[4]))
-    printfn "%A" datSetImpurity
-    let idx = 1
-    let infoGain = getInfoGain tblDat idx impurityFn datSetImpurity
-    printfn "%A" infoGain
-    let infoGainVals =
-        [|1 .. (Array.length << List.head) tblDat|]
-        |> Array.map (fun s -> getInfoGain tblDat (s - 1) impurityFn datSetImpurity)
-    // printfn "%A" infoGainVals
-    let tblsLst = getTblDatSplits tblDat idx (Some infoGain)
-    // printfn "%A" (Array.ofList tblsLst).[1]
-    let prunedTblsLst =
-        let colHdrs = List.head tbl
-        getPrunedComponents
-            (tblsLst |> List.map (fun s -> colHdrs :: s))
-            idx
-            (Some infoGain)
-            (Some defSplitStopCriterion)
-    printfn "%A" (Array.ofList prunedTblsLst).[1]
+    let c45Tree = buildC45 tbl impurityFn None
+    ()
 
-cartTest2()
+
+cartTest1()
+//
+//
+//let cartTest2 () : unit =
+//    let (tbl : DataTable) =
+//        [
+//        [|DataType.Cat(CatType.Str "OL"); DataType.Cat(CatType.Str "TM"); DataType.Cat(CatType.Str "HM"); DataType.Cat(CatType.Str "WN"); DataType.Cat(CatType.Str "PL")|];
+//        [|DataType.Cat(CatType.Str "sn"); DataType.Cont(ContType.Flt 85.0); DataType.Cont(ContType.Flt 85.0); DataType.Cat(CatType.Bool false); DataType.Cat(CatType.Str "N")|];
+//        [|DataType.Cat(CatType.Str "sn"); DataType.Cont(ContType.Flt 80.0); DataType.Cont(ContType.Flt 90.0); DataType.Cat(CatType.Bool true); DataType.Cat(CatType.Str "N")|];
+//        [|DataType.Cat(CatType.Str "ov"); DataType.Cont(ContType.Flt 83.0); DataType.Cont(ContType.Flt 78.0); DataType.Cat(CatType.Bool false); DataType.Cat(CatType.Str "Y")|];
+//        [|DataType.Cat(CatType.Str "rn"); DataType.Cont(ContType.Flt 70.0); DataType.Cont(ContType.Flt 96.0); DataType.Cat(CatType.Bool false); DataType.Cat(CatType.Str "Y")|];
+//        [|DataType.Cat(CatType.Str "rn"); DataType.Cont(ContType.Flt 68.0); DataType.Cont(ContType.Flt 80.0); DataType.Cat(CatType.Bool false); DataType.Cat(CatType.Str "Y")|];
+//        [|DataType.Cat(CatType.Str "rn"); DataType.Cont(ContType.Flt 65.0); DataType.Cont(ContType.Flt 70.0); DataType.Cat(CatType.Bool true); DataType.Cat(CatType.Str "N")|];
+//        [|DataType.Cat(CatType.Str "ov"); DataType.Cont(ContType.Flt 64.0); DataType.Cont(ContType.Flt 65.0); DataType.Cat(CatType.Bool true); DataType.Cat(CatType.Str "N")|];
+//        [|DataType.Cat(CatType.Str "sn"); DataType.Cont(ContType.Flt 72.0); DataType.Cont(ContType.Flt 95.0); DataType.Cat(CatType.Bool false); DataType.Cat(CatType.Str "N")|];
+//        [|DataType.Cat(CatType.Str "sn"); DataType.Cont(ContType.Flt 69.0); DataType.Cont(ContType.Flt 70.0); DataType.Cat(CatType.Bool false); DataType.Cat(CatType.Str "Y")|];
+//        [|DataType.Cat(CatType.Str "rn"); DataType.Cont(ContType.Flt 75.0); DataType.Cont(ContType.Flt 80.0); DataType.Cat(CatType.Bool false); DataType.Cat(CatType.Str "Y")|];
+//        [|DataType.Cat(CatType.Str "sn"); DataType.Cont(ContType.Flt 75.0); DataType.Cont(ContType.Flt 70.0); DataType.Cat(CatType.Bool true); DataType.Cat(CatType.Str "Y")|];
+//        [|DataType.Cat(CatType.Str "ov"); DataType.Cont(ContType.Flt 72.0); DataType.Cont(ContType.Flt 90.0); DataType.Cat(CatType.Bool true); DataType.Cat(CatType.Str "Y")|];
+//        [|DataType.Cat(CatType.Str "ov"); DataType.Cont(ContType.Flt 81.0); DataType.Cont(ContType.Flt 75.0); DataType.Cat(CatType.Bool false); DataType.Cat(CatType.Str "Y")|];
+//        [|DataType.Cat(CatType.Str "rn"); DataType.Cont(ContType.Flt 71.0); DataType.Cont(ContType.Flt 80.0); DataType.Cat(CatType.Bool true); DataType.Cat(CatType.Str "N")|]
+//        ]
+//    let tblDat = List.tail tbl
+//    let impurityFn = entropy
+//    ()
+//
+//cartTest2()
 
 
 //
 // [("Col1", Val1); ("Col2", Val2); ("Col3", Val3)]
 // decisionTree.["Col1"].[Val1] - This should also be a DecisionTree.
 //
-

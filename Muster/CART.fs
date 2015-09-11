@@ -232,11 +232,11 @@ module CART =
     let getTblDatSplits
         (tblDat : DataTable)
         (idx : int)
-        (infoGainResOpt : option<InfoGainRes>)
+        (infoGainRes : InfoGainRes)
         : list<DataTable> =
         match (List.head tblDat).[idx] with
         | DataType.Cat _ -> getTblDatSplitsForCatVar tblDat idx
-        | DataType.Cont _ -> getTblDatSplitsForContVar tblDat idx infoGainResOpt.Value
+        | DataType.Cont _ -> getTblDatSplitsForContVar tblDat idx infoGainRes
 
 
     let getPrunedComponentsForCatVar (tblsLst : list<DataTable>) (idx : int) : list<PrunedComponents> =
@@ -331,7 +331,7 @@ module CART =
     let getPrunedComponents
         (tblsLst : list<DataTable>)
         (idx : int)
-        (infoGainResOpt : option<InfoGainRes>)
+        (infoGainRes : InfoGainRes)
         (splitStopCriterionOpt : option<seq<seq<DataType>> -> bool>)
         : list<PrunedComponents> =
         let exFn (idx : int) (tblsSq : seq<DataTable>) : seq<bool * seq<DataTable>> =
@@ -342,7 +342,7 @@ module CART =
         let op (idx : int) (catFlgAndTblsSq : seq<bool * seq<DataTable>>) : list<PrunedComponents> =
             let catFlg, tblsSq = Seq.head catFlgAndTblsSq
             if catFlg then getPrunedComponentsForCatVar (List.ofSeq tblsSq) idx
-            else getPrunedComponentsForContVar (List.ofSeq tblsSq) idx infoGainResOpt.Value splitStopCriterionOpt.Value
+            else getPrunedComponentsForContVar (List.ofSeq tblsSq) idx infoGainRes splitStopCriterionOpt.Value
         applyExOp (exFn idx) (op idx) tblsLst
 
 
@@ -352,20 +352,10 @@ module CART =
         (splitStopCriterionOpt : option<seq<seq<DataType>> -> bool>)
         : DecisionTreeNode =
         let rec helper (currTbl : DataTable) : DecisionTreeNode =
+            let colHdrs = List.head currTbl
             let currTblDat = List.tail currTbl
             let classVals = currTblDat |> List.map (fun s -> s.[(Array.length s) - 1])
             let headClassVal = List.head classVals
-            // BEGIN LOGIC
-            // If all the classVals are the same, return a leaf node with that singular value
-            // Elif the width of currTbl = 1, the terminal condition of the recursion has been reached
-            // Else
-            //      Get the infoGain values corresponding to each column
-            //      Find the column with the maximum infoGain value, note its index
-            //      Split currTbl along that index according to the class values
-            //      Prune each split table
-            //      Recursively call helper on each pruned table
-            // END LOGIC
-            // if (List.tryFind ((!=) headClassVal) (List.tail classVals)).IsNone
             let eqClassValsFlg =
                 classVals
                 |> List.filter ((=) headClassVal)
@@ -374,10 +364,18 @@ module CART =
             if eqClassValsFlg then DecisionTreeNode.Leaf headClassVal
             else
                 let datSetImpurity = impurityFn classVals
-                let tblDatWidth = ((Array.length << List.head) tbl) - 1
+                let tblDatWidth = tbl |> List.head |> Array.length |> ((+) (-1))
                 let res =
                     [0 .. tblDatWidth - 1]
                     |> List.map (fun s ->  (s, getInfoGain currTblDat s impurityFn datSetImpurity))
+                    |> List.maxBy (fun (s, t) -> t.InfoGain)
+                    |> (fun (s, t) -> s, t, getTblDatSplits currTblDat s t)
+                    |> (fun (s, t, u) ->
+                        getPrunedComponents (List.map (fun v -> colHdrs :: v) u) s t splitStopCriterionOpt)
+                    |> List.map (fun s ->
+                        DecisionTreeNode.Internal()
+                        )
+                printfn "%A" res
                 DecisionTreeNode.Leaf(DataType.Cat(CatType.Str ""))
         helper tbl
 
