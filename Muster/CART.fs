@@ -354,6 +354,7 @@ module CART =
         let rec helper (currTbl : DataTable) : DecisionTreeNode =
             let colHdrs = List.head currTbl
             let currTblDat = List.tail currTbl
+            let currTblWidth = colHdrs |> Array.length
             let classVals = currTblDat |> List.map (fun s -> s.[(Array.length s) - 1])
             let headClassVal = List.head classVals
             let eqClassValsFlg =
@@ -364,16 +365,21 @@ module CART =
             if eqClassValsFlg then DecisionTreeNode.Leaf headClassVal
             else
                 let datSetImpurity = impurityFn classVals
-                let tblDatWidth = tbl |> List.head |> Array.length |> ((+) (-1))
                 let res =
-                    [0 .. tblDatWidth - 1]
-                    |> List.map (fun s ->  (s, getInfoGain currTblDat s impurityFn datSetImpurity))
-                    |> List.maxBy (fun (s, t) -> t.InfoGain)
-                    |> (fun (s, t) -> s, t, getTblDatSplits currTblDat s t)
-                    |> (fun (s, t, u) ->
-                        getPrunedComponents (List.map (fun v -> colHdrs :: v) u) s t splitStopCriterionOpt)
-                    |> List.map (fun s -> (DataType.Cat(CatType.Str s.ColName), s.ColVal), helper s.PrunedTable)
-                    |> (Map.ofSeq >> DecisionTreeNode.Internal)
+                    if currTblWidth = 2 then
+                        let infoGain = getInfoGain currTblDat 0 impurityFn datSetImpurity
+                        DecisionTreeNode.Leaf(DataType.Cat(CatType.Str ""))
+                    else
+                        [0 .. currTblWidth - 2]
+                        |> List.map (fun s ->  (s, getInfoGain currTblDat s impurityFn datSetImpurity))
+                        |> List.maxBy (fun (s, t) -> t.InfoGain)
+                        |> (fun (s, t) -> s, t, getTblDatSplits currTblDat s t)
+                        |> (fun (s, t, u) ->
+                            getPrunedComponents (List.map (fun v -> colHdrs :: v) u) s t splitStopCriterionOpt)
+                        |> List.map (fun s ->
+                            (DataType.Cat(CatType.Str s.ColName), s.ColVal),
+                            helper s.PrunedTable)
+                        |> (Map.ofSeq >> DecisionTreeNode.Internal)
                 printfn "%A" res
                 DecisionTreeNode.Leaf(DataType.Cat(CatType.Str ""))
         helper tbl
