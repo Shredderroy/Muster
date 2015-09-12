@@ -205,7 +205,6 @@ let rnd = Random()
 //
 //
 let cartTest1 () : unit =
-    printfn "Starting cartTest1()"
     let (tbl : DataTable) =
         [
         [|DataType.Cat(CatType.Str "G"); DataType.Cat(CatType.Str "CO"); DataType.Cat(CatType.Str "TC"); DataType.Cat(CatType.Str "IL"); DataType.Cat(CatType.Str "T")|];

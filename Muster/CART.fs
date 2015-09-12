@@ -376,7 +376,7 @@ module CART =
             else
                 let datSetImpurity = impurityFn classVals
                 [0 .. currTblWidth - 2]
-                |> List.map (fun s ->  (s, getInfoGain currTblDat s impurityFn datSetImpurity))
+                |> List.map (fun s -> (s, getInfoGain currTblDat s impurityFn datSetImpurity))
                 |> List.maxBy (fun (s, t) -> t.InfoGain)
                 |> (fun (s, t) -> s, t, getTblDatSplits currTblDat s t)
                 |> (fun (s, t, u) ->
