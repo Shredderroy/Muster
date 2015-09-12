@@ -35,7 +35,8 @@ module CART =
             match s, t with
             | CatType.Int u, CatType.Int v -> CatType.Int(u * v)
             | CatType.Bool u, CatType.Bool v -> CatType.Bool(u && v)
-            | _, CatType.Bool u | CatType.Bool u, _ -> if u then s else CatType.getDefaultOf s
+            | _, CatType.Bool u -> if u then s else CatType.getDefaultOf s
+            | CatType.Bool u, _ -> if u then s else CatType.getDefaultOf t
             | _ -> failwith (operatorErrorMsg "*")
         static member (/) (s, t) =
             match s, t with
