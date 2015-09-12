@@ -205,6 +205,7 @@ let rnd = Random()
 //
 //
 let cartTest1 () : unit =
+    printfn "Starting cartTest1()"
     let (tbl : DataTable) =
         [
         [|DataType.Cat(CatType.Str "G"); DataType.Cat(CatType.Str "CO"); DataType.Cat(CatType.Str "TC"); DataType.Cat(CatType.Str "IL"); DataType.Cat(CatType.Str "T")|];
@@ -222,7 +223,7 @@ let cartTest1 () : unit =
     let tblDat = List.tail tbl
     let impurityFn = entropy
     let c45Tree = buildC45 tbl impurityFn None
-    ()
+    printfn "%A" c45Tree
 
 
 cartTest1()

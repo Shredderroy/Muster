@@ -92,6 +92,7 @@ module CART =
     [<RequireQualifiedAccess>]
     type DecisionTreeNode =
         | Leaf of DataType
+        | LeafList of list<DataType>
         | Internal of Map<DataType * DataType, DecisionTreeNode>
         static member navigate (dt : DecisionTreeNode) (searchKey : DataType * DataType) =
             []
@@ -354,6 +355,14 @@ module CART =
         applyExOp (exFn idx) (op idx) tblsLst
 
 
+    let singleValuedCatTypeLst (lst : list<DataType>) : bool =
+        let headVal = List.head lst
+        lst
+        |> List.filter ((=) headVal)
+        |> List.length
+        |> ((=) (List.length lst))
+
+
     let buildC45
         (tbl : DataTable)
         (impurityFn : list<DataType> -> float)
@@ -365,35 +374,27 @@ module CART =
             let currTblWidth = colHdrs |> Array.length
             let classVals = currTblDat |> List.map (fun s -> s.[(Array.length s) - 1])
             let headClassVal = List.head classVals
-            let eqClassValsFlg =
-                classVals
-                |> List.filter ((=) headClassVal)
-                |> List.length
-                |> ((=) (List.length classVals))
-            if eqClassValsFlg then DecisionTreeNode.Leaf headClassVal
+            if singleValuedCatTypeLst classVals then DecisionTreeNode.Leaf headClassVal
             else
                 let datSetImpurity = impurityFn classVals
-                let res =
-                    [0 .. currTblWidth - 2]
-                    |> List.map (fun s ->  (s, getInfoGain currTblDat s impurityFn datSetImpurity))
-                    |> List.maxBy (fun (s, t) -> t.InfoGain)
-                    |> (fun (s, t) -> s, t, getTblDatSplits currTblDat s t)
-                    |> (fun (s, t, u) ->
-                        getPrunedComponents (List.map (fun v -> colHdrs :: v) u) s t splitStopCriterionOpt)
-                    |> List.map (fun s ->
-                        (DataType.Cat(CatType.Str s.ColName), s.ColVal),
-                        (
-                        if s.PrunedTable |> (List.head >> Array.length >> (=) 1) then
-                            s.PrunedTable
-                            |> List.tail
-                            |> List.map (fun s -> Array.get s 0)
-                            |> ignore
-                            DecisionTreeNode.Leaf(DataType.Cat(CatType.Str ""))
-                        else helper s.PrunedTable)
-                        )
-                    |> (Map.ofSeq >> DecisionTreeNode.Internal)
-                printfn "%A" res
-                DecisionTreeNode.Leaf(DataType.Cat(CatType.Str ""))
+                [0 .. currTblWidth - 2]
+                |> List.map (fun s ->  (s, getInfoGain currTblDat s impurityFn datSetImpurity))
+                |> List.maxBy (fun (s, t) -> t.InfoGain)
+                |> (fun (s, t) -> s, t, getTblDatSplits currTblDat s t)
+                |> (fun (s, t, u) ->
+                    getPrunedComponents (List.map (fun v -> colHdrs :: v) u) s t splitStopCriterionOpt)
+                |> List.map (fun s ->
+                    (DataType.Cat(CatType.Str s.ColName), s.ColVal),
+                    (
+                    if s.PrunedTable |> (List.head >> Array.length >> (=) 1) then
+                        s.PrunedTable
+                        |> List.tail
+                        |> List.map (fun s -> Array.get s 0)
+                        |> (fun s ->
+                            if singleValuedCatTypeLst s then DecisionTreeNode.Leaf(List.head s)
+                            else DecisionTreeNode.LeafList s)
+                    else helper s.PrunedTable))
+                |> (Map.ofSeq >> DecisionTreeNode.Internal)
         helper tbl
 
 
