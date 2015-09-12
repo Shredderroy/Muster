@@ -394,6 +394,3 @@ module CART =
                 |> (Map.ofSeq >> DecisionTreeNode.Internal)
         helper tbl
 
-
-    let test () : unit = ()
-
