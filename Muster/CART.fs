@@ -397,5 +397,7 @@ module CART =
 
 
     let getPrediction (c45Tree : DecisionTreeNode) (input : Map<DataType, DataType>) : list<float * DataType> =
+        let rec helper (currC45Tree : DecisionTreeNode) (currInput : Map<DataType, DataType>) : DecisionTreeNode =
+            DecisionTreeNode.Leaf(DataType.Cat(CatType.Str ""))
         []
 
