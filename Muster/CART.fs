@@ -11,7 +11,7 @@ module CART =
     let operatorErrorMsg (op : string) = op + " operator called with incompatible arguments"
 
 
-    [<RequireQualifiedAccess; StructuralComparison; StructuralEquality>]
+    //[<RequireQualifiedAccess; StructuralComparison; StructuralEquality>]
     type CatType =
         | Int of int
         | Str of string
@@ -43,7 +43,7 @@ module CART =
             | _ -> failwith (operatorErrorMsg "/")
 
 
-    [<RequireQualifiedAccess; StructuralComparison; StructuralEquality>]
+    //[<RequireQualifiedAccess; StructuralComparison; StructuralEquality>]
     type ContType =
         | Flt of float
         static member (+) (s, t) = match s, t with ContType.Flt u, ContType.Flt v -> ContType.Flt (u + v)
@@ -52,7 +52,7 @@ module CART =
         static member (/) (s, t) = match s, t with ContType.Flt u, ContType.Flt v -> ContType.Flt (u / v)
 
 
-    [<RequireQualifiedAccess; StructuralComparison; StructuralEquality>]
+    //[<RequireQualifiedAccess; StructuralComparison; StructuralEquality>]
     type DataType =
         | Cat of CatType
         | Cont of ContType
@@ -81,15 +81,15 @@ module CART =
     type DataTable = list<array<DataType>>
 
 
-    [<RequireQualifiedAccess>]
+    //[<RequireQualifiedAccess>]
     type InfoGainRes = {SplittingValOpt : option<float>; InfoGain : float}
 
 
-    [<RequireQualifiedAccess>]
+    //[<RequireQualifiedAccess>]
     type PrunedComponents = {ColName : String; ColVal : DataType; PrunedTable : DataTable}
 
 
-    [<RequireQualifiedAccess>]
+    //[<RequireQualifiedAccess>]
     type DecisionTreeNode =
         | Leaf of DataType
         | LeafList of list<DataType>
@@ -280,7 +280,7 @@ module CART =
     let epsilon = 0.001
 
 
-    let defSplitStopCriterion (sqTbl : seq<seq<DataType>>) : bool = (Seq.length sqTbl) < 4
+    let defSplitStopCriterion (sqTbl : seq<seq<DataType>>) : bool = (Seq.length sqTbl) <= 4
 
 
     let getPrunedComponentsForContVar
@@ -317,7 +317,6 @@ module CART =
                     |> ListExtensions.transpose
                     |> ((List.map Seq.ofList) >> Seq.ofList)
                     |> splitStopCriterion
-                printfn "splitStopFlg = %A" splitStopFlg
                 (
                 if not splitStopFlg then transSqTbl
                 elif idx < 1 then Seq.skip 1 transSqTbl
