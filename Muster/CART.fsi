@@ -31,5 +31,8 @@ module CART =
         | Internal of Map<DataType * DataType, DecisionTreeNode>
 
 
+    val defSplitStopCriterion : seq<seq<DataType>> -> bool
+
+
     val buildC45 : DataTable -> (list<DataType> -> float) -> option<seq<seq<DataType>> -> bool> -> DecisionTreeNode
 

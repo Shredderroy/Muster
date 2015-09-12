@@ -383,7 +383,7 @@ module CART =
                 |> List.map (fun s ->
                     (DataType.Cat(CatType.Str s.ColName), s.ColVal),
                     (
-                    if s.PrunedTable |> (List.head >> Array.length >> (=) 1) then
+                    if s.PrunedTable |> (List.head >> Array.length >> ((=) 1)) then
                         s.PrunedTable
                         |> List.tail
                         |> List.map (fun s -> Array.get s 0)
@@ -393,4 +393,8 @@ module CART =
                     else helper s.PrunedTable))
                 |> (Map.ofSeq >> DecisionTreeNode.Internal)
         helper tbl
+
+
+    let getPrediction (c45Tree : DecisionTreeNode) (input : Map<DataType, DataType>) : list<float * DataType> =
+        []
 
