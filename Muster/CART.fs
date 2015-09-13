@@ -97,6 +97,12 @@ module CART =
         | Internal of Map<DataType * DataType, DecisionTreeNode>
 
 
+    type ImpurityFn = list<DataType> -> float
+
+
+    type SplitStopCriterion = seq<seq<DataType>> -> bool
+
+
     let coreImpurityFn<'A when 'A : equality> (classVals : list<'A>) : list<float> =
         let classValsLen = float (List.length classVals)
         classVals
@@ -128,7 +134,7 @@ module CART =
     let getInfoGainForCatVar
         (tblDat : DataTable)
         (idx : int)
-        (impurityFn : (list<DataType> -> float))
+        (impurityFn : ImpurityFn)
         (datSetImpurity : float)
         : InfoGainRes =
         let tblDatLen = float(List.length tblDat)
@@ -172,7 +178,7 @@ module CART =
     let getInfoGainForContVar
         (tblDat : DataTable)
         (idx : int)
-        (impurityFn : (list<DataType> -> float))
+        (impurityFn : ImpurityFn)
         (datSetImpurity : float)
         : InfoGainRes =
         let sortedTblDat = tblDat |> List.sortBy (fun s -> s.[idx])
@@ -203,7 +209,7 @@ module CART =
     let getInfoGain
         (tblDat : DataTable)
         (idx : int)
-        (impurityFn : (list<DataType> -> float))
+        (impurityFn : ImpurityFn)
         (datSetImpurity : float)
         : InfoGainRes =
         match (List.head tblDat).[idx] with
@@ -288,7 +294,7 @@ module CART =
         (tblsLst : list<DataTable>)
         (idx : int)
         (infoGainRes : InfoGainRes)
-        (splitStopCriterion : seq<seq<DataType>> -> bool)
+        (splitStopCriterion : SplitStopCriterion)
         : list<PrunedComponents> =
         let exFn (idx : int) (transSqTbl : seq<seq<DataType>>) : seq<string * float * seq<seq<DataType>>> =
             if (Seq.isEmpty transSqTbl) || (((Seq.skip idx) >> Seq.head >> Seq.length) transSqTbl) < 2
@@ -339,7 +345,7 @@ module CART =
         (tblsLst : list<DataTable>)
         (idx : int)
         (infoGainRes : InfoGainRes)
-        (splitStopCriterionOpt : option<seq<seq<DataType>> -> bool>)
+        (splitStopCriterionOpt : option<SplitStopCriterion>)
         : list<PrunedComponents> =
         let exFn (idx : int) (tblsSq : seq<DataTable>) : seq<bool * seq<DataTable>> =
             let colType = ((Seq.head << (Seq.skip 1) << Seq.head) tblsSq).[idx]
@@ -363,8 +369,8 @@ module CART =
 
     let buildC45
         (tbl : DataTable)
-        (impurityFn : list<DataType> -> float)
-        (splitStopCriterionOpt : option<seq<seq<DataType>> -> bool>)
+        (impurityFn : ImpurityFn)
+        (splitStopCriterionOpt : option<SplitStopCriterion>)
         : DecisionTreeNode =
         let rec helper (currTbl : DataTable) : DecisionTreeNode =
             let colHdrs = List.head currTbl
