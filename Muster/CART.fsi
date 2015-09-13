@@ -36,3 +36,6 @@ module CART =
 
     val buildC45 : DataTable -> (list<DataType> -> float) -> option<seq<seq<DataType>> -> bool> -> DecisionTreeNode
 
+
+    val getPrediction : DecisionTreeNode -> Map<DataType, DataType> -> list<int * DataType>
+
