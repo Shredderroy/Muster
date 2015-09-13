@@ -37,7 +37,7 @@ module CART =
     type SplitStopCriterion = seq<seq<DataType>> -> bool
 
 
-    val defSplitStopCriterion : seq<seq<DataType>> -> bool
+    val defSplitStopCriterion : SplitStopCriterion
 
 
     val buildC45 : DataTable -> ImpurityFn -> option<SplitStopCriterion> -> DecisionTreeNode

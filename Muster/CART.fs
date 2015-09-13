@@ -287,7 +287,7 @@ module CART =
     let epsilon = 0.001
 
 
-    let defSplitStopCriterion (sqTbl : seq<seq<DataType>>) : bool = (Seq.length sqTbl) <= 4
+    let (defSplitStopCriterion : SplitStopCriterion) = fun (sqTbl : seq<seq<DataType>>) -> (Seq.length sqTbl) <= 4
 
 
     let getPrunedComponentsForContVar
