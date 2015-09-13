@@ -406,7 +406,8 @@ module CART =
                 |> Seq.map (fun (s, t) -> Seq.length t, s)
                 |> List.ofSeq
             | DecisionTreeNode.Internal internalMap ->
-                let internalMapKeys = internalMap |> Map.toSeq |> Seq.map fst
+                let internalMapSq = internalMap |> Map.toSeq
+                let internalMapKeys = internalMapSq |> Seq.map fst
                 let colHdr = internalMapKeys |> Seq.head |> fst
                 if (Map.containsKey colHdr inputMap) then
                     let inputVal = inputMap.[colHdr]
@@ -420,6 +421,9 @@ module CART =
                         else
                             helper internalMap.[maxKey]
                 else
-                    []
+                    internalMapSq
+                    |> Seq.map snd
+                    |> List.ofSeq
+                    |> List.collect helper
         helper c45Tree
 
