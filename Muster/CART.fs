@@ -397,7 +397,23 @@ module CART =
 
 
     let getPrediction (c45Tree : DecisionTreeNode) (input : Map<DataType, DataType>) : list<float * DataType> =
-        let rec helper (currC45Tree : DecisionTreeNode) (currInput : Map<DataType, DataType>) : DecisionTreeNode =
-            DecisionTreeNode.Leaf(DataType.Cat(CatType.Str ""))
-        []
+        let rec helper
+            (currC45Tree : DecisionTreeNode)
+            (currInput : Map<DataType, DataType>)
+            : list<float * DataType> =
+            // Get the column name of the top level key
+            // If the column name is present in input:
+            //      Navigate to the appropriate child node
+            //      Make a rescursive call to helper
+            // Else:
+            //      Get all the child nodes of currC45Tree
+            //      For each child node:
+            //          Make a recursive all to helper
+            let currColHdrOpt =
+                match currC45Tree with
+                | DecisionTreeNode.Internal iMap -> (Map.toSeq >> Seq.head >> fst >> fst >> Some) iMap
+                | _ -> None
+            let recTgLst = []
+            []
+        helper c45Tree input
 

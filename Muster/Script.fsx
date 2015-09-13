@@ -254,7 +254,14 @@ let cartTest2 () : unit =
     let impurityFn = entropy
     let splitStopCriterion = CART.defSplitStopCriterion
     let c45Tree = buildC45 tbl impurityFn (Some splitStopCriterion)
-    printfn "%A" c45Tree
+    printfn "c45Tree = %A" c45Tree
+    let input =
+        seq [
+            (DataType.Cat(CatType.Str "TM"), DataType.Cont(ContType.Flt 65.0))
+        ]
+        |> Map.ofSeq
+    let prediction = getPrediction c45Tree input
+    printfn "prediction = %A" prediction
     ()
 
 cartTest2()
