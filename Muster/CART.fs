@@ -405,6 +405,19 @@ module CART =
             //          Return (1, node value)
             //      Else: (equivalent to c45Tree being a leaf list)
             //          Return each distinct node value with the appropriate count
-            []
+            match currC45Tree with
+            | DecisionTreeNode.Leaf v -> [1, v]
+            | DecisionTreeNode.LeafList lst -> lst |> List.mapi (fun i s -> i, s)
+            | DecisionTreeNode.Internal iMap ->
+                let colHdr, colVal = iMap |> Map.toSeq |> Seq.head |> fst
+                if (Map.containsKey colHdr input) then
+                    let inputVal = input.[colHdr]
+                    match inputVal with
+                    | DataType.Cat _ -> helper iMap.[colHdr, inputVal]
+                    | DataType.Cont _ ->
+                        // Pair with the appropriate edge
+                        // Make the recursive call
+                else
+                    []
         helper c45Tree
 
