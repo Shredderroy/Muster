@@ -416,10 +416,8 @@ module CART =
                     | DataType.Cont _ ->
                         let maxKey = Seq.maxBy snd internalMapKeys
                         let minKey = Seq.minBy snd internalMapKeys
-                        if inputVal < snd maxKey then
-                            helper internalMap.[minKey]
-                        else
-                            helper internalMap.[maxKey]
+                        if inputVal < snd maxKey then helper internalMap.[minKey]
+                        else helper internalMap.[maxKey]
                 else
                     internalMapSq
                     |> Seq.map snd

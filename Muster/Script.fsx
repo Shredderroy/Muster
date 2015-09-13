@@ -255,12 +255,14 @@ let cartTest2 () : unit =
     let splitStopCriterion = CART.defSplitStopCriterion
     let c45Tree = buildC45 tbl impurityFn (Some splitStopCriterion)
     printfn "c45Tree = %A" c45Tree
-    let input =
+    let inputMap =
         seq [
-            (DataType.Cat(CatType.Str "TM"), DataType.Cont(ContType.Flt 65.0))
+            // (DataType.Cat(CatType.Str "TM"), DataType.Cont(ContType.Flt 65.0))
+            (DataType.Cat(CatType.Str "HM"), DataType.Cont(ContType.Flt 68.0))
         ]
         |> Map.ofSeq
-    let prediction = getPrediction c45Tree input
+    printfn "inputMap = %A" inputMap
+    let prediction = getPrediction c45Tree inputMap
     printfn "prediction = %A" prediction
     ()
 
