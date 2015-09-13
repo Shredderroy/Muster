@@ -396,6 +396,32 @@ module CART =
         helper tbl
 
 
-    let getPrediction (c45Tree : DecisionTreeNode) (input : Map<DataType, DataType>) : list<float * DataType> =
-        []
+    let getPrediction (c45Tree : DecisionTreeNode) (inputMap : Map<DataType, DataType>) : list<int * DataType> =
+        let rec helper (currC45Tree : DecisionTreeNode) : list<int * DataType> =
+            match currC45Tree with
+            | DecisionTreeNode.Leaf v -> [1, v]
+            | DecisionTreeNode.LeafList lst ->
+                lst
+                |> Seq.groupBy id
+                |> Seq.map (fun (s, t) -> Seq.length t, s)
+                |> List.ofSeq
+            | DecisionTreeNode.Internal internalMap ->
+                let internalMapSq = internalMap |> Map.toSeq
+                let internalMapKeys = internalMapSq |> Seq.map fst
+                let colHdr = internalMapKeys |> Seq.head |> fst
+                if (Map.containsKey colHdr inputMap) then
+                    let inputVal = inputMap.[colHdr]
+                    match inputVal with
+                    | DataType.Cat _ -> helper internalMap.[colHdr, inputVal]
+                    | DataType.Cont _ ->
+                        let maxKey = Seq.maxBy snd internalMapKeys
+                        let minKey = Seq.minBy snd internalMapKeys
+                        if inputVal < snd maxKey then helper internalMap.[minKey]
+                        else helper internalMap.[maxKey]
+                else
+                    internalMapSq
+                    |> Seq.map snd
+                    |> List.ofSeq
+                    |> List.collect helper
+        helper c45Tree
 
