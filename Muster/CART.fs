@@ -396,27 +396,29 @@ module CART =
         helper tbl
 
 
-    let getPrediction (c45Tree : DecisionTreeNode) (input : Map<DataType, DataType>) : list<int * DataType> =
+    let getPrediction (c45Tree : DecisionTreeNode) (inputMap : Map<DataType, DataType>) : list<int * DataType> =
         let rec helper (currC45Tree : DecisionTreeNode) : list<int * DataType> =
-            // If currC45Tree is an internal node:
-            //      If the column header part of key exists in input:
-            //          Make a recursive call to helper on the appropriate child node
-            //      Elif c45Tree is a leaf node:
-            //          Return (1, node value)
-            //      Else: (equivalent to c45Tree being a leaf list)
-            //          Return each distinct node value with the appropriate count
             match currC45Tree with
             | DecisionTreeNode.Leaf v -> [1, v]
-            | DecisionTreeNode.LeafList lst -> lst |> List.mapi (fun i s -> (i + 1), s)
-            | DecisionTreeNode.Internal iMap ->
-                let colHdr, colVal = iMap |> Map.toSeq |> Seq.head |> fst
-                if (Map.containsKey colHdr input) then
-                    let inputVal = input.[colHdr]
+            | DecisionTreeNode.LeafList lst ->
+                lst
+                |> Seq.groupBy id
+                |> Seq.map (fun (s, t) -> Seq.length t, s)
+                |> List.ofSeq
+            | DecisionTreeNode.Internal internalMap ->
+                let internalMapKeys = internalMap |> Map.toSeq |> Seq.map fst
+                let colHdr = internalMapKeys |> Seq.head |> fst
+                if (Map.containsKey colHdr inputMap) then
+                    let inputVal = inputMap.[colHdr]
                     match inputVal with
-                    | DataType.Cat _ -> helper iMap.[colHdr, inputVal]
+                    | DataType.Cat _ -> helper internalMap.[colHdr, inputVal]
                     | DataType.Cont _ ->
-                        // Pair with the appropriate edge
-                        // Make the recursive call
+                        let maxKey = Seq.maxBy snd internalMapKeys
+                        let minKey = Seq.minBy snd internalMapKeys
+                        if inputVal < snd maxKey then
+                            helper internalMap.[minKey]
+                        else
+                            helper internalMap.[maxKey]
                 else
                     []
         helper c45Tree
