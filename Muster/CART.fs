@@ -396,24 +396,15 @@ module CART =
         helper tbl
 
 
-    let getPrediction (c45Tree : DecisionTreeNode) (input : Map<DataType, DataType>) : list<float * DataType> =
-        let rec helper
-            (currC45Tree : DecisionTreeNode)
-            (currInput : Map<DataType, DataType>)
-            : list<float * DataType> =
-            // Get the column name of the top level key
-            // If the column name is present in input:
-            //      Navigate to the appropriate child node
-            //      Make a rescursive call to helper
-            // Else:
-            //      Get all the child nodes of currC45Tree
-            //      For each child node:
-            //          Make a recursive all to helper
-            let currColHdrOpt =
-                match currC45Tree with
-                | DecisionTreeNode.Internal iMap -> (Map.toSeq >> Seq.head >> fst >> fst >> Some) iMap
-                | _ -> None
-            let recTgLst = []
+    let getPrediction (c45Tree : DecisionTreeNode) (input : Map<DataType, DataType>) : list<int * DataType> =
+        let rec helper (currC45Tree : DecisionTreeNode) : list<int * DataType> =
+            // If currC45Tree is an internal node:
+            //      If the column header part of key exists in input:
+            //          Make a recursive call to helper on the appropriate child node
+            //      Elif c45Tree is a leaf node:
+            //          Return (1, node value)
+            //      Else: (equivalent to c45Tree being a leaf list)
+            //          Return each distinct node value with the appropriate count
             []
-        helper c45Tree input
+        helper c45Tree
 
