@@ -31,10 +31,16 @@ module CART =
         | Internal of Map<DataType * DataType, DecisionTreeNode>
 
 
+    type ImpurityFn = list<DataType> -> float
+
+
+    type SplitStopCriterion = seq<seq<DataType>> -> bool
+
+
     val defSplitStopCriterion : seq<seq<DataType>> -> bool
 
 
-    val buildC45 : DataTable -> (list<DataType> -> float) -> option<seq<seq<DataType>> -> bool> -> DecisionTreeNode
+    val buildC45 : DataTable -> ImpurityFn -> option<SplitStopCriterion> -> DecisionTreeNode
 
 
     val getPrediction : DecisionTreeNode -> Map<DataType, DataType> -> list<int * DataType>
