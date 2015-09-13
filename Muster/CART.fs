@@ -407,7 +407,7 @@ module CART =
             //          Return each distinct node value with the appropriate count
             match currC45Tree with
             | DecisionTreeNode.Leaf v -> [1, v]
-            | DecisionTreeNode.LeafList lst -> lst |> List.mapi (fun i s -> i, s)
+            | DecisionTreeNode.LeafList lst -> lst |> List.mapi (fun i s -> (i + 1), s)
             | DecisionTreeNode.Internal iMap ->
                 let colHdr, colVal = iMap |> Map.toSeq |> Seq.head |> fst
                 if (Map.containsKey colHdr input) then
