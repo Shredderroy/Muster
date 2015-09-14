@@ -104,6 +104,50 @@ module CART =
     type SplitStopCriterion = seq<seq<DataType>> -> bool
 
 
+    let errorMsgs =
+        seq [
+            ("emptyLstErrorMsg", "The given list is empty");
+            ("catErrorMsg", "Expected a categorical variable but encountered a continuous one");
+            ("catStrErrorMsg", "Expected a categorical variable of type string but encountered something else");
+            ("contErrorMsg", "Expected a continuous variable but encountered a categorical one");
+            ("catIntParseErrorMsg", "Failed to parse the given string as int");
+            ("catBoolParseErrorMsg", "Failed to parse the given string as a bool");
+            ("contFltParseErrorMsg", "Failed to parse the given string as float");
+            (
+            "unknownDataTypeParseErrorMsg",
+            "Encountered an unknown DataType specification; failed to parse the given string")]
+        |> Map.ofSeq
+
+
+    let parseDataTableFromFile (filePath : string) : DataTable =
+        let fileLines =
+            filePath
+            |> File.ReadAllLines
+            |> Array.map (fun s ->
+                s.Split([|','|], StringSplitOptions.RemoveEmptyEntries)
+                |> Array.map (fun t -> t.Trim())
+                |> List.ofArray)
+        let colHdrs =
+            fileLines.[1]
+            |> List.map (DataType.Cat << CatType.Str)
+            |> Array.ofList
+        let tblDat =
+            [[|fileLines.[0]|]; fileLines.[2..]]
+            |> Array.concat
+            |> List.ofArray
+            |> ListExtensions.transpose
+            |> List.map (fun s ->
+                match (List.head s) with
+                | "catStr" -> s |> List.tail |> List.map (DataType.Cat << CatType.Str)
+                | "catInt" -> s |> List.tail |> List.map (DataType.Cat << CatType.Int << int)
+                | "catBool" -> s |> List.tail |> List.map (DataType.Cat << CatType.Bool << ((=) "true"))
+                | "contFlt" -> s|> List.tail |> List.map (DataType.Cont << ContType.Flt << float)
+                | _ -> failwith errorMsgs.["unknownDataTypeParseErrorMsg"])
+            |> ListExtensions.transpose
+            |> List.map Array.ofList
+        colHdrs :: tblDat
+
+
     let coreImpurityFn<'A when 'A : equality> (classVals : list<'A>) : list<float> =
         let classValsLen = float (List.length classVals)
         classVals
@@ -148,21 +192,6 @@ module CART =
             |> (fun (t, u) -> t * u))
         |> Seq.sum
         |> (fun s -> {InfoGainRes.SplittingValOpt = None; InfoGainRes.InfoGain = datSetImpurity - (s / tblDatLen)})
-
-
-    let errorMsgs =
-        seq [
-            ("emptyLstErrorMsg", "The given list is empty");
-            ("catErrorMsg", "Expected a categorical variable but encountered a continuous one");
-            ("catStrErrorMsg", "Expected a categorical variable of type string but encountered something else");
-            ("contErrorMsg", "Expected a continuous variable but encountered a categorical one");
-            ("catIntParseErrorMsg", "Failed to parse the given string as int");
-            ("catBoolParseErrorMsg", "Failed to parse the given string as a bool");
-            ("contFltParseErrorMsg", "Failed to parse the given string as float");
-            (
-            "unknownDataTypeParseErrorMsg",
-            "Encountered an unknown DataType specification; failed to parse the given string")]
-        |> Map.ofSeq
 
 
     let defFltExtractorFn (sq : seq<DataType>) : seq<float> =
@@ -409,15 +438,41 @@ module CART =
         helper tbl
 
 
+//    let getPrediction (c45Tree : DecisionTreeNode) (inputMap : Map<DataType, DataType>) : list<int * DataType> =
+//        let rec helper (currC45Tree : DecisionTreeNode) : list<int * DataType> =
+//            match currC45Tree with
+//            | DecisionTreeNode.Leaf v -> [1, v]
+//            | DecisionTreeNode.LeafList lst ->
+//                lst
+//                |> Seq.groupBy id
+//                |> Seq.map (fun (s, t) -> Seq.length t, s)
+//                |> List.ofSeq
+//            | DecisionTreeNode.Internal internalMap ->
+//                let internalMapSq = internalMap |> Map.toSeq
+//                let internalMapKeys = internalMapSq |> Seq.map fst
+//                let colHdr = internalMapKeys |> Seq.head |> fst
+//                if (Map.containsKey colHdr inputMap) then
+//                    let inputVal = inputMap.[colHdr]
+//                    match inputVal with
+//                    | DataType.Cat _ -> helper internalMap.[colHdr, inputVal]
+//                    | DataType.Cont _ ->
+//                        let maxKey = Seq.maxBy snd internalMapKeys
+//                        let minKey = Seq.minBy snd internalMapKeys
+//                        if inputVal < snd maxKey then helper internalMap.[minKey]
+//                        else helper internalMap.[maxKey]
+//                else
+//                    internalMapSq
+//                    |> Seq.map snd
+//                    |> List.ofSeq
+//                    |> List.collect helper
+//        helper c45Tree
+
+
     let getPrediction (c45Tree : DecisionTreeNode) (inputMap : Map<DataType, DataType>) : list<int * DataType> =
-        let rec helper (currC45Tree : DecisionTreeNode) : list<int * DataType> =
+        let rec helper (currC45Tree : DecisionTreeNode) : list<DataType> =
             match currC45Tree with
-            | DecisionTreeNode.Leaf v -> [1, v]
-            | DecisionTreeNode.LeafList lst ->
-                lst
-                |> Seq.groupBy id
-                |> Seq.map (fun (s, t) -> Seq.length t, s)
-                |> List.ofSeq
+            | DecisionTreeNode.Leaf v -> [v]
+            | DecisionTreeNode.LeafList lst -> lst
             | DecisionTreeNode.Internal internalMap ->
                 let internalMapSq = internalMap |> Map.toSeq
                 let internalMapKeys = internalMapSq |> Seq.map fst
@@ -436,34 +491,9 @@ module CART =
                     |> Seq.map snd
                     |> List.ofSeq
                     |> List.collect helper
-        helper c45Tree
-
-
-    let parseDataTableFromFile (filePath : string) : DataTable =
-        let fileLines =
-            filePath
-            |> File.ReadAllLines
-            |> Array.map (fun s ->
-                s.Split([|','|], StringSplitOptions.RemoveEmptyEntries)
-                |> Array.map (fun t -> t.Trim())
-                |> List.ofArray)
-        let colHdrs =
-            fileLines.[1]
-            |> List.map (DataType.Cat << CatType.Str)
-            |> Array.ofList
-        let tblDat =
-            [[|fileLines.[0]|]; fileLines.[2..]]
-            |> Array.concat
-            |> List.ofArray
-            |> ListExtensions.transpose
-            |> List.map (fun s ->
-                match (List.head s) with
-                | "catStr" -> s |> List.tail |> List.map (DataType.Cat << CatType.Str)
-                | "catInt" -> s |> List.tail |> List.map (DataType.Cat << CatType.Int << int)
-                | "catBool" -> s |> List.tail |> List.map (DataType.Cat << CatType.Bool << ((=) "true"))
-                | "contFlt" -> s|> List.tail |> List.map (DataType.Cont << ContType.Flt << float)
-                | _ -> failwith errorMsgs.["unknownDataTypeParseErrorMsg"])
-            |> ListExtensions.transpose
-            |> List.map Array.ofList
-        colHdrs :: tblDat
+        c45Tree
+        |> helper
+        |> Seq.groupBy id
+        |> Seq.map (fun (s, t) -> Seq.length t, s)
+        |> List.ofSeq
 

@@ -232,7 +232,7 @@ let cartTest2 () : unit =
     let inputMap =
         seq [
             // (DataType.Cat(CatType.Str "Temperature"), DataType.Cont(ContType.Flt 65.0))
-            (DataType.Cat(CatType.Str "Humidity"), DataType.Cont(ContType.Flt 68.0))
+            (DataType.Cat(CatType.Str "HUMIDITY"), DataType.Cont(ContType.Flt 65.0))
         ]
         |> Map.ofSeq
     printfn "inputMap = %A" inputMap
