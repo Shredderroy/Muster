@@ -40,6 +40,15 @@ module CART =
     val parseDataTableFromFile : string -> DataTable
 
 
+    val entropy : ImpurityFn
+
+
+    val giniIndex : ImpurityFn
+
+
+    val classificationError : ImpurityFn
+
+
     val defSplitStopCriterion : SplitStopCriterion
 
 
