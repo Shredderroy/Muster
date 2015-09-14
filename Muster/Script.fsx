@@ -204,20 +204,20 @@ let rnd = Random()
 //    printfn "%A" rVec
 //
 //
-//let cartTest1 () : unit =
-//    let tbl = parseDataTableFromFile @"C:\Users\aroy\OneDrive\Repositories\Muster\Muster\SampleData\CART\SampleID3Data.txt"
-//    let impurityFn = entropy
-//    let iD3Tree = buildC45 tbl impurityFn None
-//    printfn "iD3Tree = %A" iD3Tree
-//    let inputMap =
-//        seq[
-//            (DataType.Cat(CatType.Str "Gender"), DataType.Cat(CatType.Str "female"));
-//            (DataType.Cat(CatType.Str "Travel cost"), DataType.Cat(CatType.Str "cheap"))
-//        ]
-//        |> Map.ofSeq
-//    printfn "inputMap = %A" inputMap
-//    let prediction = getPrediction iD3Tree inputMap
-//    printfn "prediction = %A" prediction
+let cartTest1 () : unit =
+    let tbl = parseDataTableFromFile @"C:\Users\aroy\OneDrive\Repositories\Muster\Muster\SampleData\CART\SampleID3Data.txt"
+    let impurityFn = entropy
+    let iD3Tree = buildC45 tbl impurityFn None
+    printfn "iD3Tree = %A" iD3Tree
+    let inputMap =
+        seq[
+            (DataType.Cat(CatType.Str "Gender"), DataType.Cat(CatType.Str "female"));
+            (DataType.Cat(CatType.Str "Travel cost"), DataType.Cat(CatType.Str "cheap"))
+        ]
+        |> Map.ofSeq
+    printfn "inputMap = %A" inputMap
+    let prediction = getPrediction iD3Tree inputMap
+    printfn "prediction = %A" prediction
 //
 //
 //cartTest1()
@@ -239,6 +239,8 @@ let cartTest2 () : unit =
     let prediction = getPrediction c45Tree inputMap
     printfn "prediction = %A" prediction
     ()
-
-cartTest2()
-
+//
+//
+//cartTest2()
+//
+//

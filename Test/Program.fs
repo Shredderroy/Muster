@@ -307,6 +307,38 @@ module Program =
         sW.Reset()
 
 
+    let tf16 () : unit =
+        let tbl = CART.parseDataTableFromFile @"..\..\..\Muster\SampleData\CART\SampleID3Data.txt"
+        let impurityFn = CART.entropy
+        let iD3Tree = CART.buildC45 tbl impurityFn None
+        printfn "iD3Tree = %A" iD3Tree
+        let inputMap =
+            seq[
+                (CART.DataType.Cat(CART.CatType.Str "Gender"), CART.DataType.Cat(CART.CatType.Str "female"));
+                (CART.DataType.Cat(CART.CatType.Str "Travel cost"), CART.DataType.Cat(CART.CatType.Str "cheap"))
+            ]
+            |> Map.ofSeq
+        printfn "inputMap = %A" inputMap
+        let prediction = CART.getPrediction iD3Tree inputMap
+        printfn "prediction = %A" prediction
+
+
+    let tf17 () : unit =
+        let tbl = CART.parseDataTableFromFile @"..\..\..\Muster\SampleData\CART\SampleC45Data.txt"
+        let impurityFn = CART.entropy
+        let splitStopCriterion = CART.defSplitStopCriterion
+        let c45Tree = CART.buildC45 tbl impurityFn (Some splitStopCriterion)
+        printfn "c45Tree = %A" c45Tree
+        let inputMap =
+            seq[
+                (CART.DataType.Cat(CART.CatType.Str "HUMIDITY"), CART.DataType.Cont(CART.ContType.Flt 65.0))
+            ]
+            |> Map.ofSeq
+        printfn "inputMap = %A" inputMap
+        let prediction = CART.getPrediction c45Tree inputMap
+        printfn "prediction = %A" prediction
+
+
     let testInt16KDTree () : unit =
         let dim = 8
         let numOfVecs = 1024000 * 16
@@ -336,7 +368,7 @@ module Program =
             | "tf15" -> tf15 kDT dim maxVal b
             | _ -> ()
             printf "Continue testing Int16KDTree? [Y/N]: "
-            match stdin.ReadLine().ToLower() with | "n" -> () | _ -> loop ()
+            match stdin.ReadLine().ToLower() with "n" -> () | _ -> loop ()
         loop ()
 
 
@@ -363,7 +395,7 @@ module Program =
             | "tf13" -> tf13 kDT dim maxVal b vecsArr
             | _ -> ()
             printf "Continue testing DblKDTree? [Y/N]: "
-            match stdin.ReadLine().ToLower() with | "n" -> () | _ -> loop ()
+            match stdin.ReadLine().ToLower() with "n" -> () | _ -> loop ()
         loop ()
 
 
@@ -378,13 +410,20 @@ module Program =
             | "tf11" -> tf11()
             | _ -> ()
             printf "Continue testing ANN? [Y/N]: "
-            match stdin.ReadLine().ToLower() with | "n" -> () | _ -> loop ()
+            match stdin.ReadLine().ToLower() with "n" -> () | _ -> loop ()
         loop ()
 
 
     let testCART () : unit =
-        //
-        ()
+        let rec loop () : unit =
+            printf "Function to run: "
+            match stdin.ReadLine().ToLower() with
+            | "tf16" -> tf16()
+            | "tf17" -> tf17()
+            | _ -> ()
+            printf "Continue testing CART? [Y/N]: "
+            match stdin.ReadLine().ToLower() with "n" -> () | _ -> loop()
+        loop ()
 
 
     [<EntryPoint>]
@@ -396,9 +435,10 @@ module Program =
             | "testInt16KDTree" -> testInt16KDTree()
             | "testDblKDTree" -> testDblKDTree()
             | "testANN" -> testANN()
+            | "testCART" -> testCART()
             | _ -> ()
             printf "Test another module? [Y/N]: "
-            match stdin.ReadLine().ToLower() with | "n" -> () | _ -> loop ()
+            match stdin.ReadLine().ToLower() with "n" -> () | _ -> loop ()
         loop ()
         printfn "Exiting main()"
         0
