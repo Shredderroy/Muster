@@ -1,7 +1,7 @@
 ﻿namespace Muster.DataStructuresAndAlgorithms
 
 
-module CART =
+module DecisionTree =
 
 
     [<RequireQualifiedAccess; StructuralComparison; StructuralEquality>]
