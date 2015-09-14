@@ -308,34 +308,40 @@ module Program =
 
 
     let tf16 () : unit =
-        let tbl = CART.parseDataTableFromFile @"..\..\..\Muster\SampleData\CART\SampleID3Data.txt"
-        let impurityFn = CART.entropy
-        let iD3Tree = CART.buildC45 tbl impurityFn None
-        printfn "iD3Tree = %A" iD3Tree
+        let tbl = DecisionTree.parseDataTableFromFile @"..\..\..\Muster\SampleData\CART\SampleID3Data.txt"
+        let impurityFn = DecisionTree.entropy
+        let c45Tree = DecisionTree.buildC45 tbl impurityFn None
+        printfn "c45Tree = %A" c45Tree
         let inputMap =
             seq[
-                (CART.DataType.Cat(CART.CatType.Str "Gender"), CART.DataType.Cat(CART.CatType.Str "female"));
-                (CART.DataType.Cat(CART.CatType.Str "Travel cost"), CART.DataType.Cat(CART.CatType.Str "cheap"))
+                (
+                DecisionTree.DataType.Cat(DecisionTree.CatType.Str "Gender"),
+                DecisionTree.DataType.Cat(DecisionTree.CatType.Str "female"));
+                (
+                DecisionTree.DataType.Cat(DecisionTree.CatType.Str "Travel cost"),
+                DecisionTree.DataType.Cat(DecisionTree.CatType.Str "cheap"))
             ]
             |> Map.ofSeq
         printfn "inputMap = %A" inputMap
-        let prediction = CART.getPrediction iD3Tree inputMap
+        let prediction = DecisionTree.getPrediction c45Tree inputMap
         printfn "prediction = %A" prediction
 
 
     let tf17 () : unit =
-        let tbl = CART.parseDataTableFromFile @"..\..\..\Muster\SampleData\CART\SampleC45Data.txt"
-        let impurityFn = CART.entropy
-        let splitStopCriterion = CART.defSplitStopCriterion
-        let c45Tree = CART.buildC45 tbl impurityFn (Some splitStopCriterion)
+        let tbl = DecisionTree.parseDataTableFromFile @"..\..\..\Muster\SampleData\CART\SampleC45Data.txt"
+        let impurityFn = DecisionTree.entropy
+        let splitStopCriterion = DecisionTree.defSplitStopCriterion
+        let c45Tree = DecisionTree.buildC45 tbl impurityFn (Some splitStopCriterion)
         printfn "c45Tree = %A" c45Tree
         let inputMap =
             seq[
-                (CART.DataType.Cat(CART.CatType.Str "HUMIDITY"), CART.DataType.Cont(CART.ContType.Flt 65.0))
+                (
+                DecisionTree.DataType.Cat(DecisionTree.CatType.Str "HUMIDITY"),
+                DecisionTree.DataType.Cont(DecisionTree.ContType.Flt 65.0))
             ]
             |> Map.ofSeq
         printfn "inputMap = %A" inputMap
-        let prediction = CART.getPrediction c45Tree inputMap
+        let prediction = DecisionTree.getPrediction c45Tree inputMap
         printfn "prediction = %A" prediction
 
 
@@ -414,7 +420,7 @@ module Program =
         loop ()
 
 
-    let testCART () : unit =
+    let testDecisionTree () : unit =
         let rec loop () : unit =
             printf "Function to run: "
             match stdin.ReadLine().ToLower() with
@@ -435,7 +441,7 @@ module Program =
             | "testInt16KDTree" -> testInt16KDTree()
             | "testDblKDTree" -> testDblKDTree()
             | "testANN" -> testANN()
-            | "testCART" -> testCART()
+            | "testDecisionTree" -> testDecisionTree()
             | _ -> ()
             printf "Test another module? [Y/N]: "
             match stdin.ReadLine().ToLower() with "n" -> () | _ -> loop ()

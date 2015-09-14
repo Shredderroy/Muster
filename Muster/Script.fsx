@@ -13,7 +13,7 @@ open MathNet.Numerics.LinearAlgebra
 open MathNet.Numerics.LinearAlgebra.Double
 open Muster.Extensions
 open Muster.DataStructuresAndAlgorithms
-// open Muster.DataStructuresAndAlgorithms.CART
+// open Muster.DataStructuresAndAlgorithms.DecisionTree
 
 
 let rnd = Random()
@@ -226,7 +226,7 @@ let rnd = Random()
 //let cartTest2 (inputFileLoc : string) : unit =
 //    let tbl = parseDataTableFromFile inputFileLoc
 //    let impurityFn = entropy
-//    let splitStopCriterion = CART.defSplitStopCriterion
+//    let splitStopCriterion = defSplitStopCriterion
 //    let c45Tree = buildC45 tbl impurityFn (Some splitStopCriterion)
 //    printfn "c45Tree = %A" c45Tree
 //    let inputMap =

@@ -6,7 +6,7 @@ open System.IO
 open Muster.Extensions
 
 
-module CART =
+module DecisionTree =
 
 
     let operatorErrorMsg (op : string) = op + " operator called with incompatible arguments"

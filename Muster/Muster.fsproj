@@ -58,8 +58,8 @@
     <Compile Include="PCA.fs" />
     <Compile Include="ANN.fsi" />
     <Compile Include="ANN.fs" />
-    <Compile Include="CART.fsi" />
-    <Compile Include="CART.fs" />
+    <Compile Include="DecisionTree.fsi" />
+    <Compile Include="DecisionTree.fs" />
     <None Include="Script.fsx" />
     <Content Include="packages.config" />
   </ItemGroup>
