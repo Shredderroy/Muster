@@ -204,8 +204,8 @@ let rnd = Random()
 //    printfn "%A" rVec
 //
 //
-let cartTest1 () : unit =
-    let tbl = parseDataTableFromFile @"C:\Users\aroy\OneDrive\Repositories\Muster\Muster\SampleData\CART\SampleID3Data.txt"
+let cartTest1 (inputFileLoc : string) : unit =
+    let tbl = parseDataTableFromFile inputFileLoc
     let impurityFn = entropy
     let iD3Tree = buildC45 tbl impurityFn None
     printfn "iD3Tree = %A" iD3Tree
@@ -223,15 +223,15 @@ let cartTest1 () : unit =
 //cartTest1()
 //
 //
-let cartTest2 () : unit =
-    let tbl = parseDataTableFromFile @"C:\Users\aroy\OneDrive\Repositories\Muster\Muster\SampleData\CART\SampleC45Data.txt"
+let cartTest2 (inputFileLoc : string) : unit =
+    let tbl = parseDataTableFromFile inputFileLoc
     let impurityFn = entropy
     let splitStopCriterion = CART.defSplitStopCriterion
     let c45Tree = buildC45 tbl impurityFn (Some splitStopCriterion)
     printfn "c45Tree = %A" c45Tree
     let inputMap =
         seq [
-            // (DataType.Cat(CatType.Str "Temperature"), DataType.Cont(ContType.Flt 65.0))
+            // (DataType.Cat(CatType.Str "TEMPERATURE"), DataType.Cont(ContType.Flt 65.0))
             (DataType.Cat(CatType.Str "HUMIDITY"), DataType.Cont(ContType.Flt 65.0))
         ]
         |> Map.ofSeq
