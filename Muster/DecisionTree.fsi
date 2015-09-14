@@ -25,10 +25,10 @@ module DecisionTree =
 
 
     [<RequireQualifiedAccess>]
-    type DecisionTreeNode =
+    type Node =
         | Leaf of DataType
         | LeafList of list<DataType>
-        | Internal of Map<DataType * DataType, DecisionTreeNode>
+        | Internal of Map<DataType * DataType, Node>
 
 
     type ImpurityFn = list<DataType> -> float
@@ -52,8 +52,8 @@ module DecisionTree =
     val defSplitStopCriterion : SplitStopCriterion
 
 
-    val buildC45 : DataTable -> ImpurityFn -> option<SplitStopCriterion> -> DecisionTreeNode
+    val buildC45 : DataTable -> ImpurityFn -> option<SplitStopCriterion> -> Node
 
 
-    val getPrediction : DecisionTreeNode -> Map<DataType, DataType> -> list<int * DataType>
+    val getPrediction : Node -> Map<DataType, DataType> -> list<int * DataType>
 

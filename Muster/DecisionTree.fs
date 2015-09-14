@@ -92,10 +92,10 @@ module DecisionTree =
 
 
     [<RequireQualifiedAccess>]
-    type DecisionTreeNode =
+    type Node =
         | Leaf of DataType
         | LeafList of list<DataType>
-        | Internal of Map<DataType * DataType, DecisionTreeNode>
+        | Internal of Map<DataType * DataType, Node>
 
 
     type ImpurityFn = list<DataType> -> float
@@ -407,14 +407,14 @@ module DecisionTree =
         (tbl : DataTable)
         (impurityFn : ImpurityFn)
         (splitStopCriterionOpt : option<SplitStopCriterion>)
-        : DecisionTreeNode =
-        let rec helper (currTbl : DataTable) : DecisionTreeNode =
+        : Node =
+        let rec helper (currTbl : DataTable) : Node =
             let colHdrs = List.head currTbl
             let currTblDat = List.tail currTbl
             let currTblWidth = colHdrs |> Array.length
             let classVals = currTblDat |> List.map (fun s -> s.[(Array.length s) - 1])
             let headClassVal = List.head classVals
-            if singleValuedCatTypeLst classVals then DecisionTreeNode.Leaf headClassVal
+            if singleValuedCatTypeLst classVals then Node.Leaf headClassVal
             else
                 let datSetImpurity = impurityFn classVals
                 [0 .. currTblWidth - 2]
@@ -431,19 +431,19 @@ module DecisionTree =
                         |> List.tail
                         |> List.map (fun s -> Array.get s 0)
                         |> (fun s ->
-                            if singleValuedCatTypeLst s then DecisionTreeNode.Leaf(List.head s)
-                            else DecisionTreeNode.LeafList s)
+                            if singleValuedCatTypeLst s then Node.Leaf(List.head s)
+                            else Node.LeafList s)
                     else helper s.PrunedTable))
-                |> (Map.ofSeq >> DecisionTreeNode.Internal)
+                |> (Map.ofSeq >> Node.Internal)
         helper tbl
 
 
-    let getPrediction (c45Tree : DecisionTreeNode) (inputMap : Map<DataType, DataType>) : list<int * DataType> =
-        let rec helper (currC45Tree : DecisionTreeNode) : list<DataType> =
+    let getPrediction (c45Tree : Node) (inputMap : Map<DataType, DataType>) : list<int * DataType> =
+        let rec helper (currC45Tree : Node) : list<DataType> =
             match currC45Tree with
-            | DecisionTreeNode.Leaf v -> [v]
-            | DecisionTreeNode.LeafList lst -> lst
-            | DecisionTreeNode.Internal internalMap ->
+            | Node.Leaf v -> [v]
+            | Node.LeafList lst -> lst
+            | Node.Internal internalMap ->
                 let internalMapSq = internalMap |> Map.toSeq
                 let internalMapKeys = internalMapSq |> Seq.map fst
                 let colHdr = internalMapKeys |> Seq.head |> fst
