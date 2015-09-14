@@ -60,6 +60,8 @@
     <Compile Include="ANN.fs" />
     <Compile Include="DecisionTree.fsi" />
     <Compile Include="DecisionTree.fs" />
+    <Compile Include="RandomForest.fsi" />
+    <Compile Include="RandomForest.fs" />
     <None Include="Script.fsx" />
     <Content Include="packages.config" />
   </ItemGroup>
