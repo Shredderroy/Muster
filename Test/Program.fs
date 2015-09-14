@@ -308,7 +308,7 @@ module Program =
 
 
     let tf16 () : unit =
-        let tbl = DecisionTree.parseDataTableFromFile @"..\..\..\Muster\SampleData\CART\SampleID3Data.txt"
+        let tbl = DecisionTree.parseDataTableFromFile @"..\..\..\Muster\SampleData\DecisionTree\SampleID3Data.txt"
         let impurityFn = DecisionTree.entropy
         let c45Tree = DecisionTree.buildC45 tbl impurityFn None
         printfn "c45Tree = %A" c45Tree
@@ -328,7 +328,7 @@ module Program =
 
 
     let tf17 () : unit =
-        let tbl = DecisionTree.parseDataTableFromFile @"..\..\..\Muster\SampleData\CART\SampleC45Data.txt"
+        let tbl = DecisionTree.parseDataTableFromFile @"..\..\..\Muster\SampleData\DecisionTree\SampleC45Data.txt"
         let impurityFn = DecisionTree.entropy
         let splitStopCriterion = DecisionTree.defSplitStopCriterion
         let c45Tree = DecisionTree.buildC45 tbl impurityFn (Some splitStopCriterion)
