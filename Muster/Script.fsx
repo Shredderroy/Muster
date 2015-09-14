@@ -205,60 +205,34 @@ let rnd = Random()
 //
 //
 //let cartTest1 () : unit =
-//    let (tbl : DataTable) =
-//        [
-//        [|DataType.Cat(CatType.Str "G"); DataType.Cat(CatType.Str "CO"); DataType.Cat(CatType.Str "TC"); DataType.Cat(CatType.Str "IL"); DataType.Cat(CatType.Str "T")|];
-//        [|DataType.Cat(CatType.Str "M"); DataType.Cat(CatType.Str "0"); DataType.Cat(CatType.Str "ch"); DataType.Cat(CatType.Str "lw"); DataType.Cat(CatType.Str "bus")|];
-//        [|DataType.Cat(CatType.Str "M"); DataType.Cat(CatType.Str "1"); DataType.Cat(CatType.Str "ch"); DataType.Cat(CatType.Str "md"); DataType.Cat(CatType.Str "bus")|];
-//        [|DataType.Cat(CatType.Str "F"); DataType.Cat(CatType.Str "1"); DataType.Cat(CatType.Str "ch"); DataType.Cat(CatType.Str "md"); DataType.Cat(CatType.Str "trn")|];
-//        [|DataType.Cat(CatType.Str "F"); DataType.Cat(CatType.Str "0"); DataType.Cat(CatType.Str "ch"); DataType.Cat(CatType.Str "lw"); DataType.Cat(CatType.Str "bus")|];
-//        [|DataType.Cat(CatType.Str "M"); DataType.Cat(CatType.Str "1"); DataType.Cat(CatType.Str "ch"); DataType.Cat(CatType.Str "md"); DataType.Cat(CatType.Str "bus")|];
-//        [|DataType.Cat(CatType.Str "M"); DataType.Cat(CatType.Str "0"); DataType.Cat(CatType.Str "st"); DataType.Cat(CatType.Str "md"); DataType.Cat(CatType.Str "trn")|];
-//        [|DataType.Cat(CatType.Str "F"); DataType.Cat(CatType.Str "1"); DataType.Cat(CatType.Str "st"); DataType.Cat(CatType.Str "md"); DataType.Cat(CatType.Str "trn")|];
-//        [|DataType.Cat(CatType.Str "F"); DataType.Cat(CatType.Str "1"); DataType.Cat(CatType.Str "ex"); DataType.Cat(CatType.Str "hh"); DataType.Cat(CatType.Str "car")|];
-//        [|DataType.Cat(CatType.Str "M"); DataType.Cat(CatType.Str "2"); DataType.Cat(CatType.Str "ex"); DataType.Cat(CatType.Str "md"); DataType.Cat(CatType.Str "car")|];
-//        [|DataType.Cat(CatType.Str "F"); DataType.Cat(CatType.Str "2"); DataType.Cat(CatType.Str "ex"); DataType.Cat(CatType.Str "hh"); DataType.Cat(CatType.Str "car")|]
-//        ]
+//    let tbl = parseDataTableFromFile @"C:\Users\aroy\OneDrive\Repositories\Muster\Muster\SampleData\CART\SampleID3Data.txt"
 //    let impurityFn = entropy
-//    let id3Tree = buildC45 tbl impurityFn None
-//    printfn "%A" id3Tree
-//    (match id3Tree with
-//    | DecisionTreeNode.Internal m -> m.[DataType.Cat(CatType.Str "TC"), DataType.Cat(CatType.Str "ex")]
-//    | _ -> id3Tree)
-//    |> printfn "%A"
-//    ()
+//    let iD3Tree = buildC45 tbl impurityFn None
+//    printfn "iD3Tree = %A" iD3Tree
+//    let inputMap =
+//        seq[
+//            (DataType.Cat(CatType.Str "Gender"), DataType.Cat(CatType.Str "female"));
+//            (DataType.Cat(CatType.Str "Travel cost"), DataType.Cat(CatType.Str "cheap"))
+//        ]
+//        |> Map.ofSeq
+//    printfn "inputMap = %A" inputMap
+//    let prediction = getPrediction iD3Tree inputMap
+//    printfn "prediction = %A" prediction
 //
 //
 //cartTest1()
 //
 //
 let cartTest2 () : unit =
-    let (tbl : DataTable) =
-        [
-        [|DataType.Cat(CatType.Str "OL"); DataType.Cat(CatType.Str "TM"); DataType.Cat(CatType.Str "HM"); DataType.Cat(CatType.Str "WN"); DataType.Cat(CatType.Str "PL")|];
-        [|DataType.Cat(CatType.Str "sn"); DataType.Cont(ContType.Flt 85.0); DataType.Cont(ContType.Flt 85.0); DataType.Cat(CatType.Bool false); DataType.Cat(CatType.Str "N")|];
-        [|DataType.Cat(CatType.Str "sn"); DataType.Cont(ContType.Flt 80.0); DataType.Cont(ContType.Flt 90.0); DataType.Cat(CatType.Bool true); DataType.Cat(CatType.Str "N")|];
-        [|DataType.Cat(CatType.Str "ov"); DataType.Cont(ContType.Flt 83.0); DataType.Cont(ContType.Flt 78.0); DataType.Cat(CatType.Bool false); DataType.Cat(CatType.Str "Y")|];
-        [|DataType.Cat(CatType.Str "rn"); DataType.Cont(ContType.Flt 70.0); DataType.Cont(ContType.Flt 96.0); DataType.Cat(CatType.Bool false); DataType.Cat(CatType.Str "Y")|];
-        [|DataType.Cat(CatType.Str "rn"); DataType.Cont(ContType.Flt 68.0); DataType.Cont(ContType.Flt 80.0); DataType.Cat(CatType.Bool false); DataType.Cat(CatType.Str "Y")|];
-        [|DataType.Cat(CatType.Str "rn"); DataType.Cont(ContType.Flt 65.0); DataType.Cont(ContType.Flt 70.0); DataType.Cat(CatType.Bool true); DataType.Cat(CatType.Str "N")|];
-        [|DataType.Cat(CatType.Str "ov"); DataType.Cont(ContType.Flt 64.0); DataType.Cont(ContType.Flt 65.0); DataType.Cat(CatType.Bool true); DataType.Cat(CatType.Str "N")|];
-        [|DataType.Cat(CatType.Str "sn"); DataType.Cont(ContType.Flt 72.0); DataType.Cont(ContType.Flt 95.0); DataType.Cat(CatType.Bool false); DataType.Cat(CatType.Str "N")|];
-        [|DataType.Cat(CatType.Str "sn"); DataType.Cont(ContType.Flt 69.0); DataType.Cont(ContType.Flt 70.0); DataType.Cat(CatType.Bool false); DataType.Cat(CatType.Str "Y")|];
-        [|DataType.Cat(CatType.Str "rn"); DataType.Cont(ContType.Flt 75.0); DataType.Cont(ContType.Flt 80.0); DataType.Cat(CatType.Bool false); DataType.Cat(CatType.Str "Y")|];
-        [|DataType.Cat(CatType.Str "sn"); DataType.Cont(ContType.Flt 75.0); DataType.Cont(ContType.Flt 70.0); DataType.Cat(CatType.Bool true); DataType.Cat(CatType.Str "Y")|];
-        [|DataType.Cat(CatType.Str "ov"); DataType.Cont(ContType.Flt 72.0); DataType.Cont(ContType.Flt 90.0); DataType.Cat(CatType.Bool true); DataType.Cat(CatType.Str "Y")|];
-        [|DataType.Cat(CatType.Str "ov"); DataType.Cont(ContType.Flt 81.0); DataType.Cont(ContType.Flt 75.0); DataType.Cat(CatType.Bool false); DataType.Cat(CatType.Str "Y")|];
-        [|DataType.Cat(CatType.Str "rn"); DataType.Cont(ContType.Flt 71.0); DataType.Cont(ContType.Flt 80.0); DataType.Cat(CatType.Bool true); DataType.Cat(CatType.Str "N")|]
-        ]
+    let tbl = parseDataTableFromFile @"C:\Users\aroy\OneDrive\Repositories\Muster\Muster\SampleData\CART\SampleC45Data.txt"
     let impurityFn = entropy
     let splitStopCriterion = CART.defSplitStopCriterion
     let c45Tree = buildC45 tbl impurityFn (Some splitStopCriterion)
     printfn "c45Tree = %A" c45Tree
     let inputMap =
         seq [
-            // (DataType.Cat(CatType.Str "TM"), DataType.Cont(ContType.Flt 65.0))
-            (DataType.Cat(CatType.Str "HM"), DataType.Cont(ContType.Flt 68.0))
+            // (DataType.Cat(CatType.Str "Temperature"), DataType.Cont(ContType.Flt 65.0))
+            (DataType.Cat(CatType.Str "Humidity"), DataType.Cont(ContType.Flt 68.0))
         ]
         |> Map.ofSeq
     printfn "inputMap = %A" inputMap
@@ -268,8 +242,3 @@ let cartTest2 () : unit =
 
 cartTest2()
 
-
-//
-// [("Col1", Val1); ("Col2", Val2); ("Col3", Val3)]
-// decisionTree.["Col1"].[Val1] - This should also be a DecisionTree.
-//

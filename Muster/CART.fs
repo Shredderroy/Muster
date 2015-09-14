@@ -2,6 +2,7 @@
 
 
 open System
+open System.IO
 open Muster.Extensions
 
 
@@ -154,7 +155,13 @@ module CART =
             ("emptyLstErrorMsg", "The given list is empty");
             ("catErrorMsg", "Expected a categorical variable but encountered a continuous one");
             ("catStrErrorMsg", "Expected a categorical variable of type string but encountered something else");
-            ("contErrorMsg", "Expected a continuous variable but encountered a categorical one")]
+            ("contErrorMsg", "Expected a continuous variable but encountered a categorical one");
+            ("catIntParseErrorMsg", "Failed to parse the given string as int");
+            ("catBoolParseErrorMsg", "Failed to parse the given string as a bool");
+            ("contFltParseErrorMsg", "Failed to parse the given string as float");
+            (
+            "unknownDataTypeParseErrorMsg",
+            "Encountered an unknown DataType specification; failed to parse the given string")]
         |> Map.ofSeq
 
 
@@ -430,4 +437,33 @@ module CART =
                     |> List.ofSeq
                     |> List.collect helper
         helper c45Tree
+
+
+    let parseDataTableFromFile (filePath : string) : DataTable =
+        let fileLines =
+            filePath
+            |> File.ReadAllLines
+            |> Array.map (fun s ->
+                s.Split([|','|], StringSplitOptions.RemoveEmptyEntries)
+                |> Array.map (fun t -> t.Trim())
+                |> List.ofArray)
+        let colHdrs =
+            fileLines.[1]
+            |> List.map (DataType.Cat << CatType.Str)
+            |> Array.ofList
+        let tblDat =
+            [[|fileLines.[0]|]; fileLines.[2..]]
+            |> Array.concat
+            |> List.ofArray
+            |> ListExtensions.transpose
+            |> List.map (fun s ->
+                match (List.head s) with
+                | "catStr" -> s |> List.tail |> List.map (DataType.Cat << CatType.Str)
+                | "catInt" -> s |> List.tail |> List.map (DataType.Cat << CatType.Int << int)
+                | "catBool" -> s |> List.tail |> List.map (DataType.Cat << CatType.Bool << ((=) "true"))
+                | "contFlt" -> s|> List.tail |> List.map (DataType.Cont << ContType.Flt << float)
+                | _ -> failwith errorMsgs.["unknownDataTypeParseErrorMsg"])
+            |> ListExtensions.transpose
+            |> List.map Array.ofList
+        colHdrs :: tblDat
 
