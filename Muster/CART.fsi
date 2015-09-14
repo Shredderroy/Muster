@@ -37,6 +37,9 @@ module CART =
     type SplitStopCriterion = seq<seq<DataType>> -> bool
 
 
+    val parseDataTableFromFile : string -> DataTable
+
+
     val defSplitStopCriterion : SplitStopCriterion
 
 
