@@ -395,7 +395,7 @@ module DecisionTree =
         applyExOp (exFn idx) (op idx) tblsLst
 
 
-    let singleValuedCatTypeLst (lst : list<DataType>) : bool =
+    let isSingleValuedCatTypeLst (lst : list<DataType>) : bool =
         let headVal = List.head lst
         lst
         |> List.filter ((=) headVal)
@@ -414,7 +414,7 @@ module DecisionTree =
             let currTblWidth = colHdrs |> Array.length
             let classVals = currTblDat |> List.map (fun s -> s.[(Array.length s) - 1])
             let headClassVal = List.head classVals
-            if singleValuedCatTypeLst classVals then Node.Leaf headClassVal
+            if isSingleValuedCatTypeLst classVals then Node.Leaf headClassVal
             else
                 let datSetImpurity = impurityFn classVals
                 [0 .. currTblWidth - 2]
@@ -431,7 +431,7 @@ module DecisionTree =
                         |> List.tail
                         |> List.map (fun s -> Array.get s 0)
                         |> (fun s ->
-                            if singleValuedCatTypeLst s then Node.Leaf(List.head s)
+                            if isSingleValuedCatTypeLst s then Node.Leaf(List.head s)
                             else Node.LeafList s)
                     else helper s.PrunedTable))
                 |> (Map.ofSeq >> Node.Internal)
