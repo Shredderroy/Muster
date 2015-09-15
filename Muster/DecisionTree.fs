@@ -160,7 +160,7 @@ module DecisionTree =
         classVals
         |> coreImpurityFn
         |> List.map (fun s -> s * Math.Log(s, 2.0))
-        |> (List.sum >> ((*) (-1.0)))
+        |> (List.sum >> (( * ) (-1.0)))
 
 
     let giniIndex (classVals : list<DataType>) : float =
