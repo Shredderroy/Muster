@@ -396,11 +396,7 @@ module DecisionTree =
 
 
     let isSingleValuedCatTypeLst (lst : list<DataType>) : bool =
-        let headVal = List.head lst
-        lst
-        |> List.filter ((=) headVal)
-        |> List.length
-        |> ((=) (List.length lst))
+        (List.tryFind (not << ((=) (List.head lst))) (List.tail lst)).IsNone
 
 
     let buildC45
