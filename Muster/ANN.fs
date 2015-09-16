@@ -45,6 +45,13 @@ module ANN =
     type BackPropagatedError = list<Matrix<double>>
 
 
+    type ScalingOutput =
+        {
+        ScaledTrainingSet : TrainingSet;
+        InputScaling : list<Scaler>;
+        OutputScaling: list<Scaler>}
+
+
     let rnd = Random()
 
 
@@ -107,7 +114,7 @@ module ANN =
             else (fun _ -> leftEndPt)}
 
 
-    let scaleTrainingSet (trainingSet : TrainingSet) : TrainingSet * list<Scaler> * list<Scaler> =
+    let scaleTrainingSet (trainingSet : TrainingSet) : ScalingOutput =
         let getScaling (m : Matrix<double>) =
             (Matrix.toColArrays m) |> Array.map (fun s -> genScaler (Array.min s) (Array.max s))
         let scaleVec (scaling : array<Scaler>) = Array.map2 (fun (s : Scaler) t -> s.Forward t) scaling
@@ -116,9 +123,11 @@ module ANN =
         let inputScaling, outputScaling = getScaling trainingSet.InputVecsMat, getScaling trainingSet.OutputVecsMat
         let scaledInputVecsMat = trainingSet.InputVecsMat |> (scaleMatrix inputScaling)
         let scaledOutputVecsMat = trainingSet.OutputVecsMat |> (scaleMatrix outputScaling)
-        {TrainingSet.InputVecsMat = scaledInputVecsMat; TrainingSet.OutputVecsMat = scaledOutputVecsMat},
-        (inputScaling |> List.ofSeq),
-        (outputScaling |> List.ofSeq)
+        {
+        ScaledTrainingSet =
+            {TrainingSet.InputVecsMat = scaledInputVecsMat; TrainingSet.OutputVecsMat = scaledOutputVecsMat};
+        InputScaling = (inputScaling |> List.ofSeq);
+        OutputScaling = (outputScaling |> List.ofSeq)}
 
 
     let makeForwardPass (aNN : Network) (scaledInputVecsMat : Matrix<double>) : ForwardPassOutput =
@@ -188,7 +197,9 @@ module ANN =
 
 
     let train (aNN : Network) (trainingSet : TrainingSet) (numOfEpochs : int) (trainingMode : TrainingMode) : Network =
-        let scaledTrainingSet, inputScaling, outputScaling = scaleTrainingSet trainingSet
+        let scaledTrainingSet, inputScaling, outputScaling =
+            let scalingOutput = scaleTrainingSet trainingSet
+            scalingOutput.ScaledTrainingSet, scalingOutput.InputScaling, scalingOutput.OutputScaling
         let tANN =
             match trainingMode with
             | TrainingMode.Single -> singleTrain aNN scaledTrainingSet numOfEpochs
@@ -214,5 +225,7 @@ module ANN =
         |> Matrix.mapRows (fun _ s -> vector [Vector.sum s])
         |> (fun s -> (Matrix.reduce (+) s) / (double (Matrix.rowCount s)))
         |> sqrt
+
+    
 
     
