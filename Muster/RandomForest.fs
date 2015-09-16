@@ -10,7 +10,13 @@ module RandomForest =
     type Forest = list<DecisionTree.Node>
 
 
-    let buildWithParams (tbl : DecisionTree.DataTable) (b : float) : Forest =
+    type SubsetNum =
+        | Int of int
+        | Pct of float
+
+
+    let buildWithParams (tbl : DecisionTree.DataTable) (b : int) (subsetNum : SubsetNum) : Forest =
+        //
         []
 
 
