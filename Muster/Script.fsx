@@ -1,5 +1,6 @@
 ﻿// #r "../packages/MathNet.Numerics.FSharp.3.6.0/lib/net40/MathNet.Numerics.FSharp.dll"
 #load "../packages/MathNet.Numerics.FSharp.3.7.0/MathNet.Numerics.fsx"
+#load "Utils.fs"
 #load "Extensions.fs"
 #load "KDTree.fs"
 #load "ANN.fs"
@@ -11,6 +12,7 @@ open System.Diagnostics
 open System.IO
 open MathNet.Numerics.LinearAlgebra
 open MathNet.Numerics.LinearAlgebra.Double
+open Muster.Utils
 open Muster.Extensions
 open Muster.DataStructuresAndAlgorithms
 // open Muster.DataStructuresAndAlgorithms.DecisionTree
