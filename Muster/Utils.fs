@@ -15,12 +15,11 @@ module Misc =
         let rec helper (acc : seq<int>) (remLen : int) : seq<int> =
             if remLen <= 0 then acc |> Seq.take len
             else
-                helper
-                    (
+                let newAcc =
                     [acc; (Seq.init remLen (fun s -> rnd.Next() % diffSucc))]
                     |> Seq.concat
-                    |> Seq.distinct)
-                    (Seq.length acc)
+                    |> Seq.distinct
+                helper newAcc (len - (Seq.length acc))
         (helper Seq.empty len) |> List.ofSeq
 
 
