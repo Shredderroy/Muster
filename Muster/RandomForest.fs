@@ -2,6 +2,8 @@
 
 
 open System
+open Muster.Extensions
+open Muster.Utils
 
 
 module RandomForest =
@@ -34,7 +36,14 @@ module RandomForest =
                 |> Math.Floor
                 |> int
             | _ -> failwith errorMsgs.["sampleSizeErrorMsg"]
-        //
+        let tblLenPred = (List.length tbl) - 1
+        let res =
+            (List.init b (fun _ -> Misc.getDistinctRandomIntList 0 tblLenPred sampleSize))
+            |> List.map (fun s ->
+                s
+                |> List.sort
+                //
+                )
         []
 
 

@@ -246,3 +246,10 @@ let rnd = Random()
 //cartTest2()
 //
 //
+
+let sw = System.Diagnostics.Stopwatch()
+sw.Start()
+let lst = Muster.Utils.Misc.getDistinctRandomIntList 0 1000000 50000
+printfn "%A" (List.length lst)
+sw.Stop()
+printfn "Time taken = %A ms" sw.ElapsedMilliseconds

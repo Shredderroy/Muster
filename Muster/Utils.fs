@@ -10,18 +10,17 @@ module Misc =
     let rnd = Random()
 
 
-    let getDistinctRandomList (minVal : int) (maxVal : int) (len : int) : list<int> =
+    let getDistinctRandomIntList (minVal : int) (maxVal : int) (len : int) : list<int> =
         let diffSucc = maxVal - minVal + 1
-        let rec helper (acc : seq<int>) (remLen : int) : seq<int> =
-            if remLen <= 0 then acc |> Seq.take len
+        let rec helper (acc : list<int>) : list<int> =
+            let accLen = List.length acc
+            if accLen >= len then acc |> Seq.skip (accLen - len) |> List.ofSeq
             else
                 let newAcc =
-                    [acc; (Seq.init remLen (fun s -> rnd.Next() % diffSucc))]
-                    |> Seq.concat
+                    [acc; (List.init (len - accLen) (fun s -> minVal + (rnd.Next() % diffSucc)))]
+                    |> List.concat
                     |> Seq.distinct
-                helper newAcc (len - (Seq.length acc))
-        (helper Seq.empty len) |> List.ofSeq
-
-
-    let test () : unit = ()
+                    |> List.ofSeq
+                helper newAcc
+        (helper []) |> List.ofSeq
 
