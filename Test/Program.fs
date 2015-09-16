@@ -152,7 +152,7 @@ module Program =
                 ANN.defaultDOutputActivation
                 learningParam
         let trainingSet = ANN.importTrainingSetFromFile
-                            (@"..\..\..\DataStructures\SampleData\ANN\" + fnName + ".txt")
+                            (@"..\..\..\Muster\SampleData\ANN\" + fnName + ".txt")
                             inputDim
                             outputDim
         let numOfEpochs = 10000
