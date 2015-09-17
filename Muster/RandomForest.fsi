@@ -31,6 +31,12 @@ module RandomForest =
     val entropy : ImpurityFn
 
 
+    val giniIndex : ImpurityFn
+
+
+    val classificationError : ImpurityFn
+
+
     val defSplitStopCriterion : SplitStopCriterion
 
 

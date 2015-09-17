@@ -42,6 +42,12 @@ module RandomForest =
     let entropy = DecisionTree.entropy
 
 
+    let giniIndex = DecisionTree.giniIndex
+
+
+    let classificationError = DecisionTree.classificationError
+
+
     let defSplitStopCriterion = DecisionTree.defSplitStopCriterion
 
 
