@@ -255,7 +255,7 @@ let idxLst = Muster.Utils.Misc.getDistinctRandomIntList 0 (lstLen - 1) idxLen
 printfn "idxLst = %A" (idxLst)
 let lst = Muster.Utils.Misc.getDistinctRandomIntList 1 100 lstLen
 printfn "lst = %A" lst
-let extrLst = Muster.Extensions.ListExtensions.pickFromList2 lst idxLst
+let extrLst = Muster.Extensions.ListExtensions.pickFromList lst idxLst
 printfn "extrLst = %A" extrLst
 sw.Stop()
 printfn "Time taken = %A ms" sw.ElapsedMilliseconds
