@@ -24,7 +24,13 @@ module RandomForest =
         |> Map.ofSeq
 
 
-    let buildWithParams (tbl : DecisionTree.DataTable) (b : int) (sampleSize: SampleSize) : Forest =
+    let buildWithParams
+        (tbl : DecisionTree.DataTable)
+        (b : int)
+        (sampleSize: SampleSize)
+        (impurityFn : DecisionTree.ImpurityFn)
+        (splitStopCriterionOpt : option<DecisionTree.SplitStopCriterion>)
+        : Forest =
         let sampleSize =
             match sampleSize with
             | SampleSize.Int v -> v
@@ -37,14 +43,9 @@ module RandomForest =
                 |> int
             | _ -> failwith errorMsgs.["sampleSizeErrorMsg"]
         let tblLenPred = (List.length tbl) - 1
-        let res =
-            (List.init b (fun _ -> Misc.getDistinctRandomIntList 0 tblLenPred sampleSize))
-            |> List.map (fun s ->
-                s
-                |> List.sort
-                //
-                )
-        []
+        (List.init b (fun _ -> Misc.getDistinctRandomIntList 0 tblLenPred sampleSize))
+        |> List.map (fun s -> s |> List.sort |> ListExtensions.pickFromList tbl)
+        |> List.map (fun s -> DecisionTree.buildC45 s impurityFn splitStopCriterionOpt)
 
 
     let build (tbl : DecisionTree.DataTable) : Forest =

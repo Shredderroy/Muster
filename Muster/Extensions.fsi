@@ -9,3 +9,6 @@ module ListExtensions =
 
     val transpose : list<list<'A>> -> list<list<'A>>
 
+
+    val pickFromList : list<'A> -> list<int> -> list<'A>
+
