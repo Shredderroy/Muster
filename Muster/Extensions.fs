@@ -14,3 +14,11 @@ module ListExtensions =
 
     let transpose (lst : list<list<'A>>) : list<list<'A>> = mapThread id lst
 
+
+    let pickFromList (lst : list<'A>) (idxLst : list<int>) : list<'A> =
+        let rec helper (currLst : list<'A>) (currIdxLst : list<int>) (acc : list<'A>) : list<'A> =
+            match currIdxLst with
+            | [] -> acc |> List.rev
+            | hd :: tl -> 
+        []
+

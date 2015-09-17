@@ -1,8 +1,7 @@
 ﻿namespace Muster.DataStructuresAndAlgorithms
 
 
-module CART =
+module RandomForest =
 
 
     val test : unit -> unit
-

@@ -152,7 +152,7 @@ module Program =
                 ANN.defaultDOutputActivation
                 learningParam
         let trainingSet = ANN.importTrainingSetFromFile
-                            (@"..\..\..\DataStructures\SampleData\ANN\" + fnName + ".txt")
+                            (@"..\..\..\Muster\SampleData\ANN\" + fnName + ".txt")
                             inputDim
                             outputDim
         let numOfEpochs = 10000
@@ -307,6 +307,44 @@ module Program =
         sW.Reset()
 
 
+    let tf16 () : unit =
+        let tbl = DecisionTree.parseDataTableFromFile @"..\..\..\Muster\SampleData\DecisionTree\SampleID3Data.txt"
+        let impurityFn = DecisionTree.entropy
+        let c45Tree = DecisionTree.buildC45 tbl impurityFn None
+        printfn "c45Tree = %A" c45Tree
+        let inputMap =
+            seq[
+                (
+                DecisionTree.DataType.Cat(DecisionTree.CatType.Str "Gender"),
+                DecisionTree.DataType.Cat(DecisionTree.CatType.Str "female"));
+                (
+                DecisionTree.DataType.Cat(DecisionTree.CatType.Str "Travel cost"),
+                DecisionTree.DataType.Cat(DecisionTree.CatType.Str "cheap"))
+            ]
+            |> Map.ofSeq
+        printfn "inputMap = %A" inputMap
+        let prediction = DecisionTree.getPrediction c45Tree inputMap
+        printfn "prediction = %A" prediction
+
+
+    let tf17 () : unit =
+        let tbl = DecisionTree.parseDataTableFromFile @"..\..\..\Muster\SampleData\DecisionTree\SampleC45Data.txt"
+        let impurityFn = DecisionTree.entropy
+        let splitStopCriterion = DecisionTree.defSplitStopCriterion
+        let c45Tree = DecisionTree.buildC45 tbl impurityFn (Some splitStopCriterion)
+        printfn "c45Tree = %A" c45Tree
+        let inputMap =
+            seq[
+                (
+                DecisionTree.DataType.Cat(DecisionTree.CatType.Str "HUMIDITY"),
+                DecisionTree.DataType.Cont(DecisionTree.ContType.Flt 65.0))
+            ]
+            |> Map.ofSeq
+        printfn "inputMap = %A" inputMap
+        let prediction = DecisionTree.getPrediction c45Tree inputMap
+        printfn "prediction = %A" prediction
+
+
     let testInt16KDTree () : unit =
         let dim = 8
         let numOfVecs = 1024000 * 16
@@ -336,7 +374,7 @@ module Program =
             | "tf15" -> tf15 kDT dim maxVal b
             | _ -> ()
             printf "Continue testing Int16KDTree? [Y/N]: "
-            match stdin.ReadLine().ToLower() with | "n" -> () | _ -> loop ()
+            match stdin.ReadLine().ToLower() with "n" -> () | _ -> loop ()
         loop ()
 
 
@@ -363,7 +401,7 @@ module Program =
             | "tf13" -> tf13 kDT dim maxVal b vecsArr
             | _ -> ()
             printf "Continue testing DblKDTree? [Y/N]: "
-            match stdin.ReadLine().ToLower() with | "n" -> () | _ -> loop ()
+            match stdin.ReadLine().ToLower() with "n" -> () | _ -> loop ()
         loop ()
 
 
@@ -378,7 +416,19 @@ module Program =
             | "tf11" -> tf11()
             | _ -> ()
             printf "Continue testing ANN? [Y/N]: "
-            match stdin.ReadLine().ToLower() with | "n" -> () | _ -> loop ()
+            match stdin.ReadLine().ToLower() with "n" -> () | _ -> loop ()
+        loop ()
+
+
+    let testDecisionTree () : unit =
+        let rec loop () : unit =
+            printf "Function to run: "
+            match stdin.ReadLine().ToLower() with
+            | "tf16" -> tf16()
+            | "tf17" -> tf17()
+            | _ -> ()
+            printf "Continue testing CART? [Y/N]: "
+            match stdin.ReadLine().ToLower() with "n" -> () | _ -> loop()
         loop ()
 
 
@@ -391,9 +441,10 @@ module Program =
             | "testInt16KDTree" -> testInt16KDTree()
             | "testDblKDTree" -> testDblKDTree()
             | "testANN" -> testANN()
+            | "testDecisionTree" -> testDecisionTree()
             | _ -> ()
             printf "Test another module? [Y/N]: "
-            match stdin.ReadLine().ToLower() with | "n" -> () | _ -> loop ()
+            match stdin.ReadLine().ToLower() with "n" -> () | _ -> loop ()
         loop ()
         printfn "Exiting main()"
         0
