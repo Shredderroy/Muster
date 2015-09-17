@@ -80,5 +80,15 @@ module RandomForest =
         buildWithParams tbl numOfTrees sampleSize entropy (Some defSplitStopCriterion)
 
 
-    // let getPrediction (forest : Forest) (inputMap : Map)
+    let getPrediction (forest : Forest) (inputMap : Map<DataType, DataType>) : list<int * DataType> =
+        forest
+        |> List.map (fun tree ->
+            async {return DecisionTree.getPrediction tree inputMap})
+        |> Async.Parallel
+        |> Async.RunSynchronously
+        |> List.ofArray
+        |> List.collect id
+        |> Seq.groupBy snd
+        |> Seq.map (fun (s, t) -> (t |> Seq.sumBy fst), s)
+        |> List.ofSeq
 
