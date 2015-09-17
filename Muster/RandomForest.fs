@@ -53,7 +53,7 @@ module RandomForest =
 
     let buildWithParams
         (tbl : DataTable)
-        (b : int)
+        (numOfTrees : int)
         (sampleSize: SampleSize)
         (impurityFn : ImpurityFn)
         (splitStopCriterionOpt : option<SplitStopCriterion>)
@@ -70,13 +70,13 @@ module RandomForest =
                 |> int
             | _ -> failwith errorMsgs.["sampleSizeErrorMsg"]
         let tblLenPred = (List.length tbl) - 1
-        (List.init b (fun _ -> Misc.getDistinctRandomIntList 0 tblLenPred sampleSize))
+        (List.init numOfTrees (fun _ -> Misc.getDistinctRandomIntList 0 tblLenPred sampleSize))
         |> List.map (fun s -> s |> List.sort |> ListExtensions.pickFromList tbl)
         |> List.map (fun s -> DecisionTree.buildC45 s impurityFn splitStopCriterionOpt)
 
 
-    let buildDefault (tbl : DataTable) (b : int) (sampleSize : SampleSize) : Forest =
-        buildWithParams tbl b sampleSize entropy (Some defSplitStopCriterion)
+    let buildDefault (tbl : DataTable) (numOfTrees : int) (sampleSize : SampleSize) : Forest =
+        buildWithParams tbl numOfTrees sampleSize entropy (Some defSplitStopCriterion)
 
 
     // let getPrediction (forest : Forest) (inputMap : Map)
