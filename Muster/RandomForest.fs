@@ -48,10 +48,8 @@ module RandomForest =
         |> List.map (fun s -> DecisionTree.buildC45 s impurityFn splitStopCriterionOpt)
 
 
-    let build (tbl : DecisionTree.DataTable) : Forest =
-        //
-        []
-
-
-    let test () : unit = ()
+    let buildDefault (tbl : DecisionTree.DataTable) (b : int) (sampleSize : SampleSize) : Forest =
+        let impurityFn = DecisionTree.entropy
+        let splitStopCriterionOpt = Some DecisionTree.defSplitStopCriterion
+        buildWithParams tbl b sampleSize impurityFn splitStopCriterionOpt
 
