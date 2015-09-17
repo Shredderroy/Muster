@@ -260,3 +260,12 @@ let rnd = Random()
 //printfn "Time taken = %A ms" sw.ElapsedMilliseconds
 //
 //
+
+//let lst = [1 .. 1000000]
+//printfn "Length of lst = %A" (List.length lst)
+//let sw = System.Diagnostics.Stopwatch()
+//sw.Start()
+//let lstRev = List.rev lst
+//sw.Stop()
+//printfn "Elapsed time = %A ms" sw.ElapsedMilliseconds
+//sw.Reset()

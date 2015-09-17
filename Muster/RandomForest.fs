@@ -9,7 +9,22 @@ open Muster.Utils
 module RandomForest =
 
 
-    type Forest = list<DecisionTree.Node>
+    type DataType = DecisionTree.DataType
+
+
+    type Node = DecisionTree.Node
+
+
+    type DataTable = DecisionTree.DataTable
+
+
+    type ImpurityFn = DecisionTree.ImpurityFn
+
+
+    type SplitStopCriterion = DecisionTree.SplitStopCriterion
+
+
+    type Forest = list<Node>
 
 
     [<RequireQualifiedAccess>]
@@ -24,12 +39,24 @@ module RandomForest =
         |> Map.ofSeq
 
 
+    let entropy = DecisionTree.entropy
+
+
+    let giniIndex = DecisionTree.giniIndex
+
+
+    let classificationError = DecisionTree.classificationError
+
+
+    let defSplitStopCriterion = DecisionTree.defSplitStopCriterion
+
+
     let buildWithParams
-        (tbl : DecisionTree.DataTable)
-        (b : int)
+        (tbl : DataTable)
+        (numOfTrees : int)
         (sampleSize: SampleSize)
-        (impurityFn : DecisionTree.ImpurityFn)
-        (splitStopCriterionOpt : option<DecisionTree.SplitStopCriterion>)
+        (impurityFn : ImpurityFn)
+        (splitStopCriterionOpt : option<SplitStopCriterion>)
         : Forest =
         let sampleSize =
             match sampleSize with
@@ -43,13 +70,25 @@ module RandomForest =
                 |> int
             | _ -> failwith errorMsgs.["sampleSizeErrorMsg"]
         let tblLenPred = (List.length tbl) - 1
-        (List.init b (fun _ -> Misc.getDistinctRandomIntList 0 tblLenPred sampleSize))
+        (List.init numOfTrees (fun _ -> Misc.getDistinctRandomIntList 0 tblLenPred sampleSize))
         |> List.map (fun s -> s |> List.sort |> ListExtensions.pickFromList tbl)
         |> List.map (fun s -> DecisionTree.buildC45 s impurityFn splitStopCriterionOpt)
 
 
-    let buildDefault (tbl : DecisionTree.DataTable) (b : int) (sampleSize : SampleSize) : Forest =
-        let impurityFn = DecisionTree.entropy
-        let splitStopCriterionOpt = Some DecisionTree.defSplitStopCriterion
-        buildWithParams tbl b sampleSize impurityFn splitStopCriterionOpt
+    let buildDefault (tbl : DataTable) (numOfTrees : int): Forest =
+        let sampleSize = SampleSize.Int((List.length tbl) / numOfTrees)
+        buildWithParams tbl numOfTrees sampleSize entropy (Some defSplitStopCriterion)
+
+
+    let getPrediction (forest : Forest) (inputMap : Map<DataType, DataType>) : list<int * DataType> =
+        forest
+        |> List.map (fun tree ->
+            async {return DecisionTree.getPrediction tree inputMap})
+        |> Async.Parallel
+        |> Async.RunSynchronously
+        |> List.ofArray
+        |> List.collect id
+        |> Seq.groupBy snd
+        |> Seq.map (fun (s, t) -> (t |> Seq.sumBy fst), s)
+        |> List.ofSeq
 

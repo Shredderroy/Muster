@@ -4,6 +4,21 @@
 module RandomForest =
 
 
+    type DataType = DecisionTree.DataType
+
+
+    type Node = DecisionTree.Node
+
+
+    type DataTable = DecisionTree.DataTable
+
+
+    type ImpurityFn = DecisionTree.ImpurityFn
+
+
+    type SplitStopCriterion = DecisionTree.SplitStopCriterion
+
+
     type Forest = list<DecisionTree.Node>
 
 
@@ -13,14 +28,20 @@ module RandomForest =
         | Pct of float
 
 
-    val buildWithParams :
-        DecisionTree.DataTable ->
-        int ->
-        SampleSize ->
-        DecisionTree.ImpurityFn ->
-        option<DecisionTree.SplitStopCriterion> ->
-        Forest
+    val entropy : ImpurityFn
 
 
-    val buildDefault : DecisionTree.DataTable -> int -> SampleSize -> Forest
+    val giniIndex : ImpurityFn
+
+
+    val classificationError : ImpurityFn
+
+
+    val defSplitStopCriterion : SplitStopCriterion
+
+
+    val buildWithParams : DataTable -> int -> SampleSize -> ImpurityFn -> option<SplitStopCriterion> -> Forest
+
+
+    val buildDefault : DataTable -> int -> Forest
 
