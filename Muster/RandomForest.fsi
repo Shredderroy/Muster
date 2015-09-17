@@ -45,3 +45,6 @@ module RandomForest =
 
     val buildDefault : DataTable -> int -> Forest
 
+
+    val getPrediction : Forest -> Map<DataType, DataType> -> list<int * DataType>
+
