@@ -43,5 +43,5 @@ module RandomForest =
     val buildWithParams : DataTable -> int -> SampleSize -> ImpurityFn -> option<SplitStopCriterion> -> Forest
 
 
-    val buildDefault : DataTable -> int -> SampleSize -> Forest
+    val buildDefault : DataTable -> int -> Forest
 
