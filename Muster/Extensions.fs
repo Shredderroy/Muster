@@ -16,9 +16,11 @@ module ListExtensions =
 
 
     let pickFromList (lst : list<'A>) (idxLst : list<int>) : list<'A> =
-        let rec helper (currLst : list<'A>) (currIdxLst : list<int>) (acc : list<'A>) : list<'A> =
+        let rec helper (currLst : list<'A>) (currIdxLst : list<int>) (lastIdx : int) (acc : list<'A>) : list<'A> =
             match currIdxLst with
             | [] -> acc |> List.rev
-            | hd :: tl -> 
-        []
+            | hd :: tl ->
+                let newCurrLst = currLst |> Seq.skip (hd - lastIdx - 1) |> List.ofSeq
+                helper (List.tail newCurrLst) tl hd ((List.head newCurrLst) :: acc)
+        helper lst (List.sort idxLst) (-1) []
 

@@ -249,7 +249,13 @@ let rnd = Random()
 
 let sw = System.Diagnostics.Stopwatch()
 sw.Start()
-let lst = Muster.Utils.Misc.getDistinctRandomIntList 0 1000000 50000
-printfn "%A" (List.length lst)
+let lstLen = 20
+let idxLen = 6
+let idxLst = Muster.Utils.Misc.getDistinctRandomIntList 0 (lstLen - 1) idxLen
+printfn "idxLst = %A" (List.sort idxLst)
+let lst = Muster.Utils.Misc.getDistinctRandomIntList 1 100 lstLen
+printfn "lst = %A" lst
+let extrLst = Muster.Extensions.ListExtensions.pickFromList lst idxLst
+printfn "extrLst = %A" extrLst
 sw.Stop()
 printfn "Time taken = %A ms" sw.ElapsedMilliseconds
