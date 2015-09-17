@@ -9,7 +9,22 @@ open Muster.Utils
 module RandomForest =
 
 
-    type Forest = list<DecisionTree.Node>
+    type DataType = DecisionTree.DataType
+
+
+    type Node = DecisionTree.Node
+
+
+    type DataTable = DecisionTree.DataTable
+
+
+    type ImpurityFn = DecisionTree.ImpurityFn
+
+
+    type SplitStopCriterion = DecisionTree.SplitStopCriterion
+
+
+    type Forest = list<Node>
 
 
     [<RequireQualifiedAccess>]
@@ -24,12 +39,18 @@ module RandomForest =
         |> Map.ofSeq
 
 
+    let entropy = DecisionTree.entropy
+
+
+    let defSplitStopCriterion = DecisionTree.defSplitStopCriterion
+
+
     let buildWithParams
-        (tbl : DecisionTree.DataTable)
+        (tbl : DataTable)
         (b : int)
         (sampleSize: SampleSize)
-        (impurityFn : DecisionTree.ImpurityFn)
-        (splitStopCriterionOpt : option<DecisionTree.SplitStopCriterion>)
+        (impurityFn : ImpurityFn)
+        (splitStopCriterionOpt : option<SplitStopCriterion>)
         : Forest =
         let sampleSize =
             match sampleSize with
@@ -48,8 +69,9 @@ module RandomForest =
         |> List.map (fun s -> DecisionTree.buildC45 s impurityFn splitStopCriterionOpt)
 
 
-    let buildDefault (tbl : DecisionTree.DataTable) (b : int) (sampleSize : SampleSize) : Forest =
-        let impurityFn = DecisionTree.entropy
-        let splitStopCriterionOpt = Some DecisionTree.defSplitStopCriterion
-        buildWithParams tbl b sampleSize impurityFn splitStopCriterionOpt
+    let buildDefault (tbl : DataTable) (b : int) (sampleSize : SampleSize) : Forest =
+        buildWithParams tbl b sampleSize entropy (Some defSplitStopCriterion)
+
+
+    // let getPrediction (forest : Forest) (inputMap : Map)
 
