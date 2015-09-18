@@ -39,6 +39,9 @@ module RandomForest =
         |> Map.ofSeq
 
 
+    let parseDataTableFromFile (filePath : string) : DataTable = DecisionTree.parseDataTableFromFile filePath
+
+
     let entropy = DecisionTree.entropy
 
 
