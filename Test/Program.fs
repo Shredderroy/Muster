@@ -345,6 +345,21 @@ module Program =
         printfn "prediction = %A" prediction
 
 
+    let tf18 () : unit =
+        let tbl = DecisionTree.parseDataTableFromFile @"..\..\..\Muster\SampleData\DecisionTree\SampleC45Data.txt"
+        let forest = RandomForest.buildDefault tbl 4
+        let inputMap =
+            seq[
+                (
+                DecisionTree.DataType.Cat(DecisionTree.CatType.Str "HUMIDITY"),
+                DecisionTree.DataType.Cont(DecisionTree.ContType.Flt 65.0))
+            ]
+            |> Map.ofSeq
+        printfn "inputMap = %A" inputMap
+        let prediction = RandomForest.getPrediction forest inputMap
+        printfn "prediction = %A" prediction
+
+
     let testInt16KDTree () : unit =
         let dim = 8
         let numOfVecs = 1024000 * 16
@@ -427,9 +442,20 @@ module Program =
             | "tf16" -> tf16()
             | "tf17" -> tf17()
             | _ -> ()
-            printf "Continue testing CART? [Y/N]: "
+            printf "Continue testing DecisionTree? [Y/N]: "
             match stdin.ReadLine().ToLower() with "n" -> () | _ -> loop()
         loop ()
+
+
+    let testRandomForest () : unit =
+        let rec loop () : unit =
+            printf "Function to run: "
+            match stdin.ReadLine().ToLower() with
+            | "tf18" -> tf18()
+            | _ -> ()
+            printf "Continue testing RandomForest? [Y/N]: "
+            match stdin.ReadLine().ToLower() with "n" -> () | _ -> loop()
+        loop()
 
 
     [<EntryPoint>]
@@ -442,6 +468,7 @@ module Program =
             | "testDblKDTree" -> testDblKDTree()
             | "testANN" -> testANN()
             | "testDecisionTree" -> testDecisionTree()
+            | "testRandomForest" -> testRandomForest()
             | _ -> ()
             printf "Test another module? [Y/N]: "
             match stdin.ReadLine().ToLower() with "n" -> () | _ -> loop ()
