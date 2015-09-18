@@ -348,7 +348,8 @@ module Program =
     let tf18 () : unit =
         let tbl = RandomForest.parseDataTableFromFile @"..\..\..\Muster\SampleData\DecisionTree\SampleC45Data.txt"
         printfn "Length of tbl = %A" (List.length tbl)
-        let forest = RandomForest.buildDefault tbl 4
+        let numOfTrees = 4
+        let forest = RandomForest.buildDefault tbl numOfTrees
         printfn "forest = %A" forest
         let inputMap =
             seq[
