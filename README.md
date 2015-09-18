@@ -6,5 +6,6 @@ The following data structures and algorithms have been implemented at this time:
 2. artificial neural networks
 3. principal component analysis
 4. decision trees
+5. random forests
 
 For more information, please see the [Muster wiki](https://github.com/Shredderroy/Muster/wiki).
