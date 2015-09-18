@@ -69,14 +69,15 @@ module RandomForest =
                 |> Math.Floor
                 |> int
             | _ -> failwith errorMsgs.["sampleSizeErrorMsg"]
-        let tblLenPred = (List.length tbl) - 1
-        (List.init numOfTrees (fun _ -> Misc.getDistinctRandomIntList 0 tblLenPred sampleSize))
-        |> List.map (fun s -> s |> List.sort |> ListExtensions.pickFromList tbl)
+        let tblDatLen = (List.length << List.tail) tbl
+        let colHdrs = List.head tbl
+        (List.init numOfTrees (fun _ -> Misc.getDistinctRandomIntList 1 tblDatLen sampleSize))
+        |> List.map (fun s -> colHdrs :: (s |> ListExtensions.pickFromList tbl))
         |> List.map (fun s -> DecisionTree.buildC45 s impurityFn splitStopCriterionOpt)
 
 
     let buildDefault (tbl : DataTable) (numOfTrees : int): Forest =
-        let sampleSize = SampleSize.Int((List.length tbl) / numOfTrees)
+        let sampleSize = SampleSize.Int(((List.length << List.tail) tbl) / numOfTrees)
         buildWithParams tbl numOfTrees sampleSize entropy (Some defSplitStopCriterion)
 
 
