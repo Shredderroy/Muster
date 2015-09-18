@@ -346,7 +346,7 @@ module Program =
 
 
     let tf18 () : unit =
-        let tbl = DecisionTree.parseDataTableFromFile @"..\..\..\Muster\SampleData\DecisionTree\SampleC45Data.txt"
+        let tbl = RandomForest.parseDataTableFromFile @"..\..\..\Muster\SampleData\DecisionTree\SampleC45Data.txt"
         printfn "Length of tbl = %A" (List.length tbl)
         let forest = RandomForest.buildDefault tbl 4
         printfn "forest = %A" forest

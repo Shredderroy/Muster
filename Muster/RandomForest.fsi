@@ -28,6 +28,9 @@ module RandomForest =
         | Pct of float
 
 
+    val parseDataTableFromFile : string -> DataTable
+
+
     val entropy : ImpurityFn
 
 
