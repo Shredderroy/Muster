@@ -246,10 +246,26 @@ let rnd = Random()
 //cartTest2()
 //
 //
+//let sw = System.Diagnostics.Stopwatch()
+//sw.Start()
+//let lstLen = 20
+//let idxLen = 6
+//let idxLst = Muster.Utils.Misc.getDistinctRandomIntList 0 (lstLen - 1) idxLen
+//printfn "idxLst = %A" (idxLst)
+//let lst = Muster.Utils.Misc.getDistinctRandomIntList 1 100 lstLen
+//printfn "lst = %A" lst
+//let extrLst = Muster.Extensions.ListExtensions.pickFromList lst idxLst
+//printfn "extrLst = %A" extrLst
+//sw.Stop()
+//printfn "Time taken = %A ms" sw.ElapsedMilliseconds
+//
+//
 
-let sw = System.Diagnostics.Stopwatch()
-sw.Start()
-let lst = Muster.Utils.Misc.getDistinctRandomIntList 0 1000000 50000
-printfn "%A" (List.length lst)
-sw.Stop()
-printfn "Time taken = %A ms" sw.ElapsedMilliseconds
+//let lst = [1 .. 1000000]
+//printfn "Length of lst = %A" (List.length lst)
+//let sw = System.Diagnostics.Stopwatch()
+//sw.Start()
+//let lstRev = List.rev lst
+//sw.Stop()
+//printfn "Elapsed time = %A ms" sw.ElapsedMilliseconds
+//sw.Reset()
