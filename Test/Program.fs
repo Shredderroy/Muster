@@ -430,7 +430,7 @@ module Program =
             | "tf7" -> tf7()
             | "tf8" -> tf8()
             | "tf9" -> tf9()
-            | "tf10" -> tf10()
+            | "tf10" -> tf10() 
             | "tf11" -> tf11()
             | _ -> ()
             printf "Continue testing ANN? [Y/N]: "
