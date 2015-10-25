@@ -344,7 +344,7 @@ module DecisionTree =
                 | _ -> failwith errorMsgs.["contErrorMsg"]
         let op
             (idx : int)
-            (splitStopCriterion : seq<seq<DataType>> -> bool)
+            (splitStopCriterion : SplitStopCriterion)
             (sq : seq<string * float * seq<seq<DataType>>>)
             : ExcisedComponents =
             let colName, colVal, transSqTbl = Seq.head sq
