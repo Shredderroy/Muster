@@ -179,31 +179,38 @@ let rnd = Random()
 //    printfn "outVec = %A" outVec
 //
 //
-//let pcaTest () : unit =
-//    // Set the dimensions of the matrix
-//    let numOfRows, numOfCols = 7, 3
-//    // Generate a matrix with a dependent column (the second column)
-//    let x =
-//        let y =
-//            DenseMatrix.init
-//                numOfRows
-//                numOfCols
-//                (fun _ _ -> let s = rnd.NextDouble() in if rnd.Next() % 2 = 0 then s else -s)
-//        let z = y |> Matrix.toColSeq |> (vector << List.ofSeq << Seq.head)
-//        Matrix.insertCol (numOfCols - 2) (2.0 * z) y
-//    // let x = matrix [[1.0; 2.0]; [2.0; 3.0]; [3.0; 4.0]; [4.0; 5.0]]
-//    printfn "x = %A" x
-//    // Get the change of basis matrix
-//    let newBasisMat = PCA.changeBasis x
-//    printfn "newBasisMat = %A" newBasisMat
-//    // Reduce the dimension of the original matrix
-//    let rMat = PCA.reduceMatDim 0.01 newBasisMat x
-//    printfn "rMat = %A" rMat
-//    // Generate a random vector
-//    let vec = DenseVector.init (numOfCols + 1) (fun _ -> let s = rnd.NextDouble() in if rnd.Next() % 2 = 0 then s else -s)
-//    printfn "vec = %A" vec
-//    let rVec = PCA.reduceVecDim ((numOfCols + 1) - (Matrix.columnCount rMat)) newBasisMat vec
-//    printfn "%A" rVec
+let pcaTest () : unit =
+    // Set the dimensions of the matrix
+    let numOfRows, numOfCols = 7, 3
+    // Generate a matrix with a dependent column (the second column)
+    let x =
+        let y =
+            DenseMatrix.init
+                numOfRows
+                numOfCols
+                (fun _ _ -> let s = rnd.NextDouble() in if rnd.Next() % 2 = 0 then s else -s)
+        let z = y |> Matrix.toColSeq |> (vector << List.ofSeq << Seq.head)
+        y
+        |> Matrix.insertCol (numOfCols - 2) (2.0 * z)
+        |> Matrix.insertCol (numOfCols - 2) (4.0 * z)
+        |> Matrix.insertCol (numOfCols - 2) (6.0 * z)
+        |> Matrix.insertCol (numOfCols - 2) (8.0 * z)
+        |> Matrix.insertCol (numOfCols - 2) (10.0 * z)
+    printfn "x = %A" x
+    // Get the change of basis matrix
+    let newBasisMat = PCA.changeBasis x
+    printfn "newBasisMat = %A" newBasisMat
+    // Reduce the dimension of the original matrix
+    let rMat = PCA.reduceMatDim 0.01 newBasisMat x
+    printfn "rMat = %A" rMat
+    // Generate a random vector
+    let vec = DenseVector.init (Matrix.columnCount x) (fun _ -> let s = rnd.NextDouble() in if rnd.Next() % 2 = 0 then s else -s)
+    printfn "vec = %A" vec
+    let rVec = PCA.reduceVecDim ((Matrix.columnCount x) - (Matrix.columnCount rMat)) newBasisMat vec
+    printfn "%A" rVec
+
+
+pcaTest()
 //
 //
 //let cartTest1 (inputFileLoc : string) : unit =
