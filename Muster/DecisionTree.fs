@@ -415,7 +415,7 @@ module DecisionTree =
                 let datSetImpurity = impurityFn classVals
                 [0 .. currTblWidth - 2]
                 |> List.map (fun s -> (s, getInfoGain currTblDat s impurityFn datSetImpurity))
-                |> List.maxBy (fun (s, t) -> t.InfoGain)
+                |> List.maxBy (fun (_, s) -> s.InfoGain)
                 |> (fun (s, t) -> s, t, getTblDatSplits currTblDat s t)
                 |> (fun (s, t, u) ->
                     getExcisedComponents (List.map (fun v -> colHdrs :: v) u) s t splitStopCriterionOpt)
