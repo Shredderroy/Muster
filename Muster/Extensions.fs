@@ -1,6 +1,9 @@
 ﻿namespace Muster.Extensions
 
 
+open System
+
+
 module ListExtensions =
 
 
@@ -30,4 +33,19 @@ module ListExtensions =
         (helper lst (idxLst |> List.mapi (fun i s -> i, s) |> List.sortBy snd) (-1) [])
         |> List.sortBy fst
         |> List.map snd
+
+
+module StringExtensions =
+
+
+    let getNonEmptyTokens (str : string) = [for s in str.Split([|' '|]) do let t = s.Trim() in if t <> "" then yield t]
+
+
+    let getNGrams (str : string) : list<string> =
+        List.fold (fun s t -> [t] @ [for u in s -> t + " " + u] @ s) [] ((List.rev << getNonEmptyTokens) str)
+
+
+    let getShingles (str : string) : list<string> =
+        (let toks = getNonEmptyTokens str in List.zip [0 .. (List.length toks) - 1] (List.rev toks))
+        |> List.fold (fun s (i, t) -> [t] @ [for u in (Seq.take i s) -> t + " " + u] @ s) []
 
