@@ -24,3 +24,6 @@ module StringExtensions =
 
     val getShingles : string -> list<string>
 
+
+    val getMaximalItems : list<string> -> list<string>
+
