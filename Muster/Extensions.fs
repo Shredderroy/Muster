@@ -38,14 +38,23 @@ module ListExtensions =
 module StringExtensions =
 
 
-    let getNonEmptyTokens (str : string) = [for s in str.Split([|' '|]) do let t = s.Trim() in if t <> "" then yield t]
+    let getNonEmptyTokens (str : string) =
+        [for s in str.Split([|' '|]) do let t = s.Trim() in if not(String.IsNullOrEmpty t) then yield t]
 
 
     let getNGrams (str : string) : list<string> =
-        List.fold (fun s t -> [t] @ [for u in s -> t + " " + u] @ s) [] ((List.rev << getNonEmptyTokens) str)
+        let f = (fun s t -> [t] @ [for u in s -> t + " " + u] @ s)
+        List.fold f [] (List.rev (getNonEmptyTokens str))
 
 
     let getShingles (str : string) : list<string> =
-        (let toks = getNonEmptyTokens str in List.zip [0 .. (List.length toks) - 1] (List.rev toks))
-        |> List.fold (fun s (i, t) -> [t] @ [for u in (Seq.take i s) -> t + " " + u] @ s) []
+        let f = (fun s (i, t) -> [t] @ [for u in (Seq.take i s) -> t + " " + u] @ s)
+        List.fold f [] (let toks = getNonEmptyTokens str in List.zip [0 .. (List.length toks) - 1] (List.rev toks))
+
+
+    let getMaximalItems (lst : list<string>) : list<string> =
+        let f = (fun s t -> (Seq.tryFind(fun (u : string) -> u.Contains t) s) |> Option.isSome)
+        let g = (fun s t u -> not ((f s u) || (f t u)))
+        let zLst = List.zip [0 .. (List.length lst) - 1] lst
+        [for (s, t) in zLst do if g (Seq.take s lst) (Seq.skip (s + 1) lst) t then yield t]
 
