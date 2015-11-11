@@ -12,3 +12,15 @@ module ListExtensions =
 
     val pickFromList : list<'A> -> list<int> -> list<'A>
 
+
+module StringExtensions =
+
+
+    val getNonEmptyTokens : string -> list<string>
+
+
+    val getNGrams : string -> list<string>
+
+
+    val getShingles : string -> list<string>
+
