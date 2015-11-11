@@ -202,11 +202,7 @@ module DecisionTree =
             | _ -> failwith errorMsgs.["contErrorMsg"])
 
 
-    let applyExOp
-        (exFn : seq<'A> -> seq<'B>)
-        (op : seq<'B> -> 'C)
-        (sq : seq<'A>)
-        : 'C =
+    let applyExOp (exFn : seq<'A> -> seq<'B>) (op : seq<'B> -> 'C) (sq : seq<'A>) : 'C =
         if Seq.isEmpty sq then failwith errorMsgs.["emptyLstErrorMsg"]
         else sq |> exFn |> op
 
@@ -260,11 +256,7 @@ module DecisionTree =
         |> List.ofSeq
 
 
-    let getTblDatSplitsForContVar
-        (tblDat : DataTable)
-        (idx : int)
-        (infoGainRes : InfoGainRes)
-        : list<DataTable> =
+    let getTblDatSplitsForContVar (tblDat : DataTable) (idx : int) (infoGainRes : InfoGainRes) : list<DataTable> =
         let exFn (sq : seq<array<DataType>>) : seq<bool * array<DataType>> =
             sq
             |> Seq.map (fun s ->
@@ -279,11 +271,7 @@ module DecisionTree =
         (applyExOp exFn op (tblDat |> List.sortBy (fun s -> s.[idx]))) |> List.ofSeq
 
 
-    let getTblDatSplits
-        (tblDat : DataTable)
-        (idx : int)
-        (infoGainRes : InfoGainRes)
-        : list<DataTable> =
+    let getTblDatSplits (tblDat : DataTable) (idx : int) (infoGainRes : InfoGainRes) : list<DataTable> =
         match (List.head tblDat).[idx] with
         | DataType.Cat _ -> getTblDatSplitsForCatVar tblDat idx
         | DataType.Cont _ -> getTblDatSplitsForContVar tblDat idx infoGainRes
