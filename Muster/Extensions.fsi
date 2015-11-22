@@ -16,7 +16,7 @@ module ListExtensions =
 module StringExtensions =
 
 
-    val getNonEmptyTokens : string -> list<string>
+    val getTokens : string -> list<string>
 
 
     val getNGrams : string -> list<string>
