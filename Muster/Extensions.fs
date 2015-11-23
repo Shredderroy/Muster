@@ -56,6 +56,6 @@ module StringExtensions =
     let getMaximalItems (lst : list<string>) : list<string> =
         let f = (fun s t -> (Seq.tryFind(fun (u : string) -> u.Contains t) s) |> Option.isSome)
         let g = (fun s t u -> not ((f s u) || (f t u)))
-        let zLst = seq {for s in Seq.mapi (fun i s -> (i, s)) lst -> s}
+        let zLst = Seq.mapi (fun i s -> (i, s)) lst
         [for (s, t) in zLst do if g (Seq.take s lst) (Seq.skip (s + 1) lst) t then yield t]
 
