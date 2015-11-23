@@ -10,6 +10,7 @@
 open System
 open System.Diagnostics
 open System.IO
+open System.Text.RegularExpressions
 open MathNet.Numerics.LinearAlgebra
 open MathNet.Numerics.LinearAlgebra.Double
 open Muster.Utils
@@ -275,4 +276,13 @@ let rnd = Random()
 //sw.Stop()
 //printfn "Elapsed time = %A ms" sw.ElapsedMilliseconds
 //sw.Reset()
+
+
+let pat = @"(\b\w+\b?).*\1"
+let rgx = Regex(pat)
+let str = @"this day and this day"
+printfn "%A" (rgx.Matches(str))
+
+
+printfn "%A" (StringExtensions.getMaximalItems ["the"; "there"; "and"; "androgynous"])
 
