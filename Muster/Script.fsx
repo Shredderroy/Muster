@@ -1,5 +1,4 @@
-﻿// #r "../packages/MathNet.Numerics.FSharp.3.6.0/lib/net40/MathNet.Numerics.FSharp.dll"
-#load "../packages/MathNet.Numerics.FSharp.3.8.0/MathNet.Numerics.fsx"
+﻿#load "../packages/MathNet.Numerics.FSharp.3.8.0/MathNet.Numerics.fsx"
 #load "Utils.fs"
 #load "Extensions.fs"
 #load "KDTree.fs"
