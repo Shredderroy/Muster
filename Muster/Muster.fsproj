@@ -53,8 +53,8 @@
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="Utils.fsi" />
     <Compile Include="Utils.fs" />
-    <Compile Include="Extensions.fsi" />
-    <Compile Include="Extensions.fs" />
+    <Compile Include="ListExtensions.fs" />
+    <Compile Include="StringExtensions.fs" />
     <Compile Include="KDTree.fsi" />
     <Compile Include="KDTree.fs" />
     <Compile Include="PCA.fsi" />
@@ -74,11 +74,11 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="MathNet.Numerics">
-      <HintPath>..\packages\MathNet.Numerics.3.8.0\lib\net40\MathNet.Numerics.dll</HintPath>
+      <HintPath>..\packages\MathNet.Numerics.3.9.0\lib\net40\MathNet.Numerics.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="MathNet.Numerics.FSharp">
-      <HintPath>..\packages\MathNet.Numerics.FSharp.3.8.0\lib\net40\MathNet.Numerics.FSharp.dll</HintPath>
+      <HintPath>..\packages\MathNet.Numerics.FSharp.3.9.0\lib\net40\MathNet.Numerics.FSharp.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="mscorlib" />
