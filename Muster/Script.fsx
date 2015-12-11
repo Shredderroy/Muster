@@ -1,6 +1,7 @@
 ﻿#load "../packages/MathNet.Numerics.FSharp.3.8.0/MathNet.Numerics.fsx"
 #load "Utils.fs"
-#load "Extensions.fs"
+#load "ListExtensions.fs"
+#load "StringExtensions.fs"
 #load "KDTree.fs"
 #load "ANN.fs"
 #load "PCA.fs"
@@ -277,11 +278,6 @@ let rnd = Random()
 //sw.Reset()
 
 
-let pat = @"(\b\w+\b?).*\1"
-let rgx = Regex(pat)
-let str = @"this day and this day"
-printfn "%A" (rgx.Matches(str))
+// printfn "%A" (StringExtensions.getMaximalItems ["the"; "there"; "and"; "androgynous"])
 
-
-printfn "%A" (StringExtensions.getMaximalItems ["the"; "there"; "and"; "androgynous"])
-
+printfn "%A" (StringExtensions.removeNonAlphaNumChars @"an238nsdfg&93&*&@#H--=ASijfb")
