@@ -36,3 +36,4 @@ module StringExtensions =
 
 
     let removeApostrophe (str : string) : string = compress(str.Replace('\'', ' '))
+
