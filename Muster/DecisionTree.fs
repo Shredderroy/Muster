@@ -289,12 +289,10 @@ module DecisionTree =
                 | _ -> failwith errorMsgs.["catErrorMsg"]
         let op (sq : seq<string * DataType * seq<seq<DataType>>>) : ExcisedComponents =
             let colName, colVal, sqTbl = Seq.head sq
-            {
-            ColName = colName;
+            {ColName = colName;
             ColVal = colVal;
             ExcisedTable =
-                (
-                if idx < 1 then sqTbl |> Seq.skip 1
+                (if idx < 1 then sqTbl |> Seq.skip 1
                 else
                     seq {
                         yield! (Seq.take idx sqTbl)
@@ -348,8 +346,7 @@ module DecisionTree =
                     |> ListExtensions.transpose
                     |> ((List.map Seq.ofList) >> Seq.ofList)
                     |> splitStopCriterion
-                (
-                if not splitStopFlg then transSqTbl
+                (if not splitStopFlg then transSqTbl
                 elif idx < 1 then Seq.skip 1 transSqTbl
                 else
                     seq {

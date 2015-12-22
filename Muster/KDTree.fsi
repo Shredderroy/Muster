@@ -12,9 +12,8 @@ module KDTree =
 
     [<RequireQualifiedAccess; CustomEquality; CustomComparison>]
     type Node<'A when 'A : comparison> =
-        {
-        LeftChild : option<Node<'A>>;
-        RightChild : option<Node<'A>>
+        {LeftChild : option<Node<'A>>;
+        RightChild : option<Node<'A>>;
         SplittingAxis : int;
         ID : int;
         Vec : array<'A>}
