@@ -98,7 +98,7 @@ module ANN =
     let defaultDOutputActivation (_ : double) = 1.0
 
 
-    let vectorToList (vec : Vector<double>) : list<double> = vec.ToArray() |> List.ofArray
+    let vectorToList (vec : Vector<double>) : list<double> = vec |> Vector.toList
 
 
     let genScaler (leftEndPt : double) (rightEndPt : double) : Scaler =
