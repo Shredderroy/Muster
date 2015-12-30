@@ -1,4 +1,4 @@
-﻿#load "../packages/MathNet.Numerics.FSharp.3.8.0/MathNet.Numerics.fsx"
+﻿#load "../packages/MathNet.Numerics.FSharp.3.9.0/MathNet.Numerics.fsx"
 #load "Utils.fs"
 #load "ListExtensions.fs"
 #load "StringExtensions.fs"
