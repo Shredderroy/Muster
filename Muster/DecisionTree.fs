@@ -141,7 +141,7 @@ module DecisionTree =
                 | "catStr" -> s |> List.tail |> List.map (DataType.Cat << CatType.Str)
                 | "catInt" -> s |> List.tail |> List.map (DataType.Cat << CatType.Int << int)
                 | "catBool" -> s |> List.tail |> List.map (DataType.Cat << CatType.Bool << ((=) "true"))
-                | "contFlt" -> s|> List.tail |> List.map (DataType.Cont << ContType.Flt << float)
+                | "contFlt" -> s |> List.tail |> List.map (DataType.Cont << ContType.Flt << float)
                 | _ -> failwith errorMsgs.["unknownDataTypeParseErrorMsg"])
             |> ListExtensions.transpose
             |> List.map Array.ofList
@@ -381,7 +381,7 @@ module DecisionTree =
 
 
     let isSingleValuedCatTypeLst (lst : list<DataType>) : bool =
-        (List.tryFind (not << ((=) (List.head lst))) (List.tail lst)).IsNone
+        Option.isNone (List.tryFind (not << ((=) (List.head lst))) (List.tail lst))
 
 
     let buildC45
