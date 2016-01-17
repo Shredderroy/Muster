@@ -311,7 +311,6 @@ module Program =
         let tbl = DecisionTree.parseDataTableFromFile @"..\..\..\Muster\SampleData\DecisionTree\SampleID3Data.txt"
         let impurityFn = DecisionTree.entropy
         let c45Tree = DecisionTree.buildC45 tbl impurityFn None
-        printfn "c45Tree = %A" c45Tree
         let inputMap =
             seq[
                 (
@@ -332,7 +331,6 @@ module Program =
         let impurityFn = DecisionTree.entropy
         let splitStopCriterion = DecisionTree.defSplitStopCriterion
         let c45Tree = DecisionTree.buildC45 tbl impurityFn (Some splitStopCriterion)
-        printfn "c45Tree = %A" c45Tree
         let inputMap =
             seq[
                 (
@@ -350,7 +348,6 @@ module Program =
         printfn "Length of tbl = %A" (List.length tbl)
         let numOfTrees = 4
         let forest = RandomForest.buildDefault tbl numOfTrees
-        printfn "forest = %A" forest
         let inputMap =
             seq[
                 (
