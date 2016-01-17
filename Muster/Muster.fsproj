@@ -51,7 +51,6 @@
   <Import Project="$(FSharpTargetsPath)" />
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
-    <Compile Include="Utils.fsi" />
     <Compile Include="Utils.fs" />
     <Compile Include="ListExtensions.fs" />
     <Compile Include="StringExtensions.fs" />
