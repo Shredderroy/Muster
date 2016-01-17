@@ -280,4 +280,6 @@ let rnd = Random()
 
 // printfn "%A" (StringExtensions.getMaximalItems ["the"; "there"; "and"; "androgynous"])
 
-printfn "%A" (StringExtensions.removeNonAlphaNumChars @"an238nsdfg&93&*&@#H--=ASijfb")
+// printfn "%A" (StringExtensions.removeNonAlphaNumChars @"an238nsdfg&93&*&@#H--=ASijfb")
+
+printfn "%A" ((int << floor << sqrt) 17.0)

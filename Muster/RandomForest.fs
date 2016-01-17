@@ -74,9 +74,15 @@ module RandomForest =
             | _ -> failwith errorMsgs.["sampleSizeErrorMsg"]
         let tblDatLen = (List.length << List.tail) tbl
         let colHdrs = List.head tbl
+        let colHdrsLen = Array.length colHdrs
         (List.init numOfTrees (fun _ -> Misc.getDistinctRandomIntList 1 tblDatLen sampleSize))
         |> List.map (fun s -> colHdrs :: (s |> ListExtensions.pickFromList tbl))
-        |> List.map (fun s -> DecisionTree.buildC45 s impurityFn splitStopCriterionOpt)
+        |> List.map (fun s ->
+            let rndLst =
+                (Misc.getDistinctRandomIntList 0 (colHdrsLen - 2) ((int << floor << sqrt << float) (colHdrsLen - 1))) @
+                    [colHdrsLen - 1]
+            s |> List.map (fun t -> rndLst |> List.map (Array.get t) |> Array.ofList))
+        |> List.map (fun (s) -> DecisionTree.buildC45 s impurityFn splitStopCriterionOpt)
 
 
     let buildDefault (tbl : DataTable) (numOfTrees : int): Forest =
@@ -86,8 +92,7 @@ module RandomForest =
 
     let getPrediction (forest : Forest) (inputMap : Map<DataType, DataType>) : list<int * DataType> =
         forest
-        |> List.map (fun tree ->
-            async {return DecisionTree.getPrediction tree inputMap})
+        |> List.map (fun (s) -> async {return DecisionTree.getPrediction s inputMap})
         |> Async.Parallel
         |> Async.RunSynchronously
         |> List.ofArray
