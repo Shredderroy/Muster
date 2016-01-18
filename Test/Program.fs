@@ -312,7 +312,7 @@ module Program =
         let impurityFn = DecisionTree.entropy
         let c45Tree = DecisionTree.buildC45 tbl impurityFn None
         let inputMap =
-            seq[
+            seq [
                 (
                 DecisionTree.DataType.Cat(DecisionTree.CatType.Str "Gender"),
                 DecisionTree.DataType.Cat(DecisionTree.CatType.Str "female"));
@@ -348,6 +348,7 @@ module Program =
         printfn "Length of tbl = %A" (List.length tbl)
         let numOfTrees = 4
         let forest = RandomForest.buildDefault tbl numOfTrees
+        printfn "forest = %A" forest
         let inputMap =
             seq[
                 (
