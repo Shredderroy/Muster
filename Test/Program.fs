@@ -311,9 +311,8 @@ module Program =
         let tbl = DecisionTree.parseDataTableFromFile @"..\..\..\Muster\SampleData\DecisionTree\SampleID3Data.txt"
         let impurityFn = DecisionTree.entropy
         let c45Tree = DecisionTree.buildC45 tbl impurityFn None
-        printfn "c45Tree = %A" c45Tree
         let inputMap =
-            seq[
+            seq [
                 (
                 DecisionTree.DataType.Cat(DecisionTree.CatType.Str "Gender"),
                 DecisionTree.DataType.Cat(DecisionTree.CatType.Str "female"));
@@ -332,7 +331,6 @@ module Program =
         let impurityFn = DecisionTree.entropy
         let splitStopCriterion = DecisionTree.defSplitStopCriterion
         let c45Tree = DecisionTree.buildC45 tbl impurityFn (Some splitStopCriterion)
-        printfn "c45Tree = %A" c45Tree
         let inputMap =
             seq[
                 (
@@ -365,8 +363,8 @@ module Program =
 
     let testInt16KDTree () : unit =
         let dim = 8
-        let numOfVecs = 1024000 * 16
-        let (maxVal : int16) = 8s
+        let numOfVecs = 1024000 * 1
+        let (maxVal : int16) = 128s
         let b = 10
         let vecsArr = KDTree.genRandInt16VecsArr dim numOfVecs maxVal
         let diffFunc = KDTree.int16DiffFunc

@@ -13,15 +13,13 @@ module ANN =
 
     [<RequireQualifiedAccess>]
     type Scaler =
-        {
-        Forward : double -> double;
+        {Forward : double -> double;
         Inverse : double -> double}
 
 
     [<RequireQualifiedAccess>]
     type Network =
-        {
-        Layers : list<Matrix<double>>;
+        {Layers : list<Matrix<double>>;
         InputActivation : double -> double;
         DInputActivation : double -> double;
         OutputActivation : double -> double;
@@ -46,8 +44,7 @@ module ANN =
 
 
     type ScalingOutput =
-        {
-        ScaledTrainingSet : TrainingSet;
+        {ScaledTrainingSet : TrainingSet;
         InputScaling : list<Scaler>;
         OutputScaling: list<Scaler>}
 
@@ -101,7 +98,7 @@ module ANN =
     let defaultDOutputActivation (_ : double) = 1.0
 
 
-    let vectorToList (vec : Vector<double>) : list<double> = vec.ToArray() |> List.ofArray
+    let vectorToList (vec : Vector<double>) : list<double> = vec |> Vector.toList
 
 
     let genScaler (leftEndPt : double) (rightEndPt : double) : Scaler =

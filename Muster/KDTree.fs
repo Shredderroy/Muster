@@ -13,9 +13,8 @@ module KDTree =
 
     [<RequireQualifiedAccess; CustomEquality; CustomComparison>]
     type Node<'A when 'A : comparison> =
-        {
-        LeftChild : option<Node<'A>>;
-        RightChild : option<Node<'A>>
+        {LeftChild : option<Node<'A>>;
+        RightChild : option<Node<'A>>;
         SplittingAxis : int;
         ID : int;
         Vec : array<'A>}
@@ -213,8 +212,7 @@ module KDTree =
             if insVec.[node.SplittingAxis] < node.Vec.[node.SplittingAxis] then Path.Left else Path.Right
         let modFunc (node : Node<'A>) ((insVec, insNodeID) : array<'A> * int) : Node<'A> =
             let newNode =
-                    {
-                    Node.LeftChild = None;
+                    {Node.LeftChild = None;
                     Node.RightChild = None;
                     Node.ID = insNodeID;
                     Node.SplittingAxis = (node.SplittingAxis + 1) % node.Vec.Length;
@@ -292,8 +290,7 @@ module KDTree =
 
     let rebuild (kDT : Node<'A>) : option<Node<'A>> =
         buildFromChildNodes
-            {
-            Node.LeftChild = Some kDT;
+            {Node.LeftChild = Some kDT;
             Node.RightChild = None;
             Node.SplittingAxis = 0;
             Node.ID = 0;

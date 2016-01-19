@@ -7,10 +7,8 @@ open System
 module Misc =
 
 
-    let rnd = Random()
-
-
     let getDistinctRandomIntList (minVal : int) (maxVal : int) (len : int) : list<int> =
+        let rnd = Random()
         let diffSucc = maxVal - minVal + 1
         let rec helper (acc : list<int>) : list<int> =
             let accLen = List.length acc

@@ -88,7 +88,7 @@ module DecisionTree =
 
 
     [<RequireQualifiedAccess>]
-    type PrunedComponents = {ColName : String; ColVal : DataType; PrunedTable : DataTable}
+    type ExcisedComponents = {ColName : String; ColVal : DataType; ExcisedTable : DataTable}
 
 
     [<RequireQualifiedAccess>]
@@ -141,7 +141,7 @@ module DecisionTree =
                 | "catStr" -> s |> List.tail |> List.map (DataType.Cat << CatType.Str)
                 | "catInt" -> s |> List.tail |> List.map (DataType.Cat << CatType.Int << int)
                 | "catBool" -> s |> List.tail |> List.map (DataType.Cat << CatType.Bool << ((=) "true"))
-                | "contFlt" -> s|> List.tail |> List.map (DataType.Cont << ContType.Flt << float)
+                | "contFlt" -> s |> List.tail |> List.map (DataType.Cont << ContType.Flt << float)
                 | _ -> failwith errorMsgs.["unknownDataTypeParseErrorMsg"])
             |> ListExtensions.transpose
             |> List.map Array.ofList
@@ -202,11 +202,7 @@ module DecisionTree =
             | _ -> failwith errorMsgs.["contErrorMsg"])
 
 
-    let applyExOp
-        (exFn : seq<'A> -> seq<'B>)
-        (op : seq<'B> -> 'C)
-        (sq : seq<'A>)
-        : 'C =
+    let applyExOp (exFn : seq<'A> -> seq<'B>) (op : seq<'B> -> 'C) (sq : seq<'A>) : 'C =
         if Seq.isEmpty sq then failwith errorMsgs.["emptyLstErrorMsg"]
         else sq |> exFn |> op
 
@@ -260,11 +256,7 @@ module DecisionTree =
         |> List.ofSeq
 
 
-    let getTblDatSplitsForContVar
-        (tblDat : DataTable)
-        (idx : int)
-        (infoGainRes : InfoGainRes)
-        : list<DataTable> =
+    let getTblDatSplitsForContVar (tblDat : DataTable) (idx : int) (infoGainRes : InfoGainRes) : list<DataTable> =
         let exFn (sq : seq<array<DataType>>) : seq<bool * array<DataType>> =
             sq
             |> Seq.map (fun s ->
@@ -279,17 +271,13 @@ module DecisionTree =
         (applyExOp exFn op (tblDat |> List.sortBy (fun s -> s.[idx]))) |> List.ofSeq
 
 
-    let getTblDatSplits
-        (tblDat : DataTable)
-        (idx : int)
-        (infoGainRes : InfoGainRes)
-        : list<DataTable> =
+    let getTblDatSplits (tblDat : DataTable) (idx : int) (infoGainRes : InfoGainRes) : list<DataTable> =
         match (List.head tblDat).[idx] with
         | DataType.Cat _ -> getTblDatSplitsForCatVar tblDat idx
         | DataType.Cont _ -> getTblDatSplitsForContVar tblDat idx infoGainRes
 
 
-    let getPrunedComponentsForCatVar (tblsLst : list<DataTable>) (idx : int) : list<PrunedComponents> =
+    let getExcisedComponentsForCatVar (tblsLst : list<DataTable>) (idx : int) : list<ExcisedComponents> =
         let exFn (idx : int) (sqTbl: seq<seq<DataType>>) : seq<string * DataType * seq<seq<DataType>>> =
             if (Seq.isEmpty sqTbl) || (((Seq.skip idx) >> Seq.head >> Seq.length) sqTbl) < 2
             then failwith errorMsgs.["emptyLstErrorMsg"]
@@ -299,14 +287,12 @@ module DecisionTree =
                 match colName, colVal with
                 | DataType.Cat(CatType.Str colNameStr), DataType.Cat _ -> seq [colNameStr, colVal, sqTbl]
                 | _ -> failwith errorMsgs.["catErrorMsg"]
-        let op (sq : seq<string * DataType * seq<seq<DataType>>>) : PrunedComponents =
+        let op (sq : seq<string * DataType * seq<seq<DataType>>>) : ExcisedComponents =
             let colName, colVal, sqTbl = Seq.head sq
-            {
-            ColName = colName;
+            {ColName = colName;
             ColVal = colVal;
-            PrunedTable =
-                (
-                if idx < 1 then sqTbl |> Seq.skip 1
+            ExcisedTable =
+                (if idx < 1 then sqTbl |> Seq.skip 1
                 else
                     seq {
                         yield! (Seq.take idx sqTbl)
@@ -326,12 +312,12 @@ module DecisionTree =
     let (defSplitStopCriterion : SplitStopCriterion) = fun (sqTbl : seq<seq<DataType>>) -> (Seq.length sqTbl) <= 4
 
 
-    let getPrunedComponentsForContVar
+    let getExcisedComponentsForContVar
         (tblsLst : list<DataTable>)
         (idx : int)
         (infoGainRes : InfoGainRes)
         (splitStopCriterion : SplitStopCriterion)
-        : list<PrunedComponents> =
+        : list<ExcisedComponents> =
         let exFn (idx : int) (transSqTbl : seq<seq<DataType>>) : seq<string * float * seq<seq<DataType>>> =
             if (Seq.isEmpty transSqTbl) || (((Seq.skip idx) >> Seq.head >> Seq.length) transSqTbl) < 2
             then failwith errorMsgs.["emptyLstErrorMsg"]
@@ -344,24 +330,23 @@ module DecisionTree =
                 | _ -> failwith errorMsgs.["contErrorMsg"]
         let op
             (idx : int)
-            (splitStopCriterion : seq<seq<DataType>> -> bool)
+            (splitStopCriterion : SplitStopCriterion)
             (sq : seq<string * float * seq<seq<DataType>>>)
-            : PrunedComponents =
+            : ExcisedComponents =
             let colName, colVal, transSqTbl = Seq.head sq
             {
             ColName = colName;
             ColVal =
                 let sv = infoGainRes.SplittingValOpt.Value
                 (if colVal < sv then sv - epsilon else sv) |> (DataType.Cont << ContType.Flt);
-            PrunedTable =
+            ExcisedTable =
                 let splitStopFlg =
                     transSqTbl
                     |> ((Seq.map List.ofSeq) >> List.ofSeq)
                     |> ListExtensions.transpose
                     |> ((List.map Seq.ofList) >> Seq.ofList)
                     |> splitStopCriterion
-                (
-                if not splitStopFlg then transSqTbl
+                (if not splitStopFlg then transSqTbl
                 elif idx < 1 then Seq.skip 1 transSqTbl
                 else
                     seq {
@@ -377,26 +362,26 @@ module DecisionTree =
         |> List.map (applyExOp (exFn idx) (op idx splitStopCriterion))
 
 
-    let getPrunedComponents
+    let getExcisedComponents
         (tblsLst : list<DataTable>)
         (idx : int)
         (infoGainRes : InfoGainRes)
         (splitStopCriterionOpt : option<SplitStopCriterion>)
-        : list<PrunedComponents> =
+        : list<ExcisedComponents> =
         let exFn (idx : int) (tblsSq : seq<DataTable>) : seq<bool * seq<DataTable>> =
             let colType = ((Seq.head << (Seq.skip 1) << Seq.head) tblsSq).[idx]
             match colType with
             | DataType.Cat _ -> seq [true, tblsSq]
             | _ -> seq [false, tblsSq]
-        let op (idx : int) (catFlgAndTblsSq : seq<bool * seq<DataTable>>) : list<PrunedComponents> =
+        let op (idx : int) (catFlgAndTblsSq : seq<bool * seq<DataTable>>) : list<ExcisedComponents> =
             let catFlg, tblsSq = Seq.head catFlgAndTblsSq
-            if catFlg then getPrunedComponentsForCatVar (List.ofSeq tblsSq) idx
-            else getPrunedComponentsForContVar (List.ofSeq tblsSq) idx infoGainRes splitStopCriterionOpt.Value
+            if catFlg then getExcisedComponentsForCatVar (List.ofSeq tblsSq) idx
+            else getExcisedComponentsForContVar (List.ofSeq tblsSq) idx infoGainRes splitStopCriterionOpt.Value
         applyExOp (exFn idx) (op idx) tblsLst
 
 
     let isSingleValuedCatTypeLst (lst : list<DataType>) : bool =
-        (List.tryFind (not << ((=) (List.head lst))) (List.tail lst)).IsNone
+        Option.isNone (List.tryFind (not << ((=) (List.head lst))) (List.tail lst))
 
 
     let buildC45
@@ -415,21 +400,21 @@ module DecisionTree =
                 let datSetImpurity = impurityFn classVals
                 [0 .. currTblWidth - 2]
                 |> List.map (fun s -> (s, getInfoGain currTblDat s impurityFn datSetImpurity))
-                |> List.maxBy (fun (s, t) -> t.InfoGain)
+                |> List.maxBy (fun (_, s) -> s.InfoGain)
                 |> (fun (s, t) -> s, t, getTblDatSplits currTblDat s t)
                 |> (fun (s, t, u) ->
-                    getPrunedComponents (List.map (fun v -> colHdrs :: v) u) s t splitStopCriterionOpt)
+                    getExcisedComponents (List.map (fun v -> colHdrs :: v) u) s t splitStopCriterionOpt)
                 |> List.map (fun s ->
                     (DataType.Cat(CatType.Str s.ColName), s.ColVal),
                     (
-                    if s.PrunedTable |> (List.head >> Array.length >> ((=) 1)) then
-                        s.PrunedTable
+                    if s.ExcisedTable |> (List.head >> Array.length >> ((=) 1)) then
+                        s.ExcisedTable
                         |> List.tail
                         |> List.map (fun s -> Array.get s 0)
                         |> (fun s ->
                             if isSingleValuedCatTypeLst s then Node.Leaf(List.head s)
                             else Node.LeafList s)
-                    else helper s.PrunedTable))
+                    else helper s.ExcisedTable))
                 |> (Map.ofSeq >> Node.Internal)
         helper tbl
 

@@ -1,7 +1,7 @@
-﻿// #r "../packages/MathNet.Numerics.FSharp.3.6.0/lib/net40/MathNet.Numerics.FSharp.dll"
-#load "../packages/MathNet.Numerics.FSharp.3.7.0/MathNet.Numerics.fsx"
+﻿#load "../packages/MathNet.Numerics.FSharp.3.9.0/MathNet.Numerics.fsx"
 #load "Utils.fs"
-#load "Extensions.fs"
+#load "ListExtensions.fs"
+#load "StringExtensions.fs"
 #load "KDTree.fs"
 #load "ANN.fs"
 #load "PCA.fs"
@@ -10,6 +10,7 @@
 open System
 open System.Diagnostics
 open System.IO
+open System.Text.RegularExpressions
 open MathNet.Numerics.LinearAlgebra
 open MathNet.Numerics.LinearAlgebra.Double
 open Muster.Utils
@@ -190,8 +191,12 @@ let rnd = Random()
 //                numOfCols
 //                (fun _ _ -> let s = rnd.NextDouble() in if rnd.Next() % 2 = 0 then s else -s)
 //        let z = y |> Matrix.toColSeq |> (vector << List.ofSeq << Seq.head)
-//        Matrix.insertCol (numOfCols - 2) (2.0 * z) y
-//    // let x = matrix [[1.0; 2.0]; [2.0; 3.0]; [3.0; 4.0]; [4.0; 5.0]]
+//        y
+//        |> Matrix.insertCol (numOfCols - 2) (2.0 * z)
+//        |> Matrix.insertCol (numOfCols - 2) (4.0 * z)
+//        |> Matrix.insertCol (numOfCols - 2) (6.0 * z)
+//        |> Matrix.insertCol (numOfCols - 2) (8.0 * z)
+//        |> Matrix.insertCol (numOfCols - 2) (10.0 * z)
 //    printfn "x = %A" x
 //    // Get the change of basis matrix
 //    let newBasisMat = PCA.changeBasis x
@@ -200,10 +205,12 @@ let rnd = Random()
 //    let rMat = PCA.reduceMatDim 0.01 newBasisMat x
 //    printfn "rMat = %A" rMat
 //    // Generate a random vector
-//    let vec = DenseVector.init (numOfCols + 1) (fun _ -> let s = rnd.NextDouble() in if rnd.Next() % 2 = 0 then s else -s)
+//    let vec = DenseVector.init (Matrix.columnCount x) (fun _ -> let s = rnd.NextDouble() in if rnd.Next() % 2 = 0 then s else -s)
 //    printfn "vec = %A" vec
-//    let rVec = PCA.reduceVecDim ((numOfCols + 1) - (Matrix.columnCount rMat)) newBasisMat vec
+//    let rVec = PCA.reduceVecDim ((Matrix.columnCount x) - (Matrix.columnCount rMat)) newBasisMat vec
 //    printfn "%A" rVec
+//
+//
 //
 //
 //let cartTest1 (inputFileLoc : string) : unit =
@@ -269,3 +276,10 @@ let rnd = Random()
 //sw.Stop()
 //printfn "Elapsed time = %A ms" sw.ElapsedMilliseconds
 //sw.Reset()
+
+
+// printfn "%A" (StringExtensions.getMaximalItems ["the"; "there"; "and"; "androgynous"])
+
+// printfn "%A" (StringExtensions.removeNonAlphaNumChars @"an238nsdfg&93&*&@#H--=ASijfb")
+
+printfn "%A" ((int << floor << sqrt) 17.0)
