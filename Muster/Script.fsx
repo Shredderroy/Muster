@@ -282,4 +282,6 @@ let rnd = Random()
 
 // printfn "%A" (StringExtensions.removeNonAlphaNumChars @"an238nsdfg&93&*&@#H--=ASijfb")
 
-printfn "%A" ((int << floor << sqrt) 17.0)
+//printfn "%A" ((int << floor << sqrt) 17.0)
+
+printfn "%A" (ListExtensions.isExtensionOf<int> [1; 2; 3] [1; 2; 5; 6])

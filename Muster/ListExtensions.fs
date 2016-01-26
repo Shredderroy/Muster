@@ -34,3 +34,12 @@ module ListExtensions =
         |> List.sortBy fst
         |> List.map snd
 
+
+    let isExtensionOf<'A when 'A : equality> (lst1 : list<'A>) (lst2 : list<'A>) =
+        if (List.length lst2) < (List.length lst1) then false
+        else
+            (lst1, (lst2 |> List.take (List.length lst1)))
+            ||> List.zip
+            |> List.exists (fun (s, t) -> not(s = t))
+            |> not
+
