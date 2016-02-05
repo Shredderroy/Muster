@@ -113,7 +113,7 @@ module ANN =
 
     let scaleTrainingSet (trainingSet : TrainingSet) : ScalingOutput =
         let getScaling (m : Matrix<double>) =
-            (Matrix.toColArrays m) |> Array.map (fun s -> genScaler (Array.min s) (Array.max s))
+            m |> Matrix.toColArrays |> Array.map (fun s -> genScaler (Array.min s) (Array.max s))
         let scaleVec (scaling : array<Scaler>) = Array.map2 (fun (s : Scaler) t -> s.Forward t) scaling
         let convertArrToMat = Array.map (List.ofArray) >> List.ofArray >> matrix
         let scaleMatrix scaling = Matrix.toRowArrays >> (Array.map (scaleVec scaling)) >> convertArrToMat
@@ -158,8 +158,7 @@ module ANN =
         (backPropagatedError : BackPropagatedError)
         : Network =
         {aNN with Network.Layers =
-                    [
-                    ((forwardPassOutput |> List.rev |> List.tail |> List.rev), (List.tail backPropagatedError))
+                    [((forwardPassOutput |> List.rev |> List.tail |> List.rev), (List.tail backPropagatedError))
                     ||> List.map2 (fun (_, s) t -> aNN.LearningParam * Matrix.transpose(t * s));
                     aNN.Layers]
                     |> ListExtensions.mapThread (List.reduce (+))}
