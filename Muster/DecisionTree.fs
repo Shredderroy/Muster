@@ -380,7 +380,7 @@ module DecisionTree =
         applyExOp (exFn idx) (op idx) tblsLst
 
 
-    let isSingleValuedCatTypeLst (lst : list<DataType>) : bool =
+    let isSingleValuedDataTypeLst (lst : list<DataType>) : bool =
         Option.isNone (List.tryFind (not << ((=) (List.head lst))) (List.tail lst))
 
 
@@ -393,11 +393,11 @@ module DecisionTree =
             let colHdrs = List.head currTbl
             let currTblDat = List.tail currTbl
             let currTblWidth = colHdrs |> Array.length
-            let classVals = currTblDat |> List.map (fun s -> s.[(Array.length s) - 1])
-            let headClassVal = List.head classVals
-            if isSingleValuedCatTypeLst classVals then Node.Leaf headClassVal
+            let outputVals = currTblDat |> List.map (fun s -> s.[(Array.length s) - 1])
+            let headOutputVal = List.head outputVals
+            if isSingleValuedDataTypeLst outputVals then Node.Leaf headOutputVal
             else
-                let datSetImpurity = impurityFn classVals
+                let datSetImpurity = impurityFn outputVals
                 [0 .. currTblWidth - 2]
                 |> List.map (fun s -> (s, getInfoGain currTblDat s impurityFn datSetImpurity))
                 |> List.maxBy (fun (_, s) -> s.InfoGain)
@@ -412,7 +412,7 @@ module DecisionTree =
                         |> List.tail
                         |> List.map (fun s -> Array.get s 0)
                         |> (fun s ->
-                            if isSingleValuedCatTypeLst s then Node.Leaf(List.head s)
+                            if isSingleValuedDataTypeLst s then Node.Leaf(List.head s)
                             else Node.LeafList s)
                     else helper s.ExcisedTable))
                 |> (Map.ofSeq >> Node.Internal)

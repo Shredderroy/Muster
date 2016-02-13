@@ -1,4 +1,4 @@
-﻿#load "../packages/MathNet.Numerics.FSharp.3.9.0/MathNet.Numerics.fsx"
+﻿#load "../packages/MathNet.Numerics.FSharp.3.10.0/MathNet.Numerics.fsx"
 #load "Utils.fs"
 #load "ListExtensions.fs"
 #load "StringExtensions.fs"
@@ -16,7 +16,7 @@ open MathNet.Numerics.LinearAlgebra.Double
 open Muster.Utils
 open Muster.Extensions
 open Muster.DataStructuresAndAlgorithms
-// open Muster.DataStructuresAndAlgorithms.DecisionTree
+open Muster.DataStructuresAndAlgorithms.DecisionTree
 
 
 let rnd = Random()
@@ -282,4 +282,11 @@ let rnd = Random()
 
 // printfn "%A" (StringExtensions.removeNonAlphaNumChars @"an238nsdfg&93&*&@#H--=ASijfb")
 
-printfn "%A" ((int << floor << sqrt) 17.0)
+//printfn "%A" ((int << floor << sqrt) 17.0)
+
+printfn "%A" (ListExtensions.isExtensionOf<int> [1; 2; 3] [1; 2; 5; 6])
+
+let s = DataType.Cat(CatType.Int 0)
+let t = DataType.Cont(ContType.Flt 0.0)
+let u = DataType.Cont(ContType.Flt 0.00)
+printfn "%A" (t = u)

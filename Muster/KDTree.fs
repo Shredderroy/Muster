@@ -58,35 +58,33 @@ module KDTree =
         | Start
         | Internal of Node<'A> * Path * Zipper<'A>
         | End of Node<'A> * Zipper<'A>
-
-
-    let applyZipperOp
-        (kDT : Node<'A>)
-        (endFunc : Node<'A> -> 'B -> bool)
-        (pathFunc : Node<'A> -> 'B -> Path)
-        (modFunc : Node<'A> -> 'B -> Node<'A>)
-        (funcParam : 'B)
-        : Node<'A> =
-        let rec unzip (currNode : Node<'A>) (currZipper : Zipper<'A>) : Zipper<'A> =
-            match
-                (endFunc currNode funcParam),
-                (pathFunc currNode funcParam),
-                currNode.LeftChild,
-                currNode.RightChild with
-            | false, Path.Left, Some leftChild, _ ->
-                unzip leftChild (Zipper.Internal(currNode, Path.Left, currZipper))
-            | false, Path.Right, _, Some rightChild ->
-                unzip rightChild (Zipper.Internal(currNode, Path.Right, currZipper))
-            | _ -> Zipper.End((modFunc currNode funcParam), currZipper) 
-        let rec zip (currZipper : Zipper<'A>) : option<Node<'A>> =
-            match currZipper with
-            | Zipper.End(currNode, Zipper.Internal(parNode, Path.Left, remZipper)) ->
-                zip(Zipper.End({parNode with Node.LeftChild = Some currNode}, remZipper))
-            | Zipper.End(currNode, Zipper.Internal(parNode, Path.Right, remZipper)) ->
-                zip(Zipper.End({parNode with Node.RightChild = Some currNode}, remZipper))
-            | Zipper.End(currNode, Zipper.Start) -> Some currNode
-            | _ -> None
-        match zip(unzip kDT Zipper.Start) with None -> kDT | Some newNode -> newNode
+        static member apply
+            (kDT : Node<'A>)
+            (endFunc : Node<'A> -> 'B -> bool)
+            (pathFunc : Node<'A> -> 'B -> Path)
+            (modFunc : Node<'A> -> 'B -> Node<'A>)
+            (funcsParams : 'B)
+            : Node<'A> =
+            let rec unzip (currNode : Node<'A>) (currZipper : Zipper<'A>) : Zipper<'A> =
+                match
+                    (endFunc currNode funcsParams),
+                    (pathFunc currNode funcsParams),
+                    currNode.LeftChild,
+                    currNode.RightChild with
+                | false, Path.Left, Some leftChild, _ ->
+                    unzip leftChild (Zipper.Internal(currNode, Path.Left, currZipper))
+                | false, Path.Right, _, Some rightChild ->
+                    unzip rightChild (Zipper.Internal(currNode, Path.Right, currZipper))
+                | _ -> Zipper.End((modFunc currNode funcsParams), currZipper) 
+            let rec zip (currZipper : Zipper<'A>) : option<Node<'A>> =
+                match currZipper with
+                | Zipper.End(currNode, Zipper.Internal(parNode, Path.Left, remZipper)) ->
+                    zip(Zipper.End({parNode with Node.LeftChild = Some currNode}, remZipper))
+                | Zipper.End(currNode, Zipper.Internal(parNode, Path.Right, remZipper)) ->
+                    zip(Zipper.End({parNode with Node.RightChild = Some currNode}, remZipper))
+                | Zipper.End(currNode, Zipper.Start) -> Some currNode
+                | _ -> None
+            match zip(unzip kDT Zipper.Start) with None -> kDT | Some newNode -> newNode
 
 
     let rnd = Random()
@@ -220,7 +218,7 @@ module KDTree =
             if insVec.[node.SplittingAxis] < node.Vec.[node.SplittingAxis]
             then {node with Node.LeftChild = Some newNode}
             else {node with Node.RightChild = Some newNode}
-        applyZipperOp kDT endFunc pathFunc modFunc (vec, newNodeID)
+        Zipper.apply kDT endFunc pathFunc modFunc (vec, newNodeID)
 
 
     let buildFromChildNodes (parNode : Node<'A>) (newRootNodeID : int) : option<Node<'A>> =
@@ -253,7 +251,7 @@ module KDTree =
             if leftFlg then {node with Node.LeftChild = modNode} else {node with Node.RightChild = modNode}
         if kDT.ID = remNode.ID
         then buildFromChildNodes kDT newRootNodeID
-        else Some(applyZipperOp kDT endFunc pathFunc modFunc (remNode.Vec, remNode.ID, newRootNodeID))
+        else Some(Zipper.apply kDT endFunc pathFunc modFunc (remNode.Vec, remNode.ID, newRootNodeID))
 
 
     let removeNodeAndDescendants (kDT : Node<'A>) (remNode : Node<'A>) : option<Node<'A>> =
@@ -268,7 +266,7 @@ module KDTree =
             else {node with Node.RightChild = None}
         if kDT.ID = remNode.ID
         then None
-        else Some(applyZipperOp kDT endFunc pathFunc modFunc (remNode.Vec, remNode.ID))
+        else Some(Zipper.apply kDT endFunc pathFunc modFunc (remNode.Vec, remNode.ID))
 
 
     let findNodesWithVec (kDT : Node<'A>) (vec : array<'A>) : list<Node<'A>> =
