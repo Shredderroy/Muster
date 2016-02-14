@@ -176,6 +176,10 @@ module DecisionTree =
         |> (List.max >> ((-) 1.0))
 
 
+    let standardDeviationError (classVals : list<DataType>) : float =
+        0.0
+
+
     let getInfoGainForCatVar
         (tblDat : DataTable)
         (idx : int)
@@ -184,10 +188,10 @@ module DecisionTree =
         : InfoGainRes =
         let tblDatLen = float(List.length tblDat)
         tblDat
-        |> Seq.groupBy (fun s -> s.[idx])
+        |> Seq.groupBy (fun s -> Array.get s idx)
         |> Seq.map (fun (_, s) ->
             s
-            |> Seq.map (fun t -> t.[(Array.length t) - 1])
+            |> Seq.map (fun t -> Array.get t ((Array.length t) - 1))
             |> (fun t -> float(Seq.length t), (impurityFn << List.ofSeq) t)
             |> (fun (t, u) -> t * u))
         |> Seq.sum
@@ -244,7 +248,7 @@ module DecisionTree =
         (impurityFn : ImpurityFn)
         (datSetImpurity : float)
         : InfoGainRes =
-        match (List.head tblDat).[idx] with
+        match Array.get (List.head tblDat) idx with
         | DataType.Cat _ -> getInfoGainForCatVar tblDat idx impurityFn datSetImpurity
         | _ -> getInfoGainForContVar tblDat idx impurityFn datSetImpurity
 
