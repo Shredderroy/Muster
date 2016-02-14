@@ -176,6 +176,11 @@ module DecisionTree =
         |> (List.max >> ((-) 1.0))
 
 
+    let stdDevError (outputVals : list<DataType>) : float =
+        //
+        0.0
+
+
     let getInfoGainForCatVar
         (tblDat : DataTable)
         (idx : int)
@@ -188,7 +193,7 @@ module DecisionTree =
         |> Seq.map (fun (_, s) ->
             s
             |> Seq.map (fun t -> Array.get t ((Array.length t) - 1))
-            |> (fun t -> float(Seq.length t), (impurityFn << List.ofSeq) t)
+            |> (fun t -> (float << Seq.length) t, (impurityFn << List.ofSeq) t)
             |> (fun (t, u) -> t * u))
         |> Seq.sum
         |> (fun s -> {InfoGainRes.SplittingValOpt = None; InfoGainRes.InfoGain = datSetImpurity - (s / tblDatLen)})
