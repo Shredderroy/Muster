@@ -148,30 +148,30 @@ module DecisionTree =
         colHdrs :: tblDat
 
 
-    let coreImpurityFn<'A when 'A : equality> (classVals : list<'A>) : list<float> =
-        let classValsLen = float (List.length classVals)
-        classVals
+    let coreImpurityFn<'A when 'A : equality> (outputVals : list<'A>) : list<float> =
+        let outputValsLen = float (List.length outputVals)
+        outputVals
         |> Seq.groupBy (id)
-        |> Seq.map (fun (s, t) -> (float (Seq.length t)) / classValsLen)
+        |> Seq.map (fun (s, t) -> (float (Seq.length t)) / outputValsLen)
         |> List.ofSeq
 
 
-    let entropy (classVals : list<DataType>) : float =
-        classVals
+    let entropy (outputVals : list<DataType>) : float =
+        outputVals
         |> coreImpurityFn
         |> List.map (fun s -> s * Math.Log(s, 2.0))
         |> (List.sum >> (( * ) (-1.0)))
 
 
-    let giniIndex (classVals : list<DataType>) : float =
-        classVals
+    let giniIndex (outputVals : list<DataType>) : float =
+        outputVals
         |> coreImpurityFn
         |> List.map (fun s -> s * s)
         |> (List.sum >> ((-) 1.0))
 
 
-    let classificationError (classVals : list<DataType>) : float =
-        classVals
+    let classificationError (outputVals : list<DataType>) : float =
+        outputVals
         |> coreImpurityFn
         |> (List.max >> ((-) 1.0))
 
@@ -393,9 +393,8 @@ module DecisionTree =
             let colHdrs = List.head currTbl
             let currTblDat = List.tail currTbl
             let currTblWidth = colHdrs |> Array.length
-            let outputVals = currTblDat |> List.map (fun s -> Array.get s ((Array.length s) - 1))
-            let headOutputVal = List.head outputVals
-            if isSingleValuedDataTypeLst outputVals then Node.Leaf headOutputVal
+            let outputVals = currTblDat |> List.map (Array.last)
+            if isSingleValuedDataTypeLst outputVals then Node.Leaf(List.head outputVals)
             else
                 let datSetImpurity = impurityFn outputVals
                 [0 .. currTblWidth - 2]
