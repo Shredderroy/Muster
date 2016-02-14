@@ -62,6 +62,7 @@ module DecisionTree =
             match s, t with
             | DataType.Cat u, DataType.Cat v -> DataType.Cat(CatType.op_Addition(u, v))
             | DataType.Cont u, DataType.Cont v -> DataType.Cont(ContType.op_Addition(u, v))
+            // | DataType.Cont _, DataType.Cat(CatType.Int u) -> DataType
             | _ -> failwith (operatorErrorMsg "+")
         static member (-) (s, t) =
             match s, t with
@@ -128,11 +129,11 @@ module DecisionTree =
                 |> Array.map (fun t -> t.Trim())
                 |> List.ofArray)
         let colHdrs =
-            fileLines.[1]
+            (Array.get fileLines 1)
             |> List.map (DataType.Cat << CatType.Str)
             |> Array.ofList
         let tblDat =
-            [[|fileLines.[0]|]; fileLines.[2..]]
+            [[|Array.get fileLines 0|]; fileLines.[2..]]
             |> Array.concat
             |> List.ofArray
             |> ListExtensions.transpose
@@ -148,35 +149,36 @@ module DecisionTree =
         colHdrs :: tblDat
 
 
-    let coreImpurityFn<'A when 'A : equality> (classVals : list<'A>) : list<float> =
-        let classValsLen = float (List.length classVals)
-        classVals
+    let coreCatImpurityFn<'A when 'A : equality> (outputVals : list<'A>) : list<float> =
+        let outputValsLen = float (List.length outputVals)
+        outputVals
         |> Seq.groupBy (id)
-        |> Seq.map (fun (s, t) -> (float (Seq.length t)) / classValsLen)
+        |> Seq.map (fun (s, t) -> (float (Seq.length t)) / outputValsLen)
         |> List.ofSeq
 
 
-    let entropy (classVals : list<DataType>) : float =
-        classVals
-        |> coreImpurityFn
+    let entropy (outputVals : list<DataType>) : float =
+        outputVals
+        |> coreCatImpurityFn
         |> List.map (fun s -> s * Math.Log(s, 2.0))
         |> (List.sum >> (( * ) (-1.0)))
 
 
-    let giniIndex (classVals : list<DataType>) : float =
-        classVals
-        |> coreImpurityFn
+    let giniIndex (outputVals : list<DataType>) : float =
+        outputVals
+        |> coreCatImpurityFn
         |> List.map (fun s -> s * s)
         |> (List.sum >> ((-) 1.0))
 
 
-    let classificationError (classVals : list<DataType>) : float =
-        classVals
-        |> coreImpurityFn
+    let classificationError (outputVals : list<DataType>) : float =
+        outputVals
+        |> coreCatImpurityFn
         |> (List.max >> ((-) 1.0))
 
 
-    let standardDeviationError (classVals : list<DataType>) : float =
+    let stdDevError (outputVals : list<DataType>) : float =
+        let tot = List.reduce (+) outputVals
         0.0
 
 
@@ -192,7 +194,7 @@ module DecisionTree =
         |> Seq.map (fun (_, s) ->
             s
             |> Seq.map (fun t -> Array.get t ((Array.length t) - 1))
-            |> (fun t -> float(Seq.length t), (impurityFn << List.ofSeq) t)
+            |> (fun t -> (float << Seq.length) t, (impurityFn << List.ofSeq) t)
             |> (fun (t, u) -> t * u))
         |> Seq.sum
         |> (fun s -> {InfoGainRes.SplittingValOpt = None; InfoGainRes.InfoGain = datSetImpurity - (s / tblDatLen)})
@@ -217,20 +219,20 @@ module DecisionTree =
         (impurityFn : ImpurityFn)
         (datSetImpurity : float)
         : InfoGainRes =
-        let sortedTblDat = tblDat |> List.sortBy (fun s -> s.[idx])
+        let sortedTblDat = tblDat |> List.sortBy (fun s -> Array.get s idx)
         let sortedTblDatLen = float(List.length sortedTblDat)
         let rowLen = (Array.length << List.head) sortedTblDat
         sortedTblDat
         |> Seq.pairwise
         |> Seq.map (fun (s, t) ->
             DataType.op_Division(
-                DataType.op_Addition(s.[idx], t.[idx]),
+                DataType.op_Addition(Array.get s idx, Array.get t idx),
                 DataType.Cont(ContType.Flt 2.0)))
         |> Seq.map (fun s ->
             sortedTblDat
-            |> List.partition (fun t -> t.[idx] < s)
+            |> List.partition (fun t -> (Array.get t idx) < s)
             |> (fun (t, u) -> [t; u])
-            |> List.map (fun t -> float(List.length t) * impurityFn(t |> List.map (fun u -> u.[rowLen - 1])))
+            |> List.map (fun t -> float(List.length t) * impurityFn(t |> List.map (fun u -> Array.get u (rowLen - 1))))
             |> List.sum
             |> (fun t -> applyExOp defFltExtractorFn Seq.head [s], datSetImpurity - (t / sortedTblDatLen)))
         |> (fun s ->
@@ -255,7 +257,7 @@ module DecisionTree =
 
     let getTblDatSplitsForCatVar (tblDat : DataTable) (idx : int) : list<DataTable> =
         tblDat
-        |> Seq.groupBy (fun s -> s.[idx])
+        |> Seq.groupBy (fun s -> Array.get s idx)
         |> Seq.map (snd >> List.ofSeq)
         |> List.ofSeq
 
@@ -264,7 +266,7 @@ module DecisionTree =
         let exFn (sq : seq<array<DataType>>) : seq<bool * array<DataType>> =
             sq
             |> Seq.map (fun s ->
-                match s.[idx], infoGainRes.SplittingValOpt with
+                match Array.get s idx, infoGainRes.SplittingValOpt with
                 | DataType.Cont(ContType.Flt t), Some u -> (t < u), s
                 | _ -> failwith errorMsgs.["contErrorMsg"])
         let op (sq : seq<bool * array<DataType>>) : seq<DataTable> =
@@ -272,11 +274,11 @@ module DecisionTree =
             |> List.ofSeq
             |> List.partition (fst)
             |> (fun (s, t) -> [List.map snd s; List.map snd t] |> Seq.ofList)
-        (applyExOp exFn op (tblDat |> List.sortBy (fun s -> s.[idx]))) |> List.ofSeq
+        (applyExOp exFn op (tblDat |> List.sortBy (fun s -> Array.get s idx))) |> List.ofSeq
 
 
     let getTblDatSplits (tblDat : DataTable) (idx : int) (infoGainRes : InfoGainRes) : list<DataTable> =
-        match (List.head tblDat).[idx] with
+        match Array.get (List.head tblDat) idx with
         | DataType.Cat _ -> getTblDatSplitsForCatVar tblDat idx
         | DataType.Cont _ -> getTblDatSplitsForContVar tblDat idx infoGainRes
 
@@ -373,7 +375,7 @@ module DecisionTree =
         (splitStopCriterionOpt : option<SplitStopCriterion>)
         : list<ExcisedComponents> =
         let exFn (idx : int) (tblsSq : seq<DataTable>) : seq<bool * seq<DataTable>> =
-            let colType = ((Seq.head << (Seq.skip 1) << Seq.head) tblsSq).[idx]
+            let colType = Array.get ((Seq.head << (Seq.skip 1) << Seq.head) tblsSq) idx
             match colType with
             | DataType.Cat _ -> seq [true, tblsSq]
             | _ -> seq [false, tblsSq]
@@ -397,9 +399,8 @@ module DecisionTree =
             let colHdrs = List.head currTbl
             let currTblDat = List.tail currTbl
             let currTblWidth = colHdrs |> Array.length
-            let outputVals = currTblDat |> List.map (fun s -> s.[(Array.length s) - 1])
-            let headOutputVal = List.head outputVals
-            if isSingleValuedDataTypeLst outputVals then Node.Leaf headOutputVal
+            let outputVals = currTblDat |> List.map (Array.last)
+            if isSingleValuedDataTypeLst outputVals then Node.Leaf(List.head outputVals)
             else
                 let datSetImpurity = impurityFn outputVals
                 [0 .. currTblWidth - 2]
