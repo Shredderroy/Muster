@@ -62,6 +62,7 @@ module DecisionTree =
             match s, t with
             | DataType.Cat u, DataType.Cat v -> DataType.Cat(CatType.op_Addition(u, v))
             | DataType.Cont u, DataType.Cont v -> DataType.Cont(ContType.op_Addition(u, v))
+            // | DataType.Cont _, DataType.Cat(CatType.Int u) -> DataType
             | _ -> failwith (operatorErrorMsg "+")
         static member (-) (s, t) =
             match s, t with
@@ -148,7 +149,7 @@ module DecisionTree =
         colHdrs :: tblDat
 
 
-    let coreImpurityFn<'A when 'A : equality> (outputVals : list<'A>) : list<float> =
+    let coreCatImpurityFn<'A when 'A : equality> (outputVals : list<'A>) : list<float> =
         let outputValsLen = float (List.length outputVals)
         outputVals
         |> Seq.groupBy (id)
@@ -158,26 +159,26 @@ module DecisionTree =
 
     let entropy (outputVals : list<DataType>) : float =
         outputVals
-        |> coreImpurityFn
+        |> coreCatImpurityFn
         |> List.map (fun s -> s * Math.Log(s, 2.0))
         |> (List.sum >> (( * ) (-1.0)))
 
 
     let giniIndex (outputVals : list<DataType>) : float =
         outputVals
-        |> coreImpurityFn
+        |> coreCatImpurityFn
         |> List.map (fun s -> s * s)
         |> (List.sum >> ((-) 1.0))
 
 
     let classificationError (outputVals : list<DataType>) : float =
         outputVals
-        |> coreImpurityFn
+        |> coreCatImpurityFn
         |> (List.max >> ((-) 1.0))
 
 
     let stdDevError (outputVals : list<DataType>) : float =
-        //
+        let tot = List.reduce (+) outputVals
         0.0
 
 
