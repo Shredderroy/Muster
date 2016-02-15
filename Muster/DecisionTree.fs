@@ -62,22 +62,33 @@ module DecisionTree =
             match s, t with
             | DataType.Cat u, DataType.Cat v -> DataType.Cat(CatType.op_Addition(u, v))
             | DataType.Cont u, DataType.Cont v -> DataType.Cont(ContType.op_Addition(u, v))
-            // | DataType.Cont _, DataType.Cat(CatType.Int u) -> DataType
+            | DataType.Cat(CatType.Int u), DataType.Cont _ ->
+                DataType.op_Addition(DataType.Cont(ContType.Flt(float u)), t)
+            | DataType.Cont _, DataType.Cat(CatType.Int _) -> DataType.op_Addition(t, s)
             | _ -> failwith (operatorErrorMsg "+")
         static member (-) (s, t) =
             match s, t with
             | DataType.Cat u, DataType.Cat v -> DataType.Cat(CatType.op_Subtraction(u, v))
             | DataType.Cont u, DataType.Cont v -> DataType.Cont(ContType.op_Subtraction(u, v))
+            | DataType.Cat(CatType.Int u), DataType.Cont _ ->
+                DataType.op_Subtraction(DataType.Cont(ContType.Flt(float u)), t)
+            | DataType.Cont _, DataType.Cat(CatType.Int _) -> DataType.op_Subtraction(t, s)
             | _ -> failwith (operatorErrorMsg "-")
         static member (*) (s, t) =
             match s, t with
             | DataType.Cat u, DataType.Cat v -> DataType.Cat(CatType.op_Multiply(u, v))
             | DataType.Cont u, DataType.Cont v -> DataType.Cont(ContType.op_Subtraction(u, v))
+            | DataType.Cat(CatType.Int u), DataType.Cont _ ->
+                DataType.op_Multiply(DataType.Cont(ContType.Flt(float u)), t)
+            | DataType.Cont _, DataType.Cat(CatType.Int _) -> DataType.op_Multiply(t, s)
             | _ -> failwith (operatorErrorMsg "*")
         static member (/) (s, t) =
             match s, t with
             | DataType.Cat u, DataType.Cat v -> DataType.Cat(CatType.op_Division(u, v))
             | DataType.Cont u, DataType.Cont v -> DataType.Cont(ContType.op_Division(u, v))
+            | DataType.Cat(CatType.Int u), DataType.Cont _ ->
+                DataType.op_Division(DataType.Cont(ContType.Flt(float u)), t)
+            | DataType.Cont _, DataType.Cat(CatType.Int _) -> DataType.op_Division(t, s)
             | _ -> failwith (operatorErrorMsg "/")
 
 
