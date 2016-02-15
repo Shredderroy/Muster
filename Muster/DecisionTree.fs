@@ -199,7 +199,7 @@ module DecisionTree =
         |> Seq.groupBy (fun s -> Array.get s idx)
         |> Seq.map (fun (_, s) ->
             s
-            |> Seq.map (fun t -> Array.get t ((Array.length t) - 1))
+            |> Seq.map Array.last
             |> (fun t -> (float << Seq.length) t, (impurityFn << List.ofSeq) t)
             |> (fun (t, u) -> t * u))
         |> Seq.sum
