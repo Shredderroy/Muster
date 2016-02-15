@@ -9,7 +9,7 @@ open Muster.Extensions
 module DecisionTree =
 
 
-    let operatorErrorMsg (op : string) = op + " operator called with incompatible arguments"
+    let operatorErrorMsg (op : string) = op + " called with incompatible arguments"
 
 
     [<RequireQualifiedAccess; StructuralComparison; StructuralEquality>]
@@ -46,50 +46,41 @@ module DecisionTree =
 
 
     [<RequireQualifiedAccess; StructuralComparison; StructuralEquality>]
-    type ContType =
-        | Flt of float
-        static member (+) (s, t) = match s, t with ContType.Flt u, ContType.Flt v -> ContType.Flt (u + v)
-        static member (-) (s, t) = match s, t with ContType.Flt u, ContType.Flt v -> ContType.Flt (u - v)
-        static member (*) (s, t) = match s, t with ContType.Flt u, ContType.Flt v -> ContType.Flt (u * v)
-        static member (/) (s, t) = match s, t with ContType.Flt u, ContType.Flt v -> ContType.Flt (u / v)
-
-
-    [<RequireQualifiedAccess; StructuralComparison; StructuralEquality>]
     type DataType =
         | Cat of CatType
-        | Cont of ContType
+        | Cont of float
         static member (+) (s, t) =
             match s, t with
             | DataType.Cat u, DataType.Cat v -> DataType.Cat(CatType.op_Addition(u, v))
-            | DataType.Cont u, DataType.Cont v -> DataType.Cont(ContType.op_Addition(u, v))
-            | DataType.Cat(CatType.Int u), DataType.Cont _ ->
-                DataType.op_Addition(DataType.Cont(ContType.Flt(float u)), t)
-            | DataType.Cont _, DataType.Cat(CatType.Int _) -> DataType.op_Addition(t, s)
+            | DataType.Cont u, DataType.Cont v -> DataType.Cont(u + v)
+            | DataType.Cat(CatType.Int u), DataType.Cont v -> DataType.Cont((float u) + v)
+            | DataType.Cont u, DataType.Cat(CatType.Int v) -> DataType.Cont(u + (float v))
             | _ -> failwith (operatorErrorMsg "+")
         static member (-) (s, t) =
             match s, t with
             | DataType.Cat u, DataType.Cat v -> DataType.Cat(CatType.op_Subtraction(u, v))
-            | DataType.Cont u, DataType.Cont v -> DataType.Cont(ContType.op_Subtraction(u, v))
-            | DataType.Cat(CatType.Int u), DataType.Cont _ ->
-                DataType.op_Subtraction(DataType.Cont(ContType.Flt(float u)), t)
-            | DataType.Cont _, DataType.Cat(CatType.Int _) -> DataType.op_Subtraction(t, s)
+            | DataType.Cont u, DataType.Cont v -> DataType.Cont(u - v)
+            | DataType.Cat(CatType.Int u), DataType.Cont v -> DataType.Cont((float u) - v)
+            | DataType.Cont u, DataType.Cat(CatType.Int v) -> DataType.Cont(u - (float v))
             | _ -> failwith (operatorErrorMsg "-")
         static member (*) (s, t) =
             match s, t with
             | DataType.Cat u, DataType.Cat v -> DataType.Cat(CatType.op_Multiply(u, v))
-            | DataType.Cont u, DataType.Cont v -> DataType.Cont(ContType.op_Subtraction(u, v))
-            | DataType.Cat(CatType.Int u), DataType.Cont _ ->
-                DataType.op_Multiply(DataType.Cont(ContType.Flt(float u)), t)
-            | DataType.Cont _, DataType.Cat(CatType.Int _) -> DataType.op_Multiply(t, s)
+            | DataType.Cont u, DataType.Cont v -> DataType.Cont(u * v)
+            | DataType.Cat(CatType.Int u), DataType.Cont v -> DataType.Cont((float u) * v)
+            | DataType.Cont u, DataType.Cat(CatType.Int v) -> DataType.Cont(u * (float v))
             | _ -> failwith (operatorErrorMsg "*")
         static member (/) (s, t) =
             match s, t with
             | DataType.Cat u, DataType.Cat v -> DataType.Cat(CatType.op_Division(u, v))
-            | DataType.Cont u, DataType.Cont v -> DataType.Cont(ContType.op_Division(u, v))
-            | DataType.Cat(CatType.Int u), DataType.Cont _ ->
-                DataType.op_Division(DataType.Cont(ContType.Flt(float u)), t)
-            | DataType.Cont _, DataType.Cat(CatType.Int _) -> DataType.op_Division(t, s)
+            | DataType.Cont u, DataType.Cont v -> DataType.Cont(u / v)
+            | DataType.Cat(CatType.Int u), DataType.Cont v -> DataType.Cont((float u) / v)
+            | DataType.Cont u, DataType.Cat(CatType.Int v) -> DataType.Cont(u / (float v))
             | _ -> failwith (operatorErrorMsg "/")
+        static member squareRoot s =
+            match s with
+            | DataType.Cont t -> DataType.Cont(sqrt t)
+            | _ -> failwith (operatorErrorMsg "squareRoot")
 
 
     type DataTable = list<array<DataType>>
@@ -153,7 +144,7 @@ module DecisionTree =
                 | "catStr" -> s |> List.tail |> List.map (DataType.Cat << CatType.Str)
                 | "catInt" -> s |> List.tail |> List.map (DataType.Cat << CatType.Int << int)
                 | "catBool" -> s |> List.tail |> List.map (DataType.Cat << CatType.Bool << ((=) "true"))
-                | "contFlt" -> s |> List.tail |> List.map (DataType.Cont << ContType.Flt << float)
+                | "contFlt" -> s |> List.tail |> List.map (DataType.Cont << float)
                 | _ -> failwith errorMsgs.["unknownDataTypeParseErrorMsg"])
             |> ListExtensions.transpose
             |> List.map Array.ofList
@@ -189,8 +180,12 @@ module DecisionTree =
 
 
     let stdDevError (outputVals : list<DataType>) : float =
-        let tot = List.reduce (+) outputVals
-        0.0
+        let len = float(List.length outputVals)
+        let lenD = DataType.Cont len
+        let avg = (List.reduce (+) outputVals) / lenD
+        outputVals
+        |> List.fold (fun s t -> let u = t - avg in s + (u * u)) (DataType.Cont 0.0)
+        |> (function | DataType.Cont t -> sqrt(t / len) | _ -> failwith errorMsgs.["contErrorMsg"])
 
 
     let getInfoGainForCatVar
@@ -215,7 +210,7 @@ module DecisionTree =
         sq
         |> Seq.map (fun s ->
             match s with
-            | DataType.Cont(ContType.Flt t) -> t
+            | DataType.Cont t -> t
             | _ -> failwith errorMsgs.["contErrorMsg"])
 
 
@@ -238,7 +233,7 @@ module DecisionTree =
         |> Seq.map (fun (s, t) ->
             DataType.op_Division(
                 DataType.op_Addition(Array.get s idx, Array.get t idx),
-                DataType.Cont(ContType.Flt 2.0)))
+                DataType.Cont(2.0)))
         |> Seq.map (fun s ->
             sortedTblDat
             |> List.partition (fun t -> (Array.get t idx) < s)
@@ -278,7 +273,7 @@ module DecisionTree =
             sq
             |> Seq.map (fun s ->
                 match Array.get s idx, infoGainRes.SplittingValOpt with
-                | DataType.Cont(ContType.Flt t), Some u -> (t < u), s
+                | DataType.Cont(t), Some u -> (t < u), s
                 | _ -> failwith errorMsgs.["contErrorMsg"])
         let op (sq : seq<bool * array<DataType>>) : seq<DataTable> =
             sq
@@ -342,7 +337,7 @@ module DecisionTree =
                 let colName, colVal =
                     let tmp = ((Seq.skip idx) >> Seq.head >> (Seq.take 2)) transSqTbl in Seq.head tmp, Seq.last tmp
                 match colName, colVal with
-                | DataType.Cat(CatType.Str colNameStr), DataType.Cont(ContType.Flt v) ->
+                | DataType.Cat(CatType.Str colNameStr), DataType.Cont(v) ->
                     seq [colNameStr, v, transSqTbl]
                 | _ -> failwith errorMsgs.["contErrorMsg"]
         let op
@@ -355,7 +350,7 @@ module DecisionTree =
             ColName = colName;
             ColVal =
                 let sv = infoGainRes.SplittingValOpt.Value
-                (if colVal < sv then sv - epsilon else sv) |> (DataType.Cont << ContType.Flt);
+                (if colVal < sv then sv - epsilon else sv) |> (DataType.Cont);
             ExcisedTable =
                 let splitStopFlg =
                     transSqTbl
@@ -410,10 +405,10 @@ module DecisionTree =
             let colHdrs = List.head currTbl
             let currTblDat = List.tail currTbl
             let currTblWidth = colHdrs |> Array.length
-            let outputVals = currTblDat |> List.map (Array.last)
-            if isSingleValuedDataTypeLst outputVals then Node.Leaf(List.head outputVals)
+            let currOutputVals = currTblDat |> List.map (Array.last)
+            if isSingleValuedDataTypeLst currOutputVals then Node.Leaf(List.head currOutputVals)
             else
-                let datSetImpurity = impurityFn outputVals
+                let datSetImpurity = impurityFn currOutputVals
                 [0 .. currTblWidth - 2]
                 |> List.map (fun s -> (s, getInfoGain currTblDat s impurityFn datSetImpurity))
                 |> List.maxBy (fun (_, s) -> s.InfoGain)

@@ -12,13 +12,9 @@ module DecisionTree =
 
 
     [<RequireQualifiedAccess; StructuralComparison; StructuralEquality>]
-    type ContType = | Flt of float
-
-
-    [<RequireQualifiedAccess; StructuralComparison; StructuralEquality>]
     type DataType =
         | Cat of CatType
-        | Cont of ContType
+        | Cont of float
 
 
     type DataTable = list<array<DataType>>
