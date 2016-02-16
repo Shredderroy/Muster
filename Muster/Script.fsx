@@ -290,15 +290,17 @@ let cartTest3 (inputFileLoc : string) : unit =
     let impurityFn = stdDevError
     let c45Tree = buildC45 tbl impurityFn (Some(splitStopCriterionGen (float(List.length tbl)) 0.05))
     printfn "c45Tree = %A" c45Tree
-//    let inputMap =
-//        seq[
-//            (DataType.Cat(CatType.Str "Gender"), DataType.Cat(CatType.Str "female"));
-//            (DataType.Cat(CatType.Str "Travel cost"), DataType.Cat(CatType.Str "cheap"))
-//        ]
-//        |> Map.ofSeq
-//    printfn "inputMap = %A" inputMap
-//    let prediction = getPrediction c45Tree inputMap
-//    printfn "prediction = %A" prediction
+    let inputMap =
+        seq[
+            // (DataType.Cat(CatType.Str "OUTLOOK"), DataType.Cat(CatType.Str "overcast"));
+            // (DataType.Cat(CatType.Str "TEMP"), DataType.Cat(CatType.Str "cool"));
+            (DataType.Cat(CatType.Str "HUMIDITY"), DataType.Cat(CatType.Str "high"));
+            (DataType.Cat(CatType.Str "OUTLOOK"), DataType.Cat(CatType.Str "sunny"))
+        ]
+        |> Map.ofSeq
+    // printfn "inputMap = %A" inputMap
+    let prediction = getPrediction c45Tree inputMap
+    printfn "prediction = %A" prediction
 
-cartTest3(@"C:\Users\amit-\OneDrive\Repositories\Muster\Muster\SampleData\DecisionTree\SampleC45Data_2.txt")
+cartTest3(@"C:\Users\aroy\OneDrive\Repositories\Muster\Muster\SampleData\DecisionTree\SampleC45Data_2.txt")
 
