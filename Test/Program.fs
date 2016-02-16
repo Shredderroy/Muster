@@ -353,6 +353,27 @@ module Program =
         printfn "prediction = %A" prediction
 
 
+    let tf19 () : unit =
+        let tbl = DecisionTree.parseDataTableFromFile @"..\..\..\Muster\SampleData\DecisionTree\SampleC45Data_2.txt"
+        let impurityFn = DecisionTree.stdDevError
+        let splitStopCriterion = DecisionTree.defSplitStopCriterion
+        let c45Tree = DecisionTree.buildC45 tbl impurityFn (Some splitStopCriterion)
+        let inputMap =
+            seq[
+                (
+                DecisionTree.DataType.Cat(DecisionTree.CatType.Str "HUMIDITY"),
+                DecisionTree.DataType.Cat(DecisionTree.CatType.Str "high"));
+                (
+                DecisionTree.DataType.Cat(DecisionTree.CatType.Str "TEMP"),
+                DecisionTree.DataType.Cat(DecisionTree.CatType.Str "cool")
+                )
+            ]
+            |> Map.ofSeq
+        printfn "inputMap = %A" inputMap
+        let prediction = DecisionTree.getPrediction c45Tree inputMap
+        printfn "prediction = %A" prediction
+
+
     let testInt16KDTree () : unit =
         let dim = 8
         let numOfVecs = 1024000 * 1
@@ -434,6 +455,7 @@ module Program =
             match stdin.ReadLine().ToLower() with
             | "tf16" -> tf16()
             | "tf17" -> tf17()
+            | "tf19" -> tf19()
             | _ -> ()
             printf "Continue testing DecisionTree? [Y/N]: "
             match stdin.ReadLine().ToLower() with "n" -> () | _ -> loop()

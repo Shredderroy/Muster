@@ -45,6 +45,9 @@ module DecisionTree =
     val classificationError : ImpurityFn
 
 
+    val stdDevError : ImpurityFn
+
+
     val defSplitStopCriterion : SplitStopCriterion
 
 
