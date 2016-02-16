@@ -1,0 +1,16 @@
+catStr, catStr, catStr, catBool, contFlt
+OUTLOOK, TEMP, HUMIDITY, WINDY, HOURS PLAYED
+rainy, hot, high, false, 25
+rainy, hot, high, true, 30
+overcast, hot, high, false, 46
+sunny, mild, high, false, 45
+sunny, cool, normal, false, 52
+sunny, cool, normal, true, 23
+overcast, cool, normal, true, 43
+rainy, mild, high, false, 35
+rainy, cool, normal, false, 38
+sunny, mild, normal, false, 46
+rainy, mild, normal, true, 48
+overcast, mild, high, true, 52
+overcast, hot, normal, false, 44
+sunny, mild, high, true, 30
