@@ -357,7 +357,11 @@ module Program =
         let tbl = DecisionTree.parseDataTableFromFile @"..\..\..\Muster\SampleData\DecisionTree\SampleC45Data_2.txt"
         let impurityFn = DecisionTree.stdDevError
         let splitStopCriterion = DecisionTree.defSplitStopCriterion
-        let c45Tree = DecisionTree.buildC45 tbl impurityFn (Some splitStopCriterion)
+        let c45Tree =
+            DecisionTree.buildC45
+                tbl
+                impurityFn
+                (Some(DecisionTree.splitStopCriterionGen (float(List.length tbl)) 0.05))
         let inputMap =
             seq[
                 (

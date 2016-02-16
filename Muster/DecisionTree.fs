@@ -324,6 +324,10 @@ module DecisionTree =
     let (defSplitStopCriterion : SplitStopCriterion) = fun (sqTbl : seq<seq<DataType>>) -> (Seq.length sqTbl) <= 4
 
 
+    let splitStopCriterionGen =
+        fun datSetLen pct (sqTbl : seq<seq<DataType>>) -> (float (Seq.length sqTbl)) / datSetLen <= pct
+
+
     let getExcisedComponentsForContVar
         (tblsLst : list<DataTable>)
         (idx : int)
