@@ -51,6 +51,9 @@ module DecisionTree =
     val defSplitStopCriterion : SplitStopCriterion
 
 
+    val splitStopCriterionGen : float -> float -> SplitStopCriterion
+
+
     val buildC45 : DataTable -> ImpurityFn -> option<SplitStopCriterion> -> Node
 
 

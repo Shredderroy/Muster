@@ -211,8 +211,6 @@ let rnd = Random()
 //    printfn "%A" rVec
 //
 //
-//
-//
 //let cartTest1 (inputFileLoc : string) : unit =
 //    let tbl = parseDataTableFromFile inputFileLoc
 //    let impurityFn = entropy
@@ -229,9 +227,6 @@ let rnd = Random()
 //    printfn "prediction = %A" prediction
 //
 //
-//cartTest1()
-//
-//
 //let cartTest2 (inputFileLoc : string) : unit =
 //    let tbl = parseDataTableFromFile inputFileLoc
 //    let impurityFn = entropy
@@ -240,17 +235,14 @@ let rnd = Random()
 //    printfn "c45Tree = %A" c45Tree
 //    let inputMap =
 //        seq [
-//            // (DataType.Cat(CatType.Str "TEMPERATURE"), DataType.Cont(ContType.Flt 65.0))
-//            (DataType.Cat(CatType.Str "HUMIDITY"), DataType.Cont(ContType.Flt 65.0))
+//            // (DataType.Cat(CatType.Str "TEMPERATURE"), DataType.Cont(65.0))
+//            (DataType.Cat(CatType.Str "HUMIDITY"), DataType.Cont(65.0))
 //        ]
 //        |> Map.ofSeq
 //    printfn "inputMap = %A" inputMap
 //    let prediction = getPrediction c45Tree inputMap
 //    printfn "prediction = %A" prediction
 //    ()
-//
-//
-//cartTest2()
 //
 //
 //let sw = System.Diagnostics.Stopwatch()
@@ -267,7 +259,6 @@ let rnd = Random()
 //printfn "Time taken = %A ms" sw.ElapsedMilliseconds
 //
 //
-
 //let lst = [1 .. 1000000]
 //printfn "Length of lst = %A" (List.length lst)
 //let sw = System.Diagnostics.Stopwatch()
@@ -278,15 +269,36 @@ let rnd = Random()
 //sw.Reset()
 
 
-// printfn "%A" (StringExtensions.getMaximalItems ["the"; "there"; "and"; "androgynous"])
+//printfn "%A" (StringExtensions.getMaximalItems ["the"; "there"; "and"; "androgynous"])
 
-// printfn "%A" (StringExtensions.removeNonAlphaNumChars @"an238nsdfg&93&*&@#H--=ASijfb")
+
+//printfn "%A" (StringExtensions.removeNonAlphaNumChars @"an238nsdfg&93&*&@#H--=ASijfb")
+
 
 //printfn "%A" ((int << floor << sqrt) 17.0)
 
-printfn "%A" (ListExtensions.isExtensionOf<int> [1; 2; 3] [1; 2; 5; 6])
 
-let s = DataType.Cat(CatType.Int 0)
-let t = DataType.Cont(ContType.Flt 0.0)
-let u = DataType.Cont(ContType.Flt 0.00)
-printfn "%A" (t = u)
+//printfn "%A" (ListExtensions.isExtensionOf<int> [1; 2; 3] [1; 2; 5; 6])
+//let s = DataType.Cat(CatType.Int 0)
+//let t = DataType.Cont(0.0)
+//let u = DataType.Cont(0.00)
+//printfn "%A" (t = u)
+
+
+let cartTest3 (inputFileLoc : string) : unit =
+    let tbl = parseDataTableFromFile inputFileLoc
+    let impurityFn = stdDevError
+    let c45Tree = buildC45 tbl impurityFn (Some(splitStopCriterionGen (float(List.length tbl)) 0.05))
+    printfn "c45Tree = %A" c45Tree
+//    let inputMap =
+//        seq[
+//            (DataType.Cat(CatType.Str "Gender"), DataType.Cat(CatType.Str "female"));
+//            (DataType.Cat(CatType.Str "Travel cost"), DataType.Cat(CatType.Str "cheap"))
+//        ]
+//        |> Map.ofSeq
+//    printfn "inputMap = %A" inputMap
+//    let prediction = getPrediction c45Tree inputMap
+//    printfn "prediction = %A" prediction
+
+cartTest3(@"C:\Users\amit-\OneDrive\Repositories\Muster\Muster\SampleData\DecisionTree\SampleC45Data_2.txt")
+
