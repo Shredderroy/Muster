@@ -1,4 +1,4 @@
-﻿#load "../packages/MathNet.Numerics.FSharp.3.10.0/MathNet.Numerics.fsx"
+﻿#load "../packages/MathNet.Numerics.FSharp.3.11.0/MathNet.Numerics.fsx"
 #load "Utils.fs"
 #load "ListExtensions.fs"
 #load "StringExtensions.fs"
@@ -285,6 +285,38 @@ let rnd = Random()
 //printfn "%A" (t = u)
 
 
+let getPrediction2 (c45Tree : Node) (inputMap : Map<DataType, DataType>) : list<int * DataType> =
+    let rec helper (currC45Tree : Node) : list<DataType> =
+        match currC45Tree with
+        | Node.Leaf v -> [v]
+        | Node.LeafList lst -> lst
+        | Node.Internal internalMap ->
+            let internalMapSq = internalMap |> Map.toSeq
+            let internalMapKeys = internalMapSq |> Seq.map fst
+            let colHdr = internalMapKeys |> Seq.head |> fst
+            if (Map.containsKey colHdr inputMap) then
+                let inputVal = inputMap.[colHdr]
+                match inputVal with
+                | DataType.Cat _ -> helper internalMap.[colHdr, inputVal]
+                | DataType.Cont _ ->
+                    let maxKey = Seq.maxBy snd internalMapKeys
+                    let minKey = Seq.minBy snd internalMapKeys
+                    if inputVal < snd maxKey then helper internalMap.[minKey]
+                    else helper internalMap.[maxKey]
+            else
+                internalMapSq
+                |> Seq.map (fun ((s, _), t) -> s, helper t)
+                |> (fun s -> s)
+                |> ignore
+                []
+//    c45Tree
+//    |> helper
+//    |> Seq.groupBy id
+//    |> Seq.map (fun (s, t) -> Seq.length t, s)
+//    |> List.ofSeq
+    []
+
+
 let cartTest3 (inputFileLoc : string) : unit =
     let tbl = parseDataTableFromFile inputFileLoc
     let impurityFn = stdDevError
@@ -299,7 +331,7 @@ let cartTest3 (inputFileLoc : string) : unit =
         ]
         |> Map.ofSeq
     // printfn "inputMap = %A" inputMap
-    let prediction = getPrediction c45Tree inputMap
+    let prediction = getPrediction2 c45Tree inputMap
     printfn "prediction = %A" prediction
 
 cartTest3(@"C:\Users\aroy\OneDrive\Repositories\Muster\Muster\SampleData\DecisionTree\SampleC45Data_2.txt")
