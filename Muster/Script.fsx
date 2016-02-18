@@ -286,35 +286,46 @@ let rnd = Random()
 
 
 let getPrediction2 (c45Tree : Node) (inputMap : Map<DataType, DataType>) : list<int * DataType> =
-    let rec helper (currC45Tree : Node) : list<DataType> =
+    let rec helper (currC45Tree : Node) (colAcc : list<DataType>) : list<list<DataType> * DataType> =
         match currC45Tree with
-        | Node.Leaf v -> [v]
-        | Node.LeafList lst -> lst
+        | Node.Leaf v -> [(List.rev colAcc), v]
+        | Node.LeafList lst -> lst |> List.map (fun s -> (List.rev colAcc), s)
         | Node.Internal internalMap ->
             let internalMapSq = internalMap |> Map.toSeq
             let internalMapKeys = internalMapSq |> Seq.map fst
             let colHdr = internalMapKeys |> Seq.head |> fst
             if (Map.containsKey colHdr inputMap) then
                 let inputVal = inputMap.[colHdr]
+                let newColAcc = colHdr :: colAcc
                 match inputVal with
-                | DataType.Cat _ -> helper internalMap.[colHdr, inputVal]
+                | DataType.Cat _ -> helper internalMap.[colHdr, inputVal] newColAcc
                 | DataType.Cont _ ->
                     let maxKey = Seq.maxBy snd internalMapKeys
                     let minKey = Seq.minBy snd internalMapKeys
-                    if inputVal < snd maxKey then helper internalMap.[minKey]
-                    else helper internalMap.[maxKey]
+                    if inputVal < snd maxKey then helper internalMap.[minKey] newColAcc
+                    else helper internalMap.[maxKey] newColAcc
             else
                 internalMapSq
-                |> Seq.map (fun ((s, _), t) -> s, helper t)
-                |> (fun s -> s)
-                |> ignore
-                []
+                |> Seq.collect (fun ((s, _), t) -> helper t (s :: colAcc))
+                |> List.ofSeq
 //    c45Tree
 //    |> helper
 //    |> Seq.groupBy id
 //    |> Seq.map (fun (s, t) -> Seq.length t, s)
 //    |> List.ofSeq
-    []
+    let inputColHdrs = inputMap |> Map.toSeq |> Seq.map fst |> Set.ofSeq
+    (c45Tree, [])
+    ||> helper
+    |> (fun s ->
+        List.fold
+            (fun t (u, v) ->
+                let w = Set.count(Set.intersect (Set.ofList u) inputColHdrs)
+                let x = t |> List.head |> fst
+                if w > x then [w, v]
+                elif w = x then (w, v) :: t
+                else t)
+            (let (t, u) = List.head s in [Set.count(Set.intersect(Set.ofList t) inputColHdrs), u])
+            (List.tail s))
 
 
 let cartTest3 (inputFileLoc : string) : unit =
