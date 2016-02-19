@@ -308,11 +308,6 @@ let getPrediction2 (c45Tree : Node) (inputMap : Map<DataType, DataType>) : list<
                 internalMapSq
                 |> Seq.collect (fun ((s, _), t) -> helper t (s :: colAcc))
                 |> List.ofSeq
-//    c45Tree
-//    |> helper
-//    |> Seq.groupBy id
-//    |> Seq.map (fun (s, t) -> Seq.length t, s)
-//    |> List.ofSeq
     let inputColHdrs = inputMap |> Map.toSeq |> Seq.map fst |> Set.ofSeq
     (c45Tree, [])
     ||> helper
@@ -326,8 +321,7 @@ let getPrediction2 (c45Tree : Node) (inputMap : Map<DataType, DataType>) : list<
                 else t)
             (let (t, u) = List.head s in [Set.count(Set.intersect(Set.ofList t) inputColHdrs), u])
             (List.tail s))
-    |> List.map snd
-    |> Seq.groupBy id
+    |> Seq.groupBy snd
     |> Seq.map (fun (s, t) -> Seq.length t, s)
     |> List.ofSeq
 
