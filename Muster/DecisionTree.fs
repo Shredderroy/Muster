@@ -77,10 +77,6 @@ module DecisionTree =
             | DataType.Cat(CatType.Int u), DataType.Cont v -> DataType.Cont((float u) / v)
             | DataType.Cont u, DataType.Cat(CatType.Int v) -> DataType.Cont(u / (float v))
             | _ -> failwith (operatorErrorMsg "/")
-        static member squareRoot s =
-            match s with
-            | DataType.Cont t -> DataType.Cont(sqrt t)
-            | _ -> failwith (operatorErrorMsg "squareRoot")
 
 
     type DataTable = list<array<DataType>>
