@@ -326,6 +326,10 @@ let getPrediction2 (c45Tree : Node) (inputMap : Map<DataType, DataType>) : list<
                 else t)
             (let (t, u) = List.head s in [Set.count(Set.intersect(Set.ofList t) inputColHdrs), u])
             (List.tail s))
+    |> List.map snd
+    |> Seq.groupBy id
+    |> Seq.map (fun (s, t) -> Seq.length t, s)
+    |> List.ofSeq
 
 
 let cartTest3 (inputFileLoc : string) : unit =
