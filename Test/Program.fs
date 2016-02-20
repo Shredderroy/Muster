@@ -332,7 +332,7 @@ module Program =
         let splitStopCriterion = DecisionTree.defSplitStopCriterion
         let c45Tree = DecisionTree.buildC45 tbl impurityFn (Some splitStopCriterion)
         let inputMap =
-            seq[(DecisionTree.DataType.Cat(DecisionTree.CatType.Str "HUMIDITY"), DecisionTree.DataType.Cont 65.0)]
+            seq [(DecisionTree.DataType.Cat(DecisionTree.CatType.Str "HUMIDITY"), DecisionTree.DataType.Cont 65.0)]
             |> Map.ofSeq
         printfn "inputMap = %A" inputMap
         let prediction = DecisionTree.getPrediction c45Tree inputMap
@@ -346,7 +346,7 @@ module Program =
         let forest = RandomForest.buildDefault tbl numOfTrees
         printfn "forest = %A" forest
         let inputMap =
-            seq[(DecisionTree.DataType.Cat(DecisionTree.CatType.Str "HUMIDITY"), DecisionTree.DataType.Cont 65.0)]
+            seq [(DecisionTree.DataType.Cat(DecisionTree.CatType.Str "HUMIDITY"), DecisionTree.DataType.Cont 65.0)]
             |> Map.ofSeq
         printfn "inputMap = %A" inputMap
         let prediction = RandomForest.getPrediction forest inputMap
