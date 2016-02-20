@@ -363,7 +363,7 @@ module Program =
                 impurityFn
                 (Some(DecisionTree.splitStopCriterionGen (float(List.length tbl)) 0.05))
         let inputMap =
-            seq[
+            seq [
                 (
                 DecisionTree.DataType.Cat(DecisionTree.CatType.Str "HUMIDITY"),
                 DecisionTree.DataType.Cat(DecisionTree.CatType.Str "high"));

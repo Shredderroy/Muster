@@ -285,54 +285,13 @@ let rnd = Random()
 //printfn "%A" (t = u)
 
 
-let getPrediction2 (c45Tree : Node) (inputMap : Map<DataType, DataType>) : list<int * DataType> =
-    let rec helper (currC45Tree : Node) (colAcc : list<DataType>) : list<list<DataType> * DataType> =
-        match currC45Tree with
-        | Node.Leaf v -> [(List.rev colAcc), v]
-        | Node.LeafList lst -> lst |> List.map (fun s -> (List.rev colAcc), s)
-        | Node.Internal internalMap ->
-            let internalMapSq = internalMap |> Map.toSeq
-            let internalMapKeys = internalMapSq |> Seq.map fst
-            let colHdr = internalMapKeys |> Seq.head |> fst
-            if (Map.containsKey colHdr inputMap) then
-                let inputVal = inputMap.[colHdr]
-                let newColAcc = colHdr :: colAcc
-                match inputVal with
-                | DataType.Cat _ -> helper internalMap.[colHdr, inputVal] newColAcc
-                | DataType.Cont _ ->
-                    let maxKey = Seq.maxBy snd internalMapKeys
-                    let minKey = Seq.minBy snd internalMapKeys
-                    if inputVal < snd maxKey then helper internalMap.[minKey] newColAcc
-                    else helper internalMap.[maxKey] newColAcc
-            else
-                internalMapSq
-                |> Seq.collect (fun ((s, _), t) -> helper t (s :: colAcc))
-                |> List.ofSeq
-    let inputColHdrs = inputMap |> Map.toSeq |> Seq.map fst |> Set.ofSeq
-    (c45Tree, [])
-    ||> helper
-    |> (fun s ->
-        List.fold
-            (fun t (u, v) ->
-                let w = Set.count(Set.intersect (Set.ofList u) inputColHdrs)
-                let x = t |> List.head |> fst
-                if w > x then [w, v]
-                elif w = x then (w, v) :: t
-                else t)
-            (let (t, u) = List.head s in [Set.count(Set.intersect(Set.ofList t) inputColHdrs), u])
-            (List.tail s))
-    |> Seq.groupBy snd
-    |> Seq.map (fun (s, t) -> Seq.length t, s)
-    |> List.ofSeq
-
-
 let cartTest3 (inputFileLoc : string) : unit =
     let tbl = parseDataTableFromFile inputFileLoc
     let impurityFn = stdDevError
     let c45Tree = buildC45 tbl impurityFn (Some(splitStopCriterionGen (float(List.length tbl)) 0.05))
     printfn "c45Tree = %A" c45Tree
     let inputMap =
-        seq[
+        seq [
             // (DataType.Cat(CatType.Str "OUTLOOK"), DataType.Cat(CatType.Str "overcast"));
             // (DataType.Cat(CatType.Str "TEMP"), DataType.Cat(CatType.Str "cool"));
             (DataType.Cat(CatType.Str "HUMIDITY"), DataType.Cat(CatType.Str "high"));
@@ -340,7 +299,7 @@ let cartTest3 (inputFileLoc : string) : unit =
         ]
         |> Map.ofSeq
     // printfn "inputMap = %A" inputMap
-    let prediction = getPrediction2 c45Tree inputMap
+    let prediction = getPrediction c45Tree inputMap
     printfn "prediction = %A" prediction
 
 cartTest3(@"C:\Users\aroy\OneDrive\Repositories\Muster\Muster\SampleData\DecisionTree\SampleC45Data_2.txt")
