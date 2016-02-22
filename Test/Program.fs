@@ -314,11 +314,14 @@ module Program =
         let inputMap =
             seq [
                 (
-                DecisionTree.DataType.Cat(DecisionTree.CatType.Str "Gender"),
+                DecisionTree.DataType.Cat(DecisionTree.CatType.Str "GENDER"),
                 DecisionTree.DataType.Cat(DecisionTree.CatType.Str "female"));
+//                (
+//                DecisionTree.DataType.Cat(DecisionTree.CatType.Str "TRAVEL COST"),
+//                DecisionTree.DataType.Cat(DecisionTree.CatType.Str "cheap"));
                 (
-                DecisionTree.DataType.Cat(DecisionTree.CatType.Str "Travel cost"),
-                DecisionTree.DataType.Cat(DecisionTree.CatType.Str "cheap"))
+                DecisionTree.DataType.Cat(DecisionTree.CatType.Str "CAR OWNERSHIP"),
+                DecisionTree.DataType.Cat(DecisionTree.CatType.Str "0"))
             ]
             |> Map.ofSeq
         printfn "inputMap = %A" inputMap

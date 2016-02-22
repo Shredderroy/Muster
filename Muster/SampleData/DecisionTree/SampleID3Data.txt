@@ -1,5 +1,5 @@
 catStr, catStr, catStr, catStr, catStr
-Gender, Car ownership, Travel cost, Income level, Mode of transport
+GENDER, CAR OWNERSHIP, TRAVEL COST, INCOME LEVEL, MODE OF TRANSPORT
 male, 0, cheap, low, bus
 male, 1, cheap, medium, bus
 female, 1, cheap, medium, train
