@@ -43,3 +43,13 @@ module ListExtensions =
             |> List.exists (fun (s, t) -> not(s = t))
             |> not
 
+
+    let riffle (num : int) (elm : 'A) (lst : list<'A>) : list<'A> =
+        lst
+        |> Seq.unfold (function
+            | h :: [] -> Some(seq [h], [])
+            | h :: t -> Some(seq {yield h; yield! [for _ in 1..num -> elm]}, t)
+            | _ -> None)
+        |> Seq.collect id
+        |> List.ofSeq
+
