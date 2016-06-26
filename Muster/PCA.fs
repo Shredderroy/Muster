@@ -2,12 +2,21 @@
 
 
 open System
+open MathNet.Numerics
 open MathNet.Numerics.LinearAlgebra
 open MathNet.Numerics.LinearAlgebra.Double
 open Muster.Extensions
 
 
 module PCA =
+
+
+    let useNativeMKLProvider () =
+        Control.NativeProviderPath <- @"C:\Users\aroy\OneDrive\Repositories\Muster\packages\MathNet.Numerics.MKL.Win-x64.2.0.0\build\x64"
+        Control.UseNativeMKL()
+
+
+    useNativeMKLProvider()
 
 
     let changeBasis (mat : Matrix<double>) : Matrix<double> =
