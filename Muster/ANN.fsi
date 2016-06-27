@@ -4,7 +4,6 @@
 open System
 open MathNet.Numerics.LinearAlgebra
 open MathNet.Numerics.LinearAlgebra.Double
-open Muster.Extensions
 
 
 module ANN =

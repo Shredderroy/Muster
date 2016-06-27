@@ -1,4 +1,4 @@
-﻿namespace Muster.Extensions
+﻿namespace MusterLib
 
 
 open System

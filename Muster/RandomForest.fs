@@ -2,8 +2,7 @@
 
 
 open System
-open Muster.Extensions
-open Muster.Utils
+open MusterLib
 
 
 module RandomForest =
@@ -75,11 +74,11 @@ module RandomForest =
         let tblDatLen = (List.length << List.tail) tbl
         let colHdrs = List.head tbl
         let colHdrsLen = Array.length colHdrs
-        (List.init numOfTrees (fun _ -> Misc.getDistinctRandomIntList 1 tblDatLen sampleSize))
+        (List.init numOfTrees (fun _ -> ListExtensions.getDistinctRandomIntList 1 tblDatLen sampleSize))
         |> List.map (fun s -> colHdrs :: (s |> ListExtensions.pickFromList tbl))
         |> List.map (fun s ->
             let rndLst =
-                (Misc.getDistinctRandomIntList 0 (colHdrsLen - 2) ((int << floor << sqrt << float) (colHdrsLen - 1))) @
+                (ListExtensions.getDistinctRandomIntList 0 (colHdrsLen - 2) ((int << floor << sqrt << float) (colHdrsLen - 1))) @
                     [colHdrsLen - 1]
             s |> List.map (fun t -> rndLst |> List.map (Array.get t) |> Array.ofList))
         |> List.map (fun (s) -> DecisionTree.buildC45 s impurityFn splitStopCriterionOpt)
