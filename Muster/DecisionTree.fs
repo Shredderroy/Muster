@@ -3,7 +3,7 @@
 
 open System
 open System.IO
-open Muster.Extensions
+open MusterLib
 
 
 module DecisionTree =

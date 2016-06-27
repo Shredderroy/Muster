@@ -6,7 +6,7 @@ open System.IO
 open MathNet.Numerics
 open MathNet.Numerics.LinearAlgebra
 open MathNet.Numerics.LinearAlgebra.Double
-open Muster.Extensions
+open MusterLib
 
 
 module ANN =
