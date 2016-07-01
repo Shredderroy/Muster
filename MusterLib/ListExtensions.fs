@@ -35,20 +35,20 @@ module ListExtensions =
         |> List.map snd
 
 
-    let isExtensionOf<'A when 'A : equality> (lst1 : list<'A>) (lst2 : list<'A>) =
-        if (List.length lst2) < (List.length lst1) then false
-        else
-            (lst1, (lst2 |> List.take (List.length lst1)))
-            ||> List.zip
-            |> List.exists (fun (s, t) -> not(s = t))
-            |> not
+    let isExtensionOf<'A when 'A : equality> (lst1 : list<'A>) (lst2 : list<'A>) : bool =
+        let rec helper (currLst1 : list<'A>) (currLst2 : list<'A>) : bool =
+            match currLst1, currLst2 with
+            | h1 :: _, [] -> false
+            | [], _ -> true
+            | h1 :: t1, h2 :: t2 -> if h1 = h2 then helper t1 t2 else false
+        helper lst1 lst2
 
 
     let riffle (num : int) (elm : 'A) (lst : list<'A>) : list<'A> =
         lst
         |> Seq.unfold (function
             | h :: [] -> Some(seq [h], [])
-            | h :: t -> Some(seq {yield h; yield! [for _ in 1..num -> elm]}, t)
+            | h :: t -> Some(seq {yield h; yield! List.replicate num elm}, t)
             | _ -> None)
         |> Seq.collect id
         |> List.ofSeq
