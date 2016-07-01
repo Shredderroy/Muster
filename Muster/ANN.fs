@@ -54,7 +54,7 @@ module ANN =
 
 
     let useNativeMKLProvider () =
-        Control.NativeProviderPath <- @"C:\Users\aroy\OneDrive\Repositories\Muster\packages\MathNet.Numerics.MKL.Win-x64.2.0.0\build\x64"
+        Control.NativeProviderPath <- @"..\..\..\packages\MathNet.Numerics.MKL.Win-x64.2.0.0\build\x64"
         Control.UseNativeMKL()
 
 
