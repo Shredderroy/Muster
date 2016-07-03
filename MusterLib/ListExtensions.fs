@@ -40,7 +40,7 @@ module ListExtensions =
             match currLst1, currLst2 with
             | h1 :: _, [] -> false
             | [], _ -> true
-            | h1 :: t1, h2 :: t2 -> if h1 = h2 then helper t1 t2 else false
+            | h1 :: t1, h2 :: t2 -> (h1 = h2) && (helper t1 t2)
         helper lst1 lst2
 
 
