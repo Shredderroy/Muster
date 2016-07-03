@@ -232,5 +232,3 @@ module ANN =
         |> sqrt
 
     
-
-    
