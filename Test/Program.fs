@@ -140,10 +140,13 @@ module Program =
         sW.Reset()
 
 
-    let testSpecificANN (fnName : string) (inputDim : int) (outputDim : int) : unit =
-        // let layerConfig = [inputDim; 5; 12; 25; 10; 4; outputDim]
-        let layerConfig = [inputDim; 5; 10; 4; outputDim]
-        let learningParam = 0.025
+    let testSpecificANN
+        (fnName : string)
+        (inputDim : int)
+        (outputDim : int)
+        (layerConfig : list<int>)
+        (learningParam : float)
+        (numOfEpochs : int) : unit =
         let aNN =
             ANN.init
                 layerConfig
@@ -156,7 +159,6 @@ module Program =
                             (@"..\..\..\Muster\SampleData\ANN\" + fnName + ".txt")
                             inputDim
                             outputDim
-        let numOfEpochs = 12000
         let trainingMode = ANN.TrainingMode.Single
         printfn "Start training aNN"
         sW.Start()
@@ -183,31 +185,51 @@ module Program =
     let tf7 () : unit =
         let fnName = "squareOfSum"
         printfn "Function name: %A" fnName
-        testSpecificANN fnName 3 1
+        let inputDim, outputDim = 3, 1
+        let layerConfig = [inputDim; 5; 10; 4; outputDim]
+        let numOfEpochs = 20000
+        let learningParam = 0.01
+        testSpecificANN fnName inputDim outputDim layerConfig learningParam numOfEpochs
 
 
     let tf8 () : unit =
         let fnName = "sineOfSum1"
         printfn "Function name: %A" fnName
-        testSpecificANN fnName 1 1
+        let inputDim, outputDim = 1, 1
+        let layerConfig = [inputDim; 5; 10; 8; 3; outputDim]
+        let numOfEpochs = 32000
+        let learningParam = 0.064
+        testSpecificANN fnName inputDim outputDim layerConfig learningParam numOfEpochs
 
 
     let tf9 () : unit =
         let fnName = "and3Fn"
         printfn "Function name: %A" fnName
-        testSpecificANN fnName 3 1
+        let inputDim, outputDim = 3, 1
+        let layerConfig = [inputDim; 5; 10; 4; outputDim]
+        let numOfEpochs = 10000
+        let learningParam = 0.025
+        testSpecificANN fnName inputDim outputDim layerConfig learningParam numOfEpochs
 
 
     let tf10 () : unit =
         let fnName = "or3Fn"
         printfn "Function name: %A" fnName
-        testSpecificANN fnName 3 1
+        let inputDim, outputDim = 3, 1
+        let layerConfig = [inputDim; 5; 10; 4; outputDim]
+        let numOfEpochs = 10000
+        let learningParam = 0.025
+        testSpecificANN fnName inputDim outputDim layerConfig learningParam numOfEpochs
 
 
     let tf11 () : unit =
         let fnName = "xor2Fn"
         printfn "Function name: %A" fnName
-        testSpecificANN fnName 2 1
+        let inputDim, outputDim = 3, 1
+        let layerConfig = [inputDim; 5; 10; 4; outputDim]
+        let numOfEpochs = 10000
+        let learningParam = 0.025
+        testSpecificANN fnName inputDim outputDim layerConfig learningParam numOfEpochs
 
 
     let tf12 kDT dim maxVal b distFunc diffFunc vecsArr : unit =
@@ -483,7 +505,7 @@ module Program =
 
     [<EntryPoint>]
     let main argv =
-        printfn "Entering main()"
+        printfn "Entered main()"
         let rec loop () : unit =
             printf "Module to test: "
             match "test" + stdin.ReadLine() with
