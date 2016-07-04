@@ -160,7 +160,7 @@ module Program =
                             inputDim
                             outputDim
         let trainingMode = ANN.TrainingMode.Single
-        printfn "Start training aNN"
+        printfn "Started training aNN"
         sW.Start()
         let tANN = ANN.train aNN trainingSet numOfEpochs trainingMode
         sW.Stop()
@@ -193,12 +193,25 @@ module Program =
 
 
     let tf8 () : unit =
-        let fnName = "sineOfSum1"
-        printfn "Function name: %A" fnName
-        let inputDim, outputDim = 1, 1
-        let layerConfig = [inputDim; 5; 10; 8; 3; outputDim]
-        let numOfEpochs = 32000
-        let learningParam = 0.064
+        let fnName =
+            printf "Enter fnName: "
+            stdin.ReadLine()
+        let inputDim, outputDim =
+            printf "Enter inputDim, outputDim: "
+            stdin.ReadLine().Split([|','|], StringSplitOptions.RemoveEmptyEntries)
+            |> (fun s -> (int s.[0]), (int s.[1]))
+        let layerConfig =
+            printf "Enter hidden layers: "
+            stdin.ReadLine().Split([|','|], StringSplitOptions.RemoveEmptyEntries)
+            |> Array.map (int)
+            |> (fun s -> seq {yield inputDim; yield! s; yield outputDim})
+            |> List.ofSeq
+        let numOfEpochs =
+            printf "Enter numOfEpochs: "
+            int(stdin.ReadLine())
+        let learningParam =
+            printf "Enter learningParam: "
+            float(stdin.ReadLine())
         testSpecificANN fnName inputDim outputDim layerConfig learningParam numOfEpochs
 
 
@@ -405,8 +418,8 @@ module Program =
 
 
     let testInt16KDTree () : unit =
-        let dim = 8
-        let numOfVecs = 1024000 * 4
+        let dim = 12
+        let numOfVecs = 1024000 * 20
         let (maxVal : int16) = 128s
         let b = 7
         let vecsArr = KDTree.genRandInt16VecsArr dim numOfVecs maxVal
