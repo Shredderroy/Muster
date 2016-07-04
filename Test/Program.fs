@@ -505,7 +505,7 @@ module Program =
 
     [<EntryPoint>]
     let main argv =
-        printfn "Entering main()"
+        printfn "Entered main()"
         let rec loop () : unit =
             printf "Module to test: "
             match "test" + stdin.ReadLine() with
