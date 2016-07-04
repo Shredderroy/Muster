@@ -80,8 +80,7 @@ module ANN =
             layerConfig
             |> Seq.pairwise
             |> Seq.map (fun (s, t) ->
-                DenseMatrix.init s t (fun _ _ ->
-                    let x = 0.1 * rnd.NextDouble() in if rnd.Next() % 2 = 0 then x else -x))
+                DenseMatrix.init s t (fun _ _ -> let x = rnd.NextDouble() in if rnd.Next() % 2 = 0 then x else -x))
             |> List.ofSeq;
         Network.InputActivation = inputActivation;
         Network.DInputActivation = dInputActivation;
