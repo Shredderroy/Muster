@@ -141,8 +141,9 @@ module Program =
 
 
     let testSpecificANN (fnName : string) (inputDim : int) (outputDim : int) : unit =
+        // let layerConfig = [inputDim; 5; 12; 25; 10; 4; outputDim]
         let layerConfig = [inputDim; 5; 10; 4; outputDim]
-        let learningParam = 0.05
+        let learningParam = 0.025
         let aNN =
             ANN.init
                 layerConfig
@@ -155,7 +156,7 @@ module Program =
                             (@"..\..\..\Muster\SampleData\ANN\" + fnName + ".txt")
                             inputDim
                             outputDim
-        let numOfEpochs = 10000
+        let numOfEpochs = 12000
         let trainingMode = ANN.TrainingMode.Single
         printfn "Start training aNN"
         sW.Start()
@@ -186,9 +187,9 @@ module Program =
 
 
     let tf8 () : unit =
-        let fnName = "sineOfSum"
+        let fnName = "sineOfSum1"
         printfn "Function name: %A" fnName
-        testSpecificANN fnName 3 1
+        testSpecificANN fnName 1 1
 
 
     let tf9 () : unit =
