@@ -16,7 +16,13 @@ module PCA =
         Control.UseNativeMKL()
 
 
-    useNativeMKLProvider()
+    let useManagedProvider () = Control.UseManaged()
+
+
+    // useNativeMKLProvider()
+
+
+    // useManagedProvider()
 
 
     let changeBasis (mat : Matrix<double>) : Matrix<double> =
