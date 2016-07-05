@@ -1,0 +1,7 @@
+C:\Users\aroy\OneDrive\Repositories\Muster\MusterLib\bin\Release\MusterLib.XML
+C:\Users\aroy\OneDrive\Repositories\Muster\MusterLib\bin\Release\MusterLib.dll
+C:\Users\aroy\OneDrive\Repositories\Muster\MusterLib\bin\Release\MusterLib.pdb
+C:\Users\aroy\OneDrive\Repositories\Muster\MusterLib\bin\Release\FSharp.Core.dll
+C:\Users\aroy\OneDrive\Repositories\Muster\MusterLib\bin\Release\FSharp.Core.xml
+C:\Users\aroy\OneDrive\Repositories\Muster\MusterLib\obj\Release\MusterLib.dll
+C:\Users\aroy\OneDrive\Repositories\Muster\MusterLib\obj\Release\MusterLib.pdb
