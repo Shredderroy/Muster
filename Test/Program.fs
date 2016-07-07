@@ -405,7 +405,8 @@ module Program =
             seq [
                 (
                 DecisionTree.DataType.Cat(DecisionTree.CatType.Str "HUMIDITY"),
-                DecisionTree.DataType.Cat(DecisionTree.CatType.Str "high"));
+                DecisionTree.DataType.Cat(DecisionTree.CatType.Str "high")
+                );
                 (
                 DecisionTree.DataType.Cat(DecisionTree.CatType.Str "TEMP"),
                 DecisionTree.DataType.Cat(DecisionTree.CatType.Str "cool")
