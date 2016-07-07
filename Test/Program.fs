@@ -344,9 +344,9 @@ module Program =
 
 
     let tf16 () : unit =
-        let tbl = DecisionTree.parseDataTableFromFile @"..\..\..\Muster\SampleData\DecisionTree\SampleID3Data.txt"
+        let filePath = @"..\..\..\Muster\SampleData\DecisionTree\SampleID3Data.txt"
         let impurityFn = DecisionTree.entropy
-        let c45Tree = DecisionTree.buildC45 tbl impurityFn None
+        let c45Tree = DecisionTree.buildC45FromFile filePath impurityFn None
         let inputMap =
             seq [
                 (
@@ -366,10 +366,10 @@ module Program =
 
 
     let tf17 () : unit =
-        let tbl = DecisionTree.parseDataTableFromFile @"..\..\..\Muster\SampleData\DecisionTree\SampleC45Data.txt"
+        let filePath = @"..\..\..\Muster\SampleData\DecisionTree\SampleC45Data.txt"
         let impurityFn = DecisionTree.entropy
         let splitStopCriterion = DecisionTree.defSplitStopCriterion
-        let c45Tree = DecisionTree.buildC45 tbl impurityFn (Some splitStopCriterion)
+        let c45Tree = DecisionTree.buildC45FromFile filePath impurityFn (Some splitStopCriterion)
         let inputMap =
             seq [(DecisionTree.DataType.Cat(DecisionTree.CatType.Str "HUMIDITY"), DecisionTree.DataType.Cont 65.0)]
             |> Map.ofSeq
@@ -379,10 +379,9 @@ module Program =
 
 
     let tf18 () : unit =
-        let tbl = RandomForest.parseDataTableFromFile @"..\..\..\Muster\SampleData\DecisionTree\SampleC45Data.txt"
-        printfn "Length of tbl = %A" (List.length tbl)
+        let filePath = @"..\..\..\Muster\SampleData\DecisionTree\SampleC45Data.txt"
         let numOfTrees = 4
-        let forest = RandomForest.buildDefault tbl numOfTrees
+        let forest = RandomForest.buildDefaultFromFile filePath numOfTrees
         printfn "forest = %A" forest
         let inputMap =
             seq [(DecisionTree.DataType.Cat(DecisionTree.CatType.Str "HUMIDITY"), DecisionTree.DataType.Cont 65.0)]
@@ -393,7 +392,8 @@ module Program =
 
 
     let tf19 () : unit =
-        let tbl = DecisionTree.parseDataTableFromFile @"..\..\..\Muster\SampleData\DecisionTree\SampleC45Data_2.txt"
+        let filePath = @"..\..\..\Muster\SampleData\DecisionTree\SampleC45Data_2.txt"
+        let tbl = DecisionTree.parseDataTableFromFile filePath
         let impurityFn = DecisionTree.stdDevError
         let splitStopCriterion = DecisionTree.defSplitStopCriterion
         let c45Tree =

@@ -430,6 +430,14 @@ module DecisionTree =
         helper tbl
 
 
+    let buildC45FromFile
+        (filePath : string)
+        (impurityFn : ImpurityFn)
+        (splitStopCriterionOpt : option<SplitStopCriterion>)
+        : Node =
+        buildC45 (parseDataTableFromFile filePath) impurityFn splitStopCriterionOpt
+
+
     let getPrediction (c45Tree : Node) (inputMap : Map<DataType, DataType>) : list<int * DataType> =
         let rec helper (currC45Tree : Node) (colAcc : list<DataType>) : list<list<DataType> * DataType> =
             match currC45Tree with
