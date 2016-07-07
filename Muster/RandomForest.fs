@@ -84,7 +84,13 @@ module RandomForest =
         |> List.map (fun (s) -> DecisionTree.buildC45 s impurityFn splitStopCriterionOpt)
 
 
-    let buildDefault (tbl : DataTable) (numOfTrees : int): Forest =
+    let buildDefault (tbl : DataTable) (numOfTrees : int) : Forest =
+        let sampleSize = SampleSize.Int(((List.length << List.tail) tbl) / numOfTrees)
+        buildWithParams tbl numOfTrees sampleSize entropy (Some defSplitStopCriterion)
+
+
+    let buildDefaultFromFile (filePath : string) (numOfTrees : int) : Forest =
+        let tbl = parseDataTableFromFile filePath
         let sampleSize = SampleSize.Int(((List.length << List.tail) tbl) / numOfTrees)
         buildWithParams tbl numOfTrees sampleSize entropy (Some defSplitStopCriterion)
 

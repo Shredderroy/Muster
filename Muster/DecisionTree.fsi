@@ -57,5 +57,8 @@ module DecisionTree =
     val buildC45 : DataTable -> ImpurityFn -> option<SplitStopCriterion> -> Node
 
 
+    val buildC45FromFile : string -> ImpurityFn -> option<SplitStopCriterion> -> Node
+
+
     val getPrediction : Node -> Map<DataType, DataType> -> list<int * DataType>
 

@@ -49,5 +49,8 @@ module RandomForest =
     val buildDefault : DataTable -> int -> Forest
 
 
+    val buildDefaultFromFile : string -> int -> Forest
+
+
     val getPrediction : Forest -> Map<DataType, DataType> -> list<int * DataType>
 
