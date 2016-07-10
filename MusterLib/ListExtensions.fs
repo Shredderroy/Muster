@@ -67,5 +67,5 @@ module ListExtensions =
                     |> Seq.distinct
                     |> List.ofSeq
                 helper newAcc
-        (helper []) |> List.ofSeq
+        helper []
 
