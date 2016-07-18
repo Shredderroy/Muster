@@ -35,7 +35,7 @@ let a= iterator
                                     |>Array.map (fun i -> EA.xover parent.[rngpar.Sample()] parent.[rngpar.Sample()] "SBX")
                                     |>Array.map (fun indiv -> 
                                      match (rng.Sample() < pmut) with
-                                        | true -> EA.mutate indiv "Uniform"
+                                        | true -> EA.mutate indiv "Simple"
                                         | false -> indiv
                                         )
                                     |> EA.elitismApply elitismApply popy elite elitey

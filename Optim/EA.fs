@@ -32,12 +32,13 @@ let xover (p1:float[]) (p2:float[]) xoverType =
 
 /// Applys mutation (of type: mutateType) to offspring o1 
 let mutate (o1:float[]) mutateType =
+    let rad=0.001
     match mutateType with
     | "Simple" -> Array.map 
                     ( fun oo1 -> 
                        match (rng.Sample() < 0.5) with
-                       | true -> oo1 + 0.5 * rng.Sample()
-                       | false -> oo1 - 0.5 * rng.Sample()
+                       | true -> oo1 + rad * rng.Sample()
+                       | false -> oo1 - rad * rng.Sample()
                        ) o1
     | "Uniform" -> Array.map 
                     ( fun oo1 -> 
