@@ -1,0 +1,2 @@
+/home/stelios/OrangeSoft/Muster/Optim/obj/Debug/.NETFramework,Version=v4.5.AssemblyAttribute.fs
+/home/stelios/OrangeSoft/Muster/Optim/bin/Debug/MathNet.Numerics.dll

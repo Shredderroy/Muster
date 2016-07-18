@@ -1,0 +1,180 @@
+F# Compiler for F# 3.0 (Open Source Edition)
+Freely distributed under the Apache 2.0 Open Source License
+
+/home/stelios/OrangeSoft/Muster/Test/Program.fs(7,6): error FS0039: The namespace or module 'MathNet' is not defined
+
+/home/stelios/OrangeSoft/Muster/Test/Program.fs(8,6): error FS0039: The namespace or module 'MathNet' is not defined
+
+/home/stelios/OrangeSoft/Muster/Test/Program.fs(9,6): error FS0039: The namespace or module 'MathNet' is not defined
+
+/home/stelios/OrangeSoft/Muster/Test/Program.fs(10,6): error FS0039: The namespace or module 'Muster' is not defined
+
+/home/stelios/OrangeSoft/Muster/Test/Program.fs(23,24): error FS0039: The namespace or module 'KDTree' is not defined
+
+/home/stelios/OrangeSoft/Muster/Test/Program.fs(24,24): error FS0039: The namespace or module 'KDTree' is not defined
+
+/home/stelios/OrangeSoft/Muster/Test/Program.fs(27,13): error FS0039: The namespace or module 'KDTree' is not defined
+
+/home/stelios/OrangeSoft/Muster/Test/Program.fs(40,24): error FS0039: The namespace or module 'KDTree' is not defined
+
+/home/stelios/OrangeSoft/Muster/Test/Program.fs(43,71): error FS0072: Lookup on object of indeterminate type based on information prior to this program point. A type annotation may be needed prior to this program point to constrain the type of the object. This may allow the lookup to be resolved.
+
+/home/stelios/OrangeSoft/Muster/Test/Program.fs(49,24): error FS0039: The namespace or module 'KDTree' is not defined
+
+/home/stelios/OrangeSoft/Muster/Test/Program.fs(51,21): error FS0039: The namespace or module 'KDTree' is not defined
+
+/home/stelios/OrangeSoft/Muster/Test/Program.fs(59,23): error FS0039: The namespace or module 'KDTree' is not defined
+
+/home/stelios/OrangeSoft/Muster/Test/Program.fs(65,24): error FS0039: The namespace or module 'KDTree' is not defined
+
+/home/stelios/OrangeSoft/Muster/Test/Program.fs(68,69): error FS0072: Lookup on object of indeterminate type based on information prior to this program point. A type annotation may be needed prior to this program point to constrain the type of the object. This may allow the lookup to be resolved.
+
+/home/stelios/OrangeSoft/Muster/Test/Program.fs(74,20): error FS0039: The namespace or module 'KDTree' is not defined
+
+/home/stelios/OrangeSoft/Muster/Test/Program.fs(74,19): error FS0752: The operator 'expr.[idx]' has been used on an object of indeterminate type based on information prior to this program point. Consider adding further type constraints
+
+/home/stelios/OrangeSoft/Muster/Test/Program.fs(75,20): error FS0039: The namespace or module 'KDTree' is not defined
+
+/home/stelios/OrangeSoft/Muster/Test/Program.fs(76,24): error FS0039: The namespace or module 'KDTree' is not defined
+
+/home/stelios/OrangeSoft/Muster/Test/Program.fs(79,13): error FS0039: The namespace or module 'KDTree' is not defined
+
+/home/stelios/OrangeSoft/Muster/Test/Program.fs(94,28): error FS0039: The namespace or module 'KDTree' is not defined
+
+/home/stelios/OrangeSoft/Muster/Test/Program.fs(97,17): error FS0039: The namespace or module 'KDTree' is not defined
+
+/home/stelios/OrangeSoft/Muster/Test/Program.fs(115,28): error FS0039: The namespace or module 'KDTree' is not defined
+
+/home/stelios/OrangeSoft/Muster/Test/Program.fs(117,25): error FS0039: The namespace or module 'KDTree' is not defined
+
+/home/stelios/OrangeSoft/Muster/Test/Program.fs(124,27): error FS0039: The namespace or module 'KDTree' is not defined
+
+/home/stelios/OrangeSoft/Muster/Test/Program.fs(137,21): error FS0039: The namespace or module 'KDTree' is not defined
+
+/home/stelios/OrangeSoft/Muster/Test/Program.fs(137,20): error FS0072: Lookup on object of indeterminate type based on information prior to this program point. A type annotation may be needed prior to this program point to constrain the type of the object. This may allow the lookup to be resolved.
+
+/home/stelios/OrangeSoft/Muster/Test/Program.fs(147,13): error FS0039: The namespace or module 'ANN' is not defined
+
+/home/stelios/OrangeSoft/Muster/Test/Program.fs(154,27): error FS0039: The namespace or module 'ANN' is not defined
+
+/home/stelios/OrangeSoft/Muster/Test/Program.fs(159,28): error FS0039: The namespace or module 'ANN' is not defined
+
+/home/stelios/OrangeSoft/Muster/Test/Program.fs(162,20): error FS0039: The namespace or module 'ANN' is not defined
+
+/home/stelios/OrangeSoft/Muster/Test/Program.fs(167,45): error FS0039: The namespace or module 'Matrix' is not defined
+
+/home/stelios/OrangeSoft/Muster/Test/Program.fs(168,18): error FS0072: Lookup on object of indeterminate type based on information prior to this program point. A type annotation may be needed prior to this program point to constrain the type of the object. This may allow the lookup to be resolved.
+
+/home/stelios/OrangeSoft/Muster/Test/Program.fs(168,46): error FS0039: The namespace or module 'Matrix' is not defined
+
+/home/stelios/OrangeSoft/Muster/Test/Program.fs(169,18): error FS0072: Lookup on object of indeterminate type based on information prior to this program point. A type annotation may be needed prior to this program point to constrain the type of the object. This may allow the lookup to be resolved.
+
+/home/stelios/OrangeSoft/Muster/Test/Program.fs(169,47): error FS0039: The namespace or module 'Matrix' is not defined
+
+/home/stelios/OrangeSoft/Muster/Test/Program.fs(171,24): error FS0039: The namespace or module 'ANN' is not defined
+
+/home/stelios/OrangeSoft/Muster/Test/Program.fs(213,24): error FS0039: The namespace or module 'KDTree' is not defined
+
+/home/stelios/OrangeSoft/Muster/Test/Program.fs(216,13): error FS0039: The namespace or module 'KDTree' is not defined
+
+/home/stelios/OrangeSoft/Muster/Test/Program.fs(226,24): error FS0039: The namespace or module 'KDTree' is not defined
+
+/home/stelios/OrangeSoft/Muster/Test/Program.fs(229,71): error FS0072: Lookup on object of indeterminate type based on information prior to this program point. A type annotation may be needed prior to this program point to constrain the type of the object. This may allow the lookup to be resolved.
+
+/home/stelios/OrangeSoft/Muster/Test/Program.fs(235,24): error FS0039: The namespace or module 'KDTree' is not defined
+
+/home/stelios/OrangeSoft/Muster/Test/Program.fs(237,21): error FS0039: The namespace or module 'KDTree' is not defined
+
+/home/stelios/OrangeSoft/Muster/Test/Program.fs(245,23): error FS0039: The namespace or module 'KDTree' is not defined
+
+/home/stelios/OrangeSoft/Muster/Test/Program.fs(251,24): error FS0039: The namespace or module 'KDTree' is not defined
+
+/home/stelios/OrangeSoft/Muster/Test/Program.fs(254,69): error FS0072: Lookup on object of indeterminate type based on information prior to this program point. A type annotation may be needed prior to this program point to constrain the type of the object. This may allow the lookup to be resolved.
+
+/home/stelios/OrangeSoft/Muster/Test/Program.fs(265,32): error FS0039: The namespace or module 'KDTree' is not defined
+
+/home/stelios/OrangeSoft/Muster/Test/Program.fs(267,21): error FS0039: The namespace or module 'KDTree' is not defined
+
+/home/stelios/OrangeSoft/Muster/Test/Program.fs(289,32): error FS0039: The namespace or module 'KDTree' is not defined
+
+/home/stelios/OrangeSoft/Muster/Test/Program.fs(291,29): error FS0039: The namespace or module 'KDTree' is not defined
+
+/home/stelios/OrangeSoft/Muster/Test/Program.fs(298,31): error FS0039: The namespace or module 'KDTree' is not defined
+
+/home/stelios/OrangeSoft/Muster/Test/Program.fs(311,19): error FS0039: The namespace or module 'DecisionTree' is not defined
+
+/home/stelios/OrangeSoft/Muster/Test/Program.fs(312,26): error FS0039: The namespace or module 'DecisionTree' is not defined
+
+/home/stelios/OrangeSoft/Muster/Test/Program.fs(313,23): error FS0039: The namespace or module 'DecisionTree' is not defined
+
+/home/stelios/OrangeSoft/Muster/Test/Program.fs(317,17): error FS0039: The namespace or module 'DecisionTree' is not defined
+
+/home/stelios/OrangeSoft/Muster/Test/Program.fs(318,17): error FS0039: The namespace or module 'DecisionTree' is not defined
+
+/home/stelios/OrangeSoft/Muster/Test/Program.fs(323,17): error FS0039: The namespace or module 'DecisionTree' is not defined
+
+/home/stelios/OrangeSoft/Muster/Test/Program.fs(324,17): error FS0039: The namespace or module 'DecisionTree' is not defined
+
+/home/stelios/OrangeSoft/Muster/Test/Program.fs(328,26): error FS0039: The namespace or module 'DecisionTree' is not defined
+
+/home/stelios/OrangeSoft/Muster/Test/Program.fs(333,19): error FS0039: The namespace or module 'DecisionTree' is not defined
+
+/home/stelios/OrangeSoft/Muster/Test/Program.fs(334,26): error FS0039: The namespace or module 'DecisionTree' is not defined
+
+/home/stelios/OrangeSoft/Muster/Test/Program.fs(335,34): error FS0039: The namespace or module 'DecisionTree' is not defined
+
+/home/stelios/OrangeSoft/Muster/Test/Program.fs(336,23): error FS0039: The namespace or module 'DecisionTree' is not defined
+
+/home/stelios/OrangeSoft/Muster/Test/Program.fs(338,19): error FS0039: The namespace or module 'DecisionTree' is not defined
+
+/home/stelios/OrangeSoft/Muster/Test/Program.fs(338,83): error FS0039: The namespace or module 'DecisionTree' is not defined
+
+/home/stelios/OrangeSoft/Muster/Test/Program.fs(341,26): error FS0039: The namespace or module 'DecisionTree' is not defined
+
+/home/stelios/OrangeSoft/Muster/Test/Program.fs(346,19): error FS0039: The namespace or module 'RandomForest' is not defined
+
+/home/stelios/OrangeSoft/Muster/Test/Program.fs(349,22): error FS0039: The namespace or module 'RandomForest' is not defined
+
+/home/stelios/OrangeSoft/Muster/Test/Program.fs(352,19): error FS0039: The namespace or module 'DecisionTree' is not defined
+
+/home/stelios/OrangeSoft/Muster/Test/Program.fs(352,83): error FS0039: The namespace or module 'DecisionTree' is not defined
+
+/home/stelios/OrangeSoft/Muster/Test/Program.fs(355,26): error FS0039: The namespace or module 'RandomForest' is not defined
+
+/home/stelios/OrangeSoft/Muster/Test/Program.fs(360,19): error FS0039: The namespace or module 'DecisionTree' is not defined
+
+/home/stelios/OrangeSoft/Muster/Test/Program.fs(361,26): error FS0039: The namespace or module 'DecisionTree' is not defined
+
+/home/stelios/OrangeSoft/Muster/Test/Program.fs(362,34): error FS0039: The namespace or module 'DecisionTree' is not defined
+
+/home/stelios/OrangeSoft/Muster/Test/Program.fs(364,13): error FS0039: The namespace or module 'DecisionTree' is not defined
+
+/home/stelios/OrangeSoft/Muster/Test/Program.fs(371,17): error FS0039: The namespace or module 'DecisionTree' is not defined
+
+/home/stelios/OrangeSoft/Muster/Test/Program.fs(372,17): error FS0039: The namespace or module 'DecisionTree' is not defined
+
+/home/stelios/OrangeSoft/Muster/Test/Program.fs(374,17): error FS0039: The namespace or module 'DecisionTree' is not defined
+
+/home/stelios/OrangeSoft/Muster/Test/Program.fs(375,17): error FS0039: The namespace or module 'DecisionTree' is not defined
+
+/home/stelios/OrangeSoft/Muster/Test/Program.fs(380,26): error FS0039: The namespace or module 'DecisionTree' is not defined
+
+/home/stelios/OrangeSoft/Muster/Test/Program.fs(389,23): error FS0039: The namespace or module 'KDTree' is not defined
+
+/home/stelios/OrangeSoft/Muster/Test/Program.fs(390,24): error FS0039: The namespace or module 'KDTree' is not defined
+
+/home/stelios/OrangeSoft/Muster/Test/Program.fs(391,24): error FS0039: The namespace or module 'KDTree' is not defined
+
+/home/stelios/OrangeSoft/Muster/Test/Program.fs(395,22): error FS0039: The namespace or module 'KDTree' is not defined
+
+/home/stelios/OrangeSoft/Muster/Test/Program.fs(395,21): error FS0072: Lookup on object of indeterminate type based on information prior to this program point. A type annotation may be needed prior to this program point to constrain the type of the object. This may allow the lookup to be resolved.
+
+/home/stelios/OrangeSoft/Muster/Test/Program.fs(422,23): error FS0039: The namespace or module 'KDTree' is not defined
+
+/home/stelios/OrangeSoft/Muster/Test/Program.fs(423,24): error FS0039: The namespace or module 'KDTree' is not defined
+
+/home/stelios/OrangeSoft/Muster/Test/Program.fs(424,24): error FS0039: The namespace or module 'KDTree' is not defined
+
+/home/stelios/OrangeSoft/Muster/Test/Program.fs(428,22): error FS0039: The namespace or module 'KDTree' is not defined
+
+/home/stelios/OrangeSoft/Muster/Test/Program.fs(428,21): error FS0072: Lookup on object of indeterminate type based on information prior to this program point. A type annotation may be needed prior to this program point to constrain the type of the object. This may allow the lookup to be resolved.

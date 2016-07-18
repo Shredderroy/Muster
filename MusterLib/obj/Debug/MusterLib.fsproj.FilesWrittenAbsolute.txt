@@ -1,0 +1,5 @@
+/home/stelios/OrangeSoft/Muster/MusterLib/obj/Debug/.NETFramework,Version=v4.6.AssemblyAttribute.fs
+/home/stelios/OrangeSoft/Muster/MusterLib/bin/Debug/MusterLib.dll.mdb
+/home/stelios/OrangeSoft/Muster/MusterLib/bin/Debug/MusterLib.dll
+/home/stelios/OrangeSoft/Muster/MusterLib/obj/Debug/MusterLib.dll
+/home/stelios/OrangeSoft/Muster/MusterLib/obj/Debug/MusterLib.dll.mdb
