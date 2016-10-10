@@ -520,6 +520,7 @@ module Program =
     [<EntryPoint>]
     let main argv =
         printfn "Entered main()"
+        printfn "%s" (Control.LinearAlgebraProvider.ToString())
         let rec loop () : unit =
             printf "Module to test: "
             match "test" + stdin.ReadLine() with
