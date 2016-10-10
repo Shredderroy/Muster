@@ -54,17 +54,17 @@ module ANN =
 
 
     let useNativeMKLProvider () =
-        Control.NativeProviderPath <- @"..\..\..\packages\MathNet.Numerics.MKL.Win-x64.2.0.0\build\x64"
+        Control.NativeProviderPath <- (
+            Path.Combine [|
+                __SOURCE_DIRECTORY__; ".."; "packages"; "MathNet.Numerics.MKL.Win-x64.2.1.0"; "build"; "x64"
+            |])
         Control.UseNativeMKL()
 
 
     let useManagedProvider () = Control.UseManaged()
 
 
-    // useNativeMKLProvider()
-
-
-    // useManagedProvider()
+    useNativeMKLProvider()
 
 
     let init
