@@ -184,27 +184,24 @@ module ANN =
             Array.zip
                 ((Matrix.toRowArrays scaledTrainingSet.InputVecsMat) |> Array.map (fun s -> matrix [List.ofArray s]))
                 ((Matrix.toRowArrays scaledTrainingSet.OutputVecsMat) |> Array.map (fun s -> matrix [List.ofArray s]))
-        List.fold
+        (aNN, [1 .. numOfEpochs])
+        ||> List.fold
             (fun s _ ->
-                Array.fold
+                (s, zippedLst)
+                ||> Array.fold
                     (fun t ((u : Matrix<double>), (v : Matrix<double>)) ->
                         let forwardPassOutput = makeForwardPass t u
                         let backPropagatedError = backPropagateError t v forwardPassOutput
-                        correctWeights t forwardPassOutput backPropagatedError)
-                    s
-                    zippedLst)
-            aNN
-            [1 .. numOfEpochs]
+                        correctWeights t forwardPassOutput backPropagatedError))
 
 
     let batchTrain (aNN : Network) (scaledTrainingSet : TrainingSet) (numOfEpochs : int) : Network =
-        Seq.fold
+        (aNN, [1 .. numOfEpochs])
+        ||> Seq.fold
             (fun s _ ->
                 let forwardPassOutput = makeForwardPass s scaledTrainingSet.InputVecsMat
                 let backPropagatedError = backPropagateError s scaledTrainingSet.OutputVecsMat forwardPassOutput
                 correctWeights s forwardPassOutput backPropagatedError)
-            aNN
-            [1 .. numOfEpochs]
 
 
     let train (aNN : Network) (trainingSet : TrainingSet) (numOfEpochs : int) (trainingMode : TrainingMode) : Network =
