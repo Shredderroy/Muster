@@ -2,6 +2,7 @@
 
 
 open System
+open System.IO
 
 
 module CSV =
@@ -20,11 +21,15 @@ module CSV =
         if strs |> Seq.isEmpty then Map.empty
         else
             strs
-            |> Seq.map (fun s -> parseLine [] [] (s |> splitLine))
+            |> Seq.map (splitLine >> (parseLine [] []))
             |> (fun s ->
                 let hdrs, dat =
                     if hasHdrs then Seq.head s, Seq.tail s
                     else [for i in 1 .. List.length(Seq.head s) -> "col" + (string i)], s
                 dat |> Seq.mapi (fun i t -> i + 1, t |> List.zip hdrs |> Map.ofList)
             ) |> Map.ofSeq
+
+
+    let parseFile (delim : char) (hasHdrs : bool) (filePath : string) : Map<int, Map<string, string>> =
+        filePath |> File.ReadAllLines |> parse delim hasHdrs
 
