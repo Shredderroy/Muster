@@ -46,6 +46,7 @@
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="ListExtensions.fs" />
     <Compile Include="StringExtensions.fs" />
+    <Compile Include="CSV.fs" />
     <None Include="Script.fsx" />
   </ItemGroup>
   <PropertyGroup>
