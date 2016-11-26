@@ -1,7 +1,6 @@
-﻿#load "../packages/MathNet.Numerics.FSharp.3.11.0/MathNet.Numerics.fsx"
-#load "Utils.fs"
-#load "ListExtensions.fs"
-#load "StringExtensions.fs"
+﻿#load "../packages/MathNet.Numerics.FSharp.3.13.1/MathNet.Numerics.fsx"
+#load "../MusterLib/ListExtensions.fs"
+#load "../MusterLib/StringExtensions.fs"
 #load "KDTree.fs"
 #load "ANN.fs"
 #load "PCA.fs"
@@ -13,15 +12,14 @@ open System.IO
 open System.Text.RegularExpressions
 open MathNet.Numerics.LinearAlgebra
 open MathNet.Numerics.LinearAlgebra.Double
-open Muster.Utils
-open Muster.Extensions
+open MusterLib
 open Muster.DataStructuresAndAlgorithms
 open Muster.DataStructuresAndAlgorithms.DecisionTree
 
 
-let rnd = Random()
-
-
+//let rnd = Random()
+//
+//
 //let createSquareOfSumDataFile (outputFileLoc : string) : unit =
 //    let numOfPairs, inputDim, maxVal = 500, 3, 10
 //    let genFn = fun _ -> let x = (rnd.NextDouble() * (double(rnd.Next() % maxVal))) in if rnd.Next() % 2 = 0 then x else -x
@@ -249,58 +247,170 @@ let rnd = Random()
 //sw.Start()
 //let lstLen = 20
 //let idxLen = 6
-//let idxLst = Muster.Utils.Misc.getDistinctRandomIntList 0 (lstLen - 1) idxLen
+//let idxLst = ListExtensions.getDistinctRandomIntList 0 (lstLen - 1) idxLen
 //printfn "idxLst = %A" (idxLst)
-//let lst = Muster.Utils.Misc.getDistinctRandomIntList 1 100 lstLen
+//let lst = ListExtensions.getDistinctRandomIntList 1 100 lstLen
 //printfn "lst = %A" lst
-//let extrLst = Muster.Extensions.ListExtensions.pickFromList lst idxLst
+//let extrLst = ListExtensions.pickFromList lst idxLst
 //printfn "extrLst = %A" extrLst
 //sw.Stop()
 //printfn "Time taken = %A ms" sw.ElapsedMilliseconds
 //
 //
-//let lst = [1 .. 1000000]
+//let lst2 = [1 .. 1000000]
 //printfn "Length of lst = %A" (List.length lst)
-//let sw = System.Diagnostics.Stopwatch()
-//sw.Start()
-//let lstRev = List.rev lst
-//sw.Stop()
-//printfn "Elapsed time = %A ms" sw.ElapsedMilliseconds
-//sw.Reset()
-
-
+//let sw2 = System.Diagnostics.Stopwatch()
+//sw2.Start()
+//let lstRev = List.rev lst2
+//sw2.Stop()
+//printfn "Elapsed time = %A ms" sw2.ElapsedMilliseconds
+//sw2.Reset()
+//
+//
 //printfn "%A" (StringExtensions.getMaximalItems ["the"; "there"; "and"; "androgynous"])
-
-
+//
+//
 //printfn "%A" (StringExtensions.removeNonAlphaNumChars @"an238nsdfg&93&*&@#H--=ASijfb")
-
-
+//
+//
 //printfn "%A" ((int << floor << sqrt) 17.0)
-
-
+//
+//
 //printfn "%A" (ListExtensions.isExtensionOf<int> [1; 2; 3] [1; 2; 5; 6])
 //let s = DataType.Cat(CatType.Int 0)
 //let t = DataType.Cont(0.0)
 //let u = DataType.Cont(0.00)
 //printfn "%A" (t = u)
+//
+//
+//let cartTest3 (inputFileLoc : string) : unit =
+//    let tbl = parseDataTableFromFile inputFileLoc
+//    let impurityFn = stdDevError
+//    let c45Tree = buildC45 tbl impurityFn (Some(splitStopCriterionGen (float(List.length tbl)) 0.05))
+//    printfn "c45Tree = %A" c45Tree
+//    let inputMap =
+//        seq [
+//            // (DataType.Cat(CatType.Str "OUTLOOK"), DataType.Cat(CatType.Str "overcast"));
+//            // (DataType.Cat(CatType.Str "TEMP"), DataType.Cat(CatType.Str "cool"));
+//            (DataType.Cat(CatType.Str "HUMIDITY"), DataType.Cat(CatType.Str "high"));
+//            (DataType.Cat(CatType.Str "OUTLOOK"), DataType.Cat(CatType.Str "sunny"))
+//        ]
+//        |> Map.ofSeq
+//    // printfn "inputMap = %A" inputMap
+//    let prediction = getPrediction c45Tree inputMap
+//    printfn "prediction = %A" prediction
+//
+//cartTest3(@"C:\Users\aroy\OneDrive\Repositories\Muster\Muster\SampleData\DecisionTree\SampleC45Data_2.txt")
 
 
-let cartTest3 (inputFileLoc : string) : unit =
-    let tbl = parseDataTableFromFile inputFileLoc
-    let impurityFn = stdDevError
-    let c45Tree = buildC45 tbl impurityFn (Some(splitStopCriterionGen (float(List.length tbl)) 0.05))
-    printfn "c45Tree = %A" c45Tree
-    let inputMap =
-        seq [
-            // (DataType.Cat(CatType.Str "OUTLOOK"), DataType.Cat(CatType.Str "overcast"));
-            // (DataType.Cat(CatType.Str "TEMP"), DataType.Cat(CatType.Str "cool"));
-            (DataType.Cat(CatType.Str "HUMIDITY"), DataType.Cat(CatType.Str "high"));
-            (DataType.Cat(CatType.Str "OUTLOOK"), DataType.Cat(CatType.Str "sunny"))
+/////
+
+
+[<RequireQualifiedAccess>]
+type TreeNode<'A> =
+    | Leaf of 'A
+    | Internal of option<'A> * list<TreeNode<'A>>
+
+
+    static member map (f : 'A -> 'B) (node : TreeNode<'A>) : TreeNode<'B> =
+        let rec helper (currNode : TreeNode<'A>) : TreeNode<'B> =
+            match currNode with
+            | TreeNode.Leaf v -> TreeNode.Leaf(f v)
+            | TreeNode.Internal(v', c) -> TreeNode.Internal(Option.map f v', c |> List.map helper)
+        helper node
+
+
+    static member foldDft (f : 'B -> 'A -> 'B) (initVal : 'B) (node : TreeNode<'A>) : 'B =
+        let rec helper (acc : 'B) (currNode : TreeNode<'A>) : 'B =
+            match currNode with
+            | TreeNode.Leaf v -> f acc v
+            | TreeNode.Internal(v', c) -> ((match v' with None -> acc | Some v -> f acc v), c) ||> List.fold helper
+        helper initVal node
+
+
+    static member accumulateDft (f : 'A -> 'B) (node : TreeNode<'A>) : list<'B> =
+        let g (s : list<'B>) (t : 'A) : list<'B> = (f t) :: s
+        node |> TreeNode.foldDft g [] |> List.rev
+
+
+    static member tryFindDft (f : TreeNode<'A> -> bool) (node : TreeNode<'A>) : option<TreeNode<'A>> =
+        let rec helper (acc : option<TreeNode<'A>>) (currNode : TreeNode<'A>) : option<TreeNode<'A>> =
+            if Option.exists f acc then acc
+            else
+                match currNode with
+                | TreeNode.Leaf _ -> 
+        None
+
+
+    static member tryFindDft2 (f : TreeNode<'A> -> bool) (node : TreeNode<'A>) : option<TreeNode<'A>> =
+        let rec helper (currNode : TreeNode<'A>) : option<TreeNode<'A>> =
+            match currNode with
+            | _ when f currNode -> Some currNode
+            | TreeNode.Internal(_, c) -> c |> List.tryFind (helper >> Option.isSome)
+            | _ -> None
+        helper node
+
+
+[<RequireQualifiedAccess>]
+type Path = Left | Right
+
+
+[<RequireQualifiedAccess>]
+type Zipper<'A> =
+    | Start
+    | Internal of TreeNode<'A> * Path * Zipper<'A>
+    | End of TreeNode<'A> * Zipper<'A>
+    static member apply
+        (node : TreeNode<'A>)
+        (pFn : TreeNode<'A> -> 'B -> Path)
+        (eFn : TreeNode<'A> -> 'B -> bool)
+        (mFn : TreeNode<'A> -> 'B -> TreeNode<'A>)
+        (funcsParams : 'B)
+        : TreeNode<'A> =
+        let rec unzip (currNode : TreeNode<'A>) (currZipper : Zipper<'A>) : Zipper<'A> =
+            Zipper.Start
+        let rec zip (currZipper : Zipper<'A>) : option<TreeNode<'A>> =
+            None
+        node
+
+
+let node =
+    TreeNode.Internal(
+        Some 0, [
+            // First child
+            TreeNode.Internal(
+                Some 1, [
+                    TreeNode.Leaf 2;
+                    TreeNode.Internal(
+                        Some 3,
+                        [TreeNode.Leaf 4]
+                    )
+                ]
+            );
+            // Second child
+            TreeNode.Internal(
+                Some 5, [
+                    TreeNode.Internal(
+                        Some 6, [
+                            TreeNode.Leaf 7
+                        ]
+                    );
+                    TreeNode.Internal(
+                        Some 8,
+                        [TreeNode.Leaf 9]
+                    )
+                ]
+            )
         ]
-        |> Map.ofSeq
-    // printfn "inputMap = %A" inputMap
-    let prediction = getPrediction c45Tree inputMap
-    printfn "prediction = %A" prediction
+    )
 
-cartTest3(@"C:\Users\aroy\OneDrive\Repositories\Muster\Muster\SampleData\DecisionTree\SampleC45Data_2.txt")
+
+// printfn "%A" node
+// printfn "%d" (node |> TreeNode.foldDft (+) 0)
+// printfn "%A" (node |> TreeNode.accumulateDft id)
+printfn "%A" (
+    let f = (=) 2
+    let g = function TreeNode.Leaf v -> f v | TreeNode.Internal(v', _) -> Option.exists f v'
+    node |> TreeNode.tryFindDft2 g
+)
 
