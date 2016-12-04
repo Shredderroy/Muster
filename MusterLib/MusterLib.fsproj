@@ -47,6 +47,7 @@
     <Compile Include="ListExtensions.fs" />
     <Compile Include="StringExtensions.fs" />
     <Compile Include="CSV.fs" />
+    <Compile Include="Tree.fs" />
     <None Include="Script.fsx" />
   </ItemGroup>
   <PropertyGroup>
