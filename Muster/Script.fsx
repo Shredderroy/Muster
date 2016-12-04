@@ -320,97 +320,208 @@ type TreeNode<'A> =
         helper node
 
 
-    static member foldDft (f : 'B -> 'A -> 'B) (initVal : 'B) (node : TreeNode<'A>) : 'B =
-        let rec helper (acc : 'B) (currNode : TreeNode<'A>) : 'B =
+    static member foldDfti (f : int -> int -> 'B -> TreeNode<'A> -> 'B) (initVal : 'B) (node : TreeNode<'A>) : 'B =
+        let rec helper currDepth sibNum (currAcc : 'B) (currNode : TreeNode<'A>) : 'B =
             match currNode with
-            | TreeNode.Leaf v -> f acc v
-            | TreeNode.Internal(v', c) -> ((match v' with None -> acc | Some v -> f acc v), c) ||> List.fold helper
-        helper initVal node
+            | TreeNode.Leaf _ -> f currDepth sibNum currAcc currNode
+            | TreeNode.Internal(_, c) ->
+                (f currDepth sibNum currAcc currNode, c |> List.zip [1 .. List.length c])
+                ||> List.fold (fun s (t, u) -> helper (currDepth + 1) t s u)
+        helper 1 1 initVal node
 
 
-    static member accumulateDft (f : 'A -> 'B) (node : TreeNode<'A>) : list<'B> =
-        let g (s : list<'B>) (t : 'A) : list<'B> = (f t) :: s
-        node |> TreeNode.foldDft g [] |> List.rev
+    static member foldDft (f : 'B -> TreeNode<'A> -> 'B) (initVal : 'B) (node : TreeNode<'A>) : 'B =
+        let g _ _ s t = f s t in (initVal, node) ||> TreeNode.foldDfti g
+
+
+    static member foldValDfti (f : int -> int -> 'B -> 'A -> 'B) (initVal : 'B) (node : TreeNode<'A>) : 'B =
+        let g i j s t = match t with TreeNode.Leaf v | TreeNode.Internal(Some v, _) -> f i j s v | _ -> s
+        (initVal, node) ||> TreeNode.foldDfti g
+
+
+    static member foldValDft (f : 'B -> 'A -> 'B) (initVal : 'B) (node : TreeNode<'A>) : 'B =
+        let g s t = match t with TreeNode.Leaf v | TreeNode.Internal(Some v, _) -> f s v | _ -> s
+        (initVal, node) ||> TreeNode.foldDft g
+
+
+    static member accumulateValDft (f : 'A -> 'B) (node : TreeNode<'A>) : list<'B> =
+        let g s t = (f t) :: s in ([], node) ||> TreeNode.foldValDft g |> List.rev
 
 
     static member tryFindDft (f : TreeNode<'A> -> bool) (node : TreeNode<'A>) : option<TreeNode<'A>> =
-        let rec helper (acc : option<TreeNode<'A>>) (currNode : TreeNode<'A>) : option<TreeNode<'A>> =
-            if Option.exists f acc then acc
-            else
-                match currNode with
-                | TreeNode.Leaf _ -> 
-        None
-
-
-    static member tryFindDft2 (f : TreeNode<'A> -> bool) (node : TreeNode<'A>) : option<TreeNode<'A>> =
-        let rec helper (currNode : TreeNode<'A>) : option<TreeNode<'A>> =
-            match currNode with
+        let rec helper (acc : list<TreeNode<'A>>) (currNode : TreeNode<'A>) : option<TreeNode<'A>> =
+            match acc, currNode with
             | _ when f currNode -> Some currNode
-            | TreeNode.Internal(_, c) -> c |> List.tryFind (helper >> Option.isSome)
+            | _, TreeNode.Internal(v', c) -> helper ((List.tail c) @ acc) (List.head c)
+            | h :: t, TreeNode.Leaf _ -> helper t h
             | _ -> None
-        helper node
+        helper [] node
 
 
-[<RequireQualifiedAccess>]
-type Path = Left | Right
+    static member foldBfti (f : int -> int -> 'B -> TreeNode<'A> -> 'B) (initVal : 'B) (node : TreeNode<'A>) : 'B =
+        let rec helper currDepth (currAcc : 'B) (us : list<int * TreeNode<'A>>) (ts : list<TreeNode<'A>>) : 'B =
+            match us, ts with
+            | [], [] -> currAcc
+            | [], _ ->
+                helper
+                    (currDepth + 1)
+                    currAcc
+                    (ts |> List.rev
+                    |> List.collect (function TreeNode.Leaf _ -> [] | TreeNode.Internal(_, c) -> c)
+                    |> (fun s -> s |> List.zip [1 .. List.length s]))
+                    []
+            | (h1, h1') :: t, _ -> helper currDepth (f currDepth h1 currAcc h1') t (h1' :: ts)
+        helper 1 initVal [1, node] []
 
 
-[<RequireQualifiedAccess>]
-type Zipper<'A> =
-    | Start
-    | Internal of TreeNode<'A> * Path * Zipper<'A>
-    | End of TreeNode<'A> * Zipper<'A>
-    static member apply
-        (node : TreeNode<'A>)
-        (pFn : TreeNode<'A> -> 'B -> Path)
-        (eFn : TreeNode<'A> -> 'B -> bool)
-        (mFn : TreeNode<'A> -> 'B -> TreeNode<'A>)
-        (funcsParams : 'B)
-        : TreeNode<'A> =
-        let rec unzip (currNode : TreeNode<'A>) (currZipper : Zipper<'A>) : Zipper<'A> =
-            Zipper.Start
-        let rec zip (currZipper : Zipper<'A>) : option<TreeNode<'A>> =
-            None
-        node
+    static member foldBft (f : 'B -> TreeNode<'A> -> 'B) (initVal : 'B) (node : TreeNode<'A>) : 'B =
+        let g _ _ s t = f s t in (initVal, node) ||> TreeNode.foldBfti g
 
 
-let node =
+    static member foldValBfti (f : int -> int -> 'B -> 'A -> 'B) (initVal : 'B) (node : TreeNode<'A>) : 'B =
+        let g i j s t = match t with TreeNode.Leaf v | TreeNode.Internal(Some v, _) -> f i j s v | _ -> s
+        (initVal, node) ||> TreeNode.foldBfti g
+
+
+    static member foldValBft (f : 'B -> 'A -> 'B) (initVal : 'B) (node : TreeNode<'A>) : 'B =
+        let g s t = match t with TreeNode.Leaf v | TreeNode.Internal(Some v, _) -> f s v | _ -> s
+        (initVal, node) ||> TreeNode.foldBft g
+
+
+    static member accumulateValBft (f : 'A -> 'B) (node : TreeNode<'A>) : list<'B> =
+        let g s t = (f t) :: s in ([], node) ||> TreeNode.foldValBft g |> List.rev
+
+
+    static member tryFindBft (f : TreeNode<'A> -> bool) (node : TreeNode<'A>) : option<TreeNode<'A>> =
+        let rec helper (us : list<TreeNode<'A>>) (ts : list<TreeNode<'A>>) : option<TreeNode<'A>> =
+            match us, ts with
+            | [], [] -> None
+            | [], _ ->
+                helper
+                    (ts |> List.rev |> List.collect (function TreeNode.Leaf _ -> [] | TreeNode.Internal(_, c) -> c))
+                    []
+            | h :: t, _ -> if f h then Some h else helper t (h :: ts)
+        helper [node] []
+
+
+    static member prettyPrint (node : TreeNode<'A>) : unit =
+        let c = " . "
+        let f i j (s : list<int * int * string>) t =
+            (i, j, match t with TreeNode.Leaf v | TreeNode.Internal(Some v, _) -> v.ToString() | _ -> "MISSING") :: s
+        ([], node) ||> TreeNode.foldDfti f
+        |> List.map (fun (s, _, t) -> String.concat c [for i in 1 .. (s - 1) -> c] + t)
+        |> List.rev
+        |> String.concat Environment.NewLine
+        |> printfn "%s"
+
+
+//    static member prettyPrint (node : TreeNode<'A>) : unit =
+//        let f i j s t =
+//            match t with 
+//        ()
+
+
+// type Path = ChildNum of int
+
+
+//[<RequireQualifiedAccess>]
+//type Zipper<'A> =
+//    | Start
+//    | Internal of TreeNode<'A> * Path * Zipper<'A>
+//    | End of TreeNode<'A> * Zipper<'A>
+//    static member apply
+//        (node : TreeNode<'A>)
+//        (pFn : TreeNode<'A> -> 'B -> Path)
+//        (eFn : TreeNode<'A> -> 'B -> bool)
+//        (mFn : TreeNode<'A> -> 'B -> TreeNode<'A>)
+//        (fPars : 'B)
+//        : TreeNode<'A> =
+//        let rec unzip (currNode : TreeNode<'A>) (currZipper : Zipper<'A>) : Zipper<'A> =
+//            Zipper.Start
+//        let rec zip (currZipper : Zipper<'A>) : option<TreeNode<'A>> =
+//            None
+//        node
+
+
+printfn "FINISHED LOADING DEFINITIONS"
+
+
+let treeRnd =
+    let rnd, lim = System.Random(), 64
+    TreeNode.Internal(
+        Some(rnd.Next() % lim), [
+            TreeNode.Internal(
+                Some(rnd.Next() % lim), [
+                    TreeNode.Leaf(rnd.Next() % lim);
+                    TreeNode.Internal(
+                        Some(rnd.Next() % lim),
+                        [TreeNode.Leaf(rnd.Next() % lim)])]);
+            TreeNode.Internal(
+                Some(rnd.Next() % lim), [
+                    TreeNode.Internal(
+                        Some(rnd.Next() % lim), [
+                            TreeNode.Leaf(rnd.Next() % lim)]);
+                    TreeNode.Internal(
+                        Some(rnd.Next() % lim),
+                        [TreeNode.Leaf(rnd.Next() % lim)])])])
+
+
+let treeSeq =
     TreeNode.Internal(
         Some 0, [
-            // First child
             TreeNode.Internal(
                 Some 1, [
-                    TreeNode.Leaf 2;
+                    TreeNode.Leaf 5;
                     TreeNode.Internal(
                         Some 3,
-                        [TreeNode.Leaf 4]
-                    )
-                ]
-            );
-            // Second child
+                        [TreeNode.Leaf 4])]);
             TreeNode.Internal(
                 Some 5, [
                     TreeNode.Internal(
                         Some 6, [
-                            TreeNode.Leaf 7
-                        ]
-                    );
+                            TreeNode.Leaf 7]);
                     TreeNode.Internal(
                         Some 8,
-                        [TreeNode.Leaf 9]
-                    )
-                ]
-            )
-        ]
-    )
+                        [TreeNode.Leaf 9])])])
 
 
-// printfn "%A" node
-// printfn "%d" (node |> TreeNode.foldDft (+) 0)
-// printfn "%A" (node |> TreeNode.accumulateDft id)
+printfn "FINISHED LOADING VARIABLES"
+
+
+///////
+
+
+// treeSeq |> TreeNode.prettyPrint
+
+//printfn "%A" (
+//    (None, treeRnd)
+//    ||> TreeNode.foldDft (fun (s : option<TreeNode<int>>) (t : TreeNode<int>) ->
+//        match s with
+//        | Some _ -> s
+//        | None -> let u = TreeNode.foldValDft (+) 0 t in if (u < 8) && (u > 2) then (Some t) else None
+//    )
+//)
+
+//printfn "%d" (treeSeq |> TreeNode.foldValDft (+) 0)
+
+//printfn "%A" (treeSeq |> TreeNode.accumulateValDft id)
+
 printfn "%A" (
-    let f = (=) 2
+    let f = (<) 4
     let g = function TreeNode.Leaf v -> f v | TreeNode.Internal(v', _) -> Option.exists f v'
-    node |> TreeNode.tryFindDft2 g
+    (treeSeq |> TreeNode.tryFindDft g, treeSeq |> TreeNode.tryFindBft g)
 )
+
+//printfn "%A" (treeSeq |> TreeNode.foldValBft (+) 0)
+
+//printfn "%A" (treeSeq |> TreeNode.accumulateValBft id)
+
+//printfn "%A" (
+//    let f = (<) 4
+//    let g = function TreeNode.Leaf v -> f v | TreeNode.Internal(v', _) -> Option.exists f v'
+//    treeRnd |> TreeNode.tryFindBft g
+//)
+
+treeSeq |> TreeNode.prettyPrint
+treeRnd |> TreeNode.prettyPrint
 
