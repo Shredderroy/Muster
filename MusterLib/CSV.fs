@@ -9,17 +9,20 @@ module CSV =
 
 
     let parse (delim : char) (hasHdrs : bool) (lines : #seq<string>) : array<Map<string, string>> =
-        let splitLine (line : string) = line.Split [|delim|] |> Array.map (fun s -> s.Trim()) |> List.ofArray
+        let splitLine (line : string) = line.Split [|delim|] |> List.ofArray
         let rec parseLine (acc : list<string>) (acc2 : list<string>) (currLst : list<string>) : list<string> =
             match currLst, acc2 with
             | [], _ -> acc |> List.rev
             | h1 :: t1, _ when (h1.StartsWith @"""") && (h1.EndsWith @"""") ->
                 parseLine ((h1.Replace(@"""", "")) :: acc) acc2 t1
-            | h1 :: t1, [] when h1.StartsWith @"""" -> parseLine acc (h1 :: acc2) t1
-            | h1 :: t1, _ :: _  when h1.EndsWith @"""" ->
-                parseLine ((String.Join(string delim, (h1 :: acc2) |> List.rev).Replace(@"""", "")) :: acc) [] t1
+            | h1 :: t1, [] when h1.Contains @"""" -> parseLine acc (h1 :: acc2) t1
+            | h1 :: t1, _ :: _  when h1.Contains @"""" ->
+                parseLine
+                    (((String.Join(string delim, (h1 :: acc2) |> List.rev).Replace(@"""", "")).Trim()) :: acc)
+                    []
+                    t1
             | h1 :: t1, _ :: _ -> parseLine acc (h1 :: acc2) t1
-            | h1 :: t1, _ -> parseLine (h1 :: acc) acc2 t1
+            | h1 :: t1, _ -> parseLine (h1.Trim() :: acc) acc2 t1
         if lines |> Seq.isEmpty then Array.empty
         else
             lines
