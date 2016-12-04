@@ -96,6 +96,16 @@ let treeSeq =
                         [Tree.Node.Leaf 9])])])
 
 
+let xDep, bLeaf, xCh, flg = 4, 2, 4, true
+let f (i : int) (j : int) : int = i + j
+let treeGen = Tree.genRandTree xDep bLeaf xCh flg f |> Option.get
+
+
+printfn "treeSeq ="; treeSeq |> Tree.prettyPrint
+printfn "treeRnd ="; treeRnd |> Tree.prettyPrint
+printfn "treeGen ="; treeGen |> Tree.prettyPrint
+
+
 printfn "FINISHED LOADING TREES"
 
 // treeSeq |> Tree.prettyPrint
@@ -128,15 +138,3 @@ printfn "FINISHED LOADING TREES"
 //    let g = function Tree.Node.Leaf v -> f v | Tree.Node.Internal(v', _) -> Option.exists f v'
 //    treeRnd |> Tree.Node.tryFindBft g
 //)
-
-treeSeq |> Tree.prettyPrint
-treeRnd |> Tree.prettyPrint
-
-/////
-
-let xDep, bLeaf, xCh, flg = 8, 5, 8, true
-let f (i : int) (j : int) : int = i + j
-printfn "Start generating tree"
-let t' = Tree.genRandTree xDep bLeaf xCh flg f
-printfn "Finished generating tree"
-match t' with | Some t -> Tree.prettyPrint t | _ -> ()
