@@ -53,7 +53,7 @@ module Tree =
         let rec helper (currAcc : list<Node<'A>>) (currNode : Node<'A>) : option<Node<'A>> =
             match currAcc, currNode with
             | _ when f currNode -> Some currNode
-            | _, Node.Internal(v', c) -> helper ((List.tail c) @ currAcc) (List.head c)
+            | _, Node.Internal(_, c) -> helper ((List.tail c) @ currAcc) (List.head c)
             | h :: t, Node.Leaf _ -> helper t h
             | _ -> None
         helper [] node
@@ -109,7 +109,7 @@ module Tree =
             (i, j, match t with Node.Leaf v | Node.Internal(Some v, _) -> v.ToString() | _ -> "MISSING") :: s
         ([], node) ||> foldDfti f
         |> List.map (fun (s, _, t) -> String.concat "" [for i in 1 .. d * (s - 1) -> c] + t)
-        |> List.rev |> String.concat Environment.NewLine
+        |> (List.rev >> (String.concat Environment.NewLine))
         |> printfn "%s"
 
 
