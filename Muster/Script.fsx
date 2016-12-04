@@ -349,10 +349,10 @@ type TreeNode<'A> =
 
 
     static member tryFindDft (f : TreeNode<'A> -> bool) (node : TreeNode<'A>) : option<TreeNode<'A>> =
-        let rec helper (acc : list<TreeNode<'A>>) (currNode : TreeNode<'A>) : option<TreeNode<'A>> =
-            match acc, currNode with
+        let rec helper (currAcc : list<TreeNode<'A>>) (currNode : TreeNode<'A>) : option<TreeNode<'A>> =
+            match currAcc, currNode with
             | _ when f currNode -> Some currNode
-            | _, TreeNode.Internal(v', c) -> helper ((List.tail c) @ acc) (List.head c)
+            | _, TreeNode.Internal(v', c) -> helper ((List.tail c) @ currAcc) (List.head c)
             | h :: t, TreeNode.Leaf _ -> helper t h
             | _ -> None
         helper [] node
