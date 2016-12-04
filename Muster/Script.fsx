@@ -405,11 +405,11 @@ type TreeNode<'A> =
 
 
     static member prettyPrint (node : TreeNode<'A>) : unit =
-        let c = " . "
+        let c, d = " . ", 4
         let f i j (s : list<int * int * string>) t =
             (i, j, match t with TreeNode.Leaf v | TreeNode.Internal(Some v, _) -> v.ToString() | _ -> "MISSING") :: s
         ([], node) ||> TreeNode.foldDfti f
-        |> List.map (fun (s, _, t) -> String.concat c [for i in 1 .. (s - 1) -> c] + t)
+        |> List.map (fun (s, _, t) -> String.concat "" [for i in 1 .. d * (s - 1) -> c] + t)
         |> List.rev
         |> String.concat Environment.NewLine
         |> printfn "%s"
@@ -506,11 +506,11 @@ printfn "FINISHED LOADING VARIABLES"
 
 //printfn "%A" (treeSeq |> TreeNode.accumulateValDft id)
 
-printfn "%A" (
-    let f = (<) 4
-    let g = function TreeNode.Leaf v -> f v | TreeNode.Internal(v', _) -> Option.exists f v'
-    (treeSeq |> TreeNode.tryFindDft g, treeSeq |> TreeNode.tryFindBft g)
-)
+//printfn "%A" (
+//    let f = (<) 4
+//    let g = function TreeNode.Leaf v -> f v | TreeNode.Internal(v', _) -> Option.exists f v'
+//    (treeSeq |> TreeNode.tryFindDft g, treeSeq |> TreeNode.tryFindBft g)
+//)
 
 //printfn "%A" (treeSeq |> TreeNode.foldValBft (+) 0)
 
