@@ -151,4 +151,12 @@ let parse (f : string -> option<'A>) (strs : #seq<string>) : Tree.Node<'A> =
 
 /////
 
-
+let genFullTree (f : int -> int -> 'A) (dlst : list<int>) : option<Tree.Node<'A>> =
+    match dlst with
+    | [] -> None
+    | _ ->
+        dlst |> List.mapi (fun i s -> i, s) |> List.rev
+        |> (fun s -> s |> List.head |> (fun (t, u) -> [for i in 1 .. u -> Tree.Node.Leaf(f t i)]), s |> List.tail)
+        ||> List.fold (fun s t -> [])
+        |> ignore
+        None
