@@ -1,7 +1,0 @@
-C:\Users\amit-\OneDrive\Repositories\Muster\MusterLib\bin\Release\MusterLib.XML
-C:\Users\amit-\OneDrive\Repositories\Muster\MusterLib\bin\Release\MusterLib.dll
-C:\Users\amit-\OneDrive\Repositories\Muster\MusterLib\bin\Release\MusterLib.pdb
-C:\Users\amit-\OneDrive\Repositories\Muster\MusterLib\bin\Release\FSharp.Core.dll
-C:\Users\amit-\OneDrive\Repositories\Muster\MusterLib\bin\Release\FSharp.Core.xml
-C:\Users\amit-\OneDrive\Repositories\Muster\MusterLib\obj\Release\MusterLib.dll
-C:\Users\amit-\OneDrive\Repositories\Muster\MusterLib\obj\Release\MusterLib.pdb
