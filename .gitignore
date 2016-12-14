@@ -6,4 +6,8 @@ Muster/obj/Debug/*
 Muster/obj/Release/*
 Muster/bin/Debug/*
 Muster/bin/Release/*
+MusterLib/obj/Debug/*
+MusterLib/obj/Release/*
+MusterLib/bin/Debug/*
+MusterLib/bin/Release/*
 .vs/*

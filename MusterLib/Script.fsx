@@ -21,17 +21,17 @@ open MusterLib
 
 /////
 
-[@"This, is, a, ""nice, string"", yep";
-@"This, is, another, ""nice, string"", aye"]
-|> CSV.parse ',' false
-|> Array.head
-|> (fun s ->
-    printfn "%s" s.["col1"]
-    printfn "%s" s.["col2"]
-    printfn "%s" s.["col3"]
-    printfn "%s" s.["col4"]
-    printfn "%s" s.["col5"]
-)
+//[@"This, is, a, ""nice, string"", yep";
+//@"This, is, another, ""nice, string"", aye"]
+//|> CSV.parse ',' false
+//|> Array.head
+//|> (fun s ->
+//    printfn "%s" s.["col1"]
+//    printfn "%s" s.["col2"]
+//    printfn "%s" s.["col3"]
+//    printfn "%s" s.["col4"]
+//    printfn "%s" s.["col5"]
+//)
 
 /////
 
@@ -101,8 +101,8 @@ let f (i : int) (j : int) : int = i + j
 let treeGen = Tree.genRandTree xDep bLeaf xCh flg f |> Option.get
 
 
-printfn "treeSeq ="; treeSeq |> Tree.prettyPrint
-printfn "treeRnd ="; treeRnd |> Tree.prettyPrint
+//printfn "treeSeq ="; treeSeq |> Tree.prettyPrint
+//printfn "treeRnd ="; treeRnd |> Tree.prettyPrint
 printfn "treeGen ="; treeGen |> Tree.prettyPrint
 
 
@@ -138,3 +138,25 @@ printfn "FINISHED LOADING TREES"
 //    let g = function Tree.Node.Leaf v -> f v | Tree.Node.Internal(v', _) -> Option.exists f v'
 //    treeRnd |> Tree.Node.tryFindBft g
 //)
+
+/////
+
+let parse (f : string -> option<'A>) (strs : #seq<string>) : Tree.Node<'A> =
+    let lines = strs |> CSV.parse ',' false |> Seq.collect Map.toSeq |> List.ofSeq |> List.map (fun (s, t) -> int s, t)
+    let rec helper (currLines : list<int * string>) (currAnc : list<Tree.Node<'A>>) : option<Tree.Node<'A>> =
+        match currLines, currAnc with
+        | [], [s] -> Some s
+        | _ -> None
+    Tree.Node.Internal(f "", [])
+
+/////
+
+let genFullTree (f : int -> int -> 'A) (dlst : list<int>) : option<Tree.Node<'A>> =
+    match dlst with
+    | [] -> None
+    | _ ->
+        dlst |> List.mapi (fun i s -> i, s) |> List.rev
+        |> (fun s -> s |> List.head |> (fun (t, u) -> [for i in 1 .. u -> Tree.Node.Leaf(f t i)]), s |> List.tail)
+        ||> List.fold (fun s t -> [])
+        |> ignore
+        None
