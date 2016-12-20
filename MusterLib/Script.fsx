@@ -141,22 +141,54 @@ printfn "FINISHED LOADING TREES"
 
 /////
 
-let parse (f : string -> option<'A>) (strs : #seq<string>) : Tree.Node<'A> =
-    let lines = strs |> CSV.parse ',' false |> Seq.collect Map.toSeq |> List.ofSeq |> List.map (fun (s, t) -> int s, t)
-    let rec helper (currLines : list<int * string>) (currAnc : list<Tree.Node<'A>>) : option<Tree.Node<'A>> =
-        match currLines, currAnc with
-        | [], [s] -> Some s
-        | _ -> None
-    Tree.Node.Internal(f "", [])
+/////
+
+//let genFullTree (f : int -> int -> 'A) (dlst : list<int>) : option<Tree.Node<'A>> =
+//    let g i j k = ((i - 1) * k) + j
+//    match dlst with
+//    | [] -> None
+//    | _ ->
+//        ((1, 1), dlst) ||> List.scan (fun (s, t) u -> s * t, u)
+//        |> List.tail |> List.mapi (fun i (s, t) -> i + 1, s, t) |> List.rev
+//        |> (fun s ->
+//            let t, u, v = List.head s
+//            [for i in 1 .. u -> [for j in 1 .. v -> Tree.Node.Leaf(f t (g i j v))]], List.tail s
+//        ) ||> List.fold (fun s (t, u, v) ->
+////            t |> Seq.windowed s |> Seq.map (List.ofArray) |> List.ofSeq
+////            |> List.zip [for i in 1 .. v do for j in 1 .. w -> f u (((i - 1) * w) + j)]
+////            |> List.map (fun (x, y) -> Tree.Node.Internal(Some x, y))
+////            |> (fun x -> w, x)
+//            [for i in 1 .. u ->
+//                [for j in 1 .. v ->
+//                    f t (((i - 1) * v) + j)]]
+//            |> ignore
+//            []
+//        ) |> (fun s -> Tree.Node.Internal(Some(f 0 1), List.collect id s) |> Some)
+
+let genFullTree (f : int -> int -> 'A) (cd : #seq<int>) : option<Tree.Node<'A>> =
+    let g i j k = ((i - 1) * k) + j
+    if Seq.isEmpty cd then None
+    else
+        let cd' =
+            (1, cd) ||> Seq.scan (fun s t -> s * t)
+            |> Seq.mapi (fun i s -> i, s)
+            |> (Seq.tail >> Seq.rev)
+        (let s, t = cd' |> Seq.head in seq {for i in 1 .. t -> Tree.Node.Leaf(f s i)}, cd' |> Seq.tail)
+        ||> Seq.fold (fun s (t, u) ->
+            let v = (Seq.length s) / u
+            Seq.empty
+        )
+        |> ignore
+        None
 
 /////
 
-let genFullTree (f : int -> int -> 'A) (dlst : list<int>) : option<Tree.Node<'A>> =
-    match dlst with
-    | [] -> None
-    | _ ->
-        dlst |> List.mapi (fun i s -> i, s) |> List.rev
-        |> (fun s -> s |> List.head |> (fun (t, u) -> [for i in 1 .. u -> Tree.Node.Leaf(f t i)]), s |> List.tail)
-        ||> List.fold (fun s t -> [])
-        |> ignore
-        None
+((1, 1, 1), seq [2; 4; 1; 3])
+||> Seq.scan (fun (s, t, u) v -> let w = s * v in w, v, w / v)
+|> Seq.mapi (fun i s -> i, s)
+|> (Seq.tail >> Seq.rev)
+|> (fun s ->
+    let d, (n, m, p) = s |> Seq.head
+    seq {for i in 1 .. p -> seq {for j in 1 .. m -> Tree.Node.Leaf(d, ((i - 1) * m) + j)}}
+)
+// |> Seq.iter (printfn "%A")
