@@ -96,32 +96,30 @@ let treeSeq =
                         [Tree.Node.Leaf 9])])])
 
 
-let xDep, bLeaf, xCh, flg = 4, 2, 4, true
-let f (i : int) (j : int) : int = i + j
-let treeGen = Tree.genRandTree xDep bLeaf xCh flg f |> Option.get
+let treeGen =
+    let xDep, bLeaf, xCh, flg = 4, 2, 4, true
+    let f (i : int) (j : int) = i, j
+    Tree.genRandTree xDep bLeaf xCh flg f |> Option.get
 
 
 //printfn "treeSeq ="; treeSeq |> Tree.prettyPrint
 //printfn "treeRnd ="; treeRnd |> Tree.prettyPrint
-printfn "treeGen ="; treeGen |> Tree.prettyPrint
+//printfn "treeGen ="; treeGen |> Tree.prettyPrint
 
 
 printfn "FINISHED LOADING TREES"
 
 // treeSeq |> Tree.prettyPrint
 
-//printfn "%A" (
-//    (None, treeRnd)
-//    ||> Tree.foldDft (fun (s : option<Tree.Node<int>>) (t : Tree.Node<int>) ->
-//        match s with
-//        | Some _ -> s
-//        | None -> let u = Tree.Node.foldValDft (+) 0 t in if (u < 8) && (u > 2) then (Some t) else None
-//    )
-//)
+//printfn "%d" (treeSeq |> Tree.foldValDft (+) 0)
+//
+//printfn "%A" (treeSeq |> Tree.accumulateValDft id)
 
-//printfn "%d" (treeSeq |> Tree.Node.foldValDft (+) 0)
+//([], treeSeq)
+//||> Tree.foldValDfti (fun d i s t -> (d, i, t) :: s)
+//|> List.rev
+//|> List.iter (printfn "%A")
 
-//printfn "%A" (treeSeq |> Tree.Node.accumulateValDft id)
 
 //printfn "%A" (
 //    let f = (<) 4
@@ -129,9 +127,14 @@ printfn "FINISHED LOADING TREES"
 //    (treeSeq |> Tree.Node.tryFindDft g, treeSeq |> Tree.Node.tryFindBft g)
 //)
 
-//printfn "%A" (treeSeq |> Tree.Node.foldValBft (+) 0)
-
-//printfn "%A" (treeSeq |> Tree.Node.accumulateValBft id)
+//printfn "%A" (treeSeq |> Tree.foldValBft (+) 0)
+//
+//printfn "%A" (treeSeq |> Tree.accumulateValBft id)
+//
+//([], treeSeq)
+//||> Tree.foldValBfti (fun d i s t -> (d, i, t) :: s)
+//|> List.rev
+//|> List.iter (printfn "%A")
 
 //printfn "%A" (
 //    let f = (<) 4
@@ -141,22 +144,37 @@ printfn "FINISHED LOADING TREES"
 
 /////
 
-let parse (f : string -> option<'A>) (strs : #seq<string>) : Tree.Node<'A> =
-    let lines = strs |> CSV.parse ',' false |> Seq.collect Map.toSeq |> List.ofSeq |> List.map (fun (s, t) -> int s, t)
-    let rec helper (currLines : list<int * string>) (currAnc : list<Tree.Node<'A>>) : option<Tree.Node<'A>> =
-        match currLines, currAnc with
-        | [], [s] -> Some s
-        | _ -> None
-    Tree.Node.Internal(f "", [])
+let genFullTree (f : int -> int -> 'A) (cd : list<int>) : option<Tree.Node<'A>> =
+    if List.isEmpty cd then None
+    else
+        let rec g a c l = match l with [] -> List.rev a | _ -> g ((List.take c l) :: a) c (List.skip c l)
+        ((1, 1), cd) ||> List.scan (fun (s, _) t -> s * t, t) |> List.mapi (fun i s -> i, s)
+        |> (List.tail >> List.rev)
+        |> (fun s ->
+            let d, (n, m) = s |> List.head
+            ([for i in 0 .. (n / m) - 1 -> [for j in 0 .. m - 1 -> Tree.Node.Leaf(f d (i * m + j))]], s |> List.tail)
+            ||> List.fold (fun t (u, (_, v)) -> g [] v (List.mapi (fun i w -> Tree.Node.Internal(Some(f u i), w)) t))
+            |> (fun t -> Some(Tree.Node.Internal(Some(f 0 0), t |> List.collect id)))
+        )
+
+printfn "LOADED genFullTree"
 
 /////
 
-let genFullTree (f : int -> int -> 'A) (dlst : list<int>) : option<Tree.Node<'A>> =
-    match dlst with
-    | [] -> None
-    | _ ->
-        dlst |> List.mapi (fun i s -> i, s) |> List.rev
-        |> (fun s -> s |> List.head |> (fun (t, u) -> [for i in 1 .. u -> Tree.Node.Leaf(f t i)]), s |> List.tail)
-        ||> List.fold (fun s t -> [])
-        |> ignore
-        None
+((1, 1), [2; 4; 1; 3])
+||> List.scan (fun (s, _) t -> s * t, t) |> List.mapi (fun i s -> i, s)
+|> (List.tail >> List.rev)
+|> (fun s ->
+    let rec g a c l = match l with [] -> List.rev a | _ -> g ((List.take c l) :: a) c (List.skip c l)
+    let d, (n, m) = s |> List.head
+    ([for i in 0 .. (n / m) - 1 -> [for j in 0 .. m - 1 -> Tree.Node.Leaf(d, (i * m) + j)]], s |> List.tail)
+    ||> List.fold (fun t (u, (_, v)) -> g [] v (List.mapi (fun i w -> Tree.Node.Internal(Some(u, i), w)) t))
+    |> (fun t -> Some(Tree.Node.Internal(Some(0, 0), t |> List.collect id)))
+) |> Option.get |> Tree.prettyPrint
+
+/////
+
+[2; 4; 1; 3]
+|> genFullTree (fun i j -> i, j)
+|> Option.get
+|> Tree.prettyPrint

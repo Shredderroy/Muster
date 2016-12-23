@@ -26,9 +26,9 @@ module Tree =
             match currNode with
             | Node.Leaf _ -> f currDepth sibNum currAcc currNode
             | Node.Internal(_, c) ->
-                (f currDepth sibNum currAcc currNode, c |> List.zip [1 .. List.length c])
+                (f currDepth sibNum currAcc currNode, c |> List.mapi (fun i s -> i, s))
                 ||> List.fold (fun s (t, u) -> helper (currDepth + 1) t s u)
-        helper 1 1 initVal node
+        helper 0 0 initVal node
 
 
     let foldDft (f : 'B -> Node<'A> -> 'B) (initVal : 'B) (node : Node<'A>) : 'B =
@@ -69,10 +69,10 @@ module Tree =
                     currAcc
                     (ts |> List.rev
                     |> List.collect (function Node.Leaf _ -> [] | Node.Internal(_, c) -> c)
-                    |> (fun s -> s |> List.zip [1 .. List.length s]))
+                    |> List.mapi (fun i s -> i, s))
                     []
             | (h1, h1') :: t, _ -> helper currDepth (f currDepth h1 currAcc h1') t (h1' :: ts)
-        helper 1 initVal [1, node] []
+        helper 0 initVal [0, node] []
 
 
     let foldBft (f : 'B -> Node<'A> -> 'B) (initVal : 'B) (node : Node<'A>) : 'B =
@@ -106,10 +106,10 @@ module Tree =
     let prettyPrint (node : Node<'A>) : unit =
         let c, d = " . ", 2
         let f i j (s : list<int * int * string>) t =
-            (i, j, match t with Node.Leaf v | Node.Internal(Some v, _) -> v.ToString() | _ -> "MISSING") :: s
+            (i, j, match t with Node.Leaf v | Node.Internal(Some v, _) -> v.ToString() | _ -> " ") :: s
         ([], node) ||> foldDfti f
-        |> List.map (fun (s, _, t) -> String.concat "" [for i in 1 .. d * (s - 1) -> c] + t)
-        |> (List.rev >> (String.concat Environment.NewLine))
+        |> List.map (fun (s, _, t) -> String.concat "" [for i in 0 .. (d * s) - 1 -> c] + t)
+        |> (List.rev >> (String.concat System.Environment.NewLine))
         |> printfn "%s"
 
 
@@ -122,5 +122,18 @@ module Tree =
                     (if (rnd.Next() % 10 < vb) then Some(f i j) else None),
                     [for k in 1 .. (if flg then (1 + rnd.Next() % xCh) else xCh) -> helper (i + 1) k])
             | _ -> Node.Leaf(f i j)
-        if xDep > 1 then Some(helper 1 1) else None
+        if xDep >= 0 then Some(helper 0 0) else None
+
+
+    let genFullTree (f : int -> int -> 'A) (cd : list<int>) : option<Node<'A>> =
+        if List.isEmpty cd then None
+        else
+            let rec g a c l = match l with [] -> List.rev a | _ -> g ((List.take c l) :: a) c (List.skip c l)
+            ((1, 1), cd) ||> List.scan (fun (s, _) t -> s * t, t) |> List.mapi (fun i s -> i, s)
+            |> (List.tail >> List.rev)
+            |> (fun s ->
+                let d, (n, m) = s |> List.head
+                ([for i in 0 .. (n / m) - 1 -> [for j in 0 .. m - 1 -> Node.Leaf(f d (i * m + j))]], s |> List.tail)
+                ||> List.fold (fun t (u, (_, v)) -> g [] v (List.mapi (fun i w -> Node.Internal(Some(f u i), w)) t))
+                |> (fun t -> Some(Node.Internal(Some(f 0 0), t |> List.collect id))))
 
