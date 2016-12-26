@@ -9,8 +9,8 @@ module Tree =
 
     [<RequireQualifiedAccess>]
     type Node<'A> =
-        | Leaf of 'A
-        | Internal of option<'A> * list<Node<'A>>
+        | Leaf of nodeVal : 'A
+        | Internal of nodeVal : option<'A> * cnildNodes : list<Node<'A>>
 
 
     let map (f : 'A -> 'B) (node : Node<'A>) : Node<'B> =
@@ -49,28 +49,27 @@ module Tree =
         let g s t = (f t) :: s in ([], node) ||> foldValDft g |> List.rev
 
 
-    let tryFindDft (f : Node<'A> -> bool) (node : Node<'A>) : option<Node<'A>> =
-        let rec helper (currAcc : list<Node<'A>>) (currNode : Node<'A>) : option<Node<'A>> =
-            match currAcc, currNode with
-            | _ when f currNode -> Some currNode
-            | _, Node.Internal(_, c) -> helper ((List.tail c) @ currAcc) (List.head c)
-            | h :: t, Node.Leaf _ -> helper t h
+    let tryFindPathDft (f : Node<'A> -> bool) (node : Node<'A>) : option<list<int> * Node<'A>> =
+        let rec helper (acc : list<int * int * Node<'A>>) (pathAcc : list<int * int>) (currNode : Node<'A>) =
+            match acc, pathAcc, currNode with
+            | _ when f currNode -> Some(pathAcc |> List.rev |> List.map snd, currNode)
+            | _, (d', _) :: _, Node.Internal(_, c) ->
+                let d = d' + 1
+                helper ((c |> List.tail |> List.mapi (fun i s -> d, i + 1, s)) @ acc) ((d, 0) :: pathAcc) (List.head c)
+            | (d, i, n) :: t, (d', _) :: _, Node.Leaf _ -> helper t ((d, i) :: (pathAcc |> List.skip (d' - d + 1))) n
             | _ -> None
-        helper [] node
+        helper [] [0, 0] node
+
+
+    let tryFindDft (f : Node<'A> -> bool) (node : Node<'A>) = node |> tryFindPathDft f |> Option.map snd
 
 
     let foldBfti (f : int -> int -> 'B -> Node<'A> -> 'B) (initVal : 'B) (node : Node<'A>) : 'B =
+        let g = List.rev >> (List.collect (function Node.Leaf _ -> [] | Node.Internal(_, c) -> c))
         let rec helper currDepth (currAcc : 'B) (us : list<int * Node<'A>>) (ts : list<Node<'A>>) : 'B =
             match us, ts with
             | [], [] -> currAcc
-            | [], _ ->
-                helper
-                    (currDepth + 1)
-                    currAcc
-                    (ts |> List.rev
-                    |> List.collect (function Node.Leaf _ -> [] | Node.Internal(_, c) -> c)
-                    |> List.mapi (fun i s -> i, s))
-                    []
+            | [], _ -> helper (currDepth + 1) currAcc (ts |> g |> List.mapi (fun i s -> i, s)) []
             | (h1, h1') :: t, _ -> helper currDepth (f currDepth h1 currAcc h1') t (h1' :: ts)
         helper 0 initVal [0, node] []
 
@@ -106,7 +105,7 @@ module Tree =
     let prettyPrint (node : Node<'A>) : unit =
         let c, d = " . ", 2
         let f i j (s : list<int * int * string>) t =
-            (i, j, match t with Node.Leaf v | Node.Internal(Some v, _) -> v.ToString() | _ -> " ") :: s
+            (i, j, match t with Node.Leaf v | Node.Internal(Some v, _) -> v.ToString() | _ -> "NULL") :: s
         ([], node) ||> foldDfti f
         |> List.map (fun (s, _, t) -> String.concat "" [for i in 0 .. (d * s) - 1 -> c] + t)
         |> (List.rev >> (String.concat System.Environment.NewLine))

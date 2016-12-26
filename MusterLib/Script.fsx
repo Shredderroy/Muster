@@ -102,9 +102,7 @@ let treeGen =
     Tree.genRandTree xDep bLeaf xCh flg f |> Option.get
 
 
-//printfn "treeSeq ="; treeSeq |> Tree.prettyPrint
-//printfn "treeRnd ="; treeRnd |> Tree.prettyPrint
-//printfn "treeGen ="; treeGen |> Tree.prettyPrint
+let treeFull = [2; 3; 3; 2] |> Tree.genFullTree (fun d i -> (pown 2 d) + i) |> Option.get
 
 
 printfn "FINISHED LOADING TREES"
@@ -144,37 +142,93 @@ printfn "FINISHED LOADING TREES"
 
 /////
 
-let genFullTree (f : int -> int -> 'A) (cd : list<int>) : option<Tree.Node<'A>> =
-    if List.isEmpty cd then None
-    else
-        let rec g a c l = match l with [] -> List.rev a | _ -> g ((List.take c l) :: a) c (List.skip c l)
-        ((1, 1), cd) ||> List.scan (fun (s, _) t -> s * t, t) |> List.mapi (fun i s -> i, s)
-        |> (List.tail >> List.rev)
-        |> (fun s ->
-            let d, (n, m) = s |> List.head
-            ([for i in 0 .. (n / m) - 1 -> [for j in 0 .. m - 1 -> Tree.Node.Leaf(f d (i * m + j))]], s |> List.tail)
-            ||> List.fold (fun t (u, (_, v)) -> g [] v (List.mapi (fun i w -> Tree.Node.Internal(Some(f u i), w)) t))
-            |> (fun t -> Some(Tree.Node.Internal(Some(f 0 0), t |> List.collect id)))
-        )
-
-printfn "LOADED genFullTree"
-
-/////
-
-((1, 1), [2; 4; 1; 3])
-||> List.scan (fun (s, _) t -> s * t, t) |> List.mapi (fun i s -> i, s)
-|> (List.tail >> List.rev)
-|> (fun s ->
-    let rec g a c l = match l with [] -> List.rev a | _ -> g ((List.take c l) :: a) c (List.skip c l)
-    let d, (n, m) = s |> List.head
-    ([for i in 0 .. (n / m) - 1 -> [for j in 0 .. m - 1 -> Tree.Node.Leaf(d, (i * m) + j)]], s |> List.tail)
-    ||> List.fold (fun t (u, (_, v)) -> g [] v (List.mapi (fun i w -> Tree.Node.Internal(Some(u, i), w)) t))
-    |> (fun t -> Some(Tree.Node.Internal(Some(0, 0), t |> List.collect id)))
-) |> Option.get |> Tree.prettyPrint
+//let genFullTree (f : int -> int -> 'A) (cd : list<int>) : option<Tree.Node<'A>> =
+//    if List.isEmpty cd then None
+//    else
+//        let rec g a c l = match l with [] -> List.rev a | _ -> g ((List.take c l) :: a) c (List.skip c l)
+//        ((1, 1), cd) ||> List.scan (fun (s, _) t -> s * t, t) |> List.mapi (fun i s -> i, s)
+//        |> (List.tail >> List.rev)
+//        |> (fun s ->
+//            let d, (n, m) = s |> List.head
+//            ([for i in 0 .. (n / m) - 1 -> [for j in 0 .. m - 1 -> Tree.Node.Leaf(f d (i * m + j))]], s |> List.tail)
+//            ||> List.fold (fun t (u, (_, v)) -> g [] v (List.mapi (fun i w -> Tree.Node.Internal(Some(f u i), w)) t))
+//            |> (fun t -> Some(Tree.Node.Internal(Some(f 0 0), t |> List.collect id)))
+//        )
+//
+//printfn "LOADED genFullTree"
 
 /////
 
-[2; 4; 1; 3]
-|> genFullTree (fun i j -> i, j)
-|> Option.get
-|> Tree.prettyPrint
+//((1, 1), [2; 4; 1; 3])
+//||> List.scan (fun (s, _) t -> s * t, t) |> List.mapi (fun i s -> i, s)
+//|> (List.tail >> List.rev)
+//|> (fun s ->
+//    let rec g a c l = match l with [] -> List.rev a | _ -> g ((List.take c l) :: a) c (List.skip c l)
+//    let d, (n, m) = s |> List.head
+//    ([for i in 0 .. (n / m) - 1 -> [for j in 0 .. m - 1 -> Tree.Node.Leaf(d, (i * m) + j)]], s |> List.tail)
+//    ||> List.fold (fun t (u, (_, v)) -> g [] v (List.mapi (fun i w -> Tree.Node.Internal(Some(u, i), w)) t))
+//    |> (fun t -> Some(Tree.Node.Internal(Some(0, 0), t |> List.collect id)))
+//) |> Option.get |> Tree.prettyPrint
+
+/////
+
+//[2; 4; 1; 3]
+//|> genFullTree (fun i j -> i, j)
+//|> Option.get
+//|> Tree.prettyPrint
+
+/////
+
+[<RequireQualifiedAccess>]
+type Zipper<'A> =
+    | Start
+    | Internal of Tree.Node<'A> * int * Zipper<'A>
+    | End of Tree.Node<'A> * Zipper<'A>
+    static member apply
+        (node : Tree.Node<'A>)
+        (path : list<int>)
+        (mf : Tree.Node<'A> -> 'B -> Tree.Node<'A>)
+        (prms : 'B)
+        : Tree.Node<'A> =
+        let rec unzip (currNode : Tree.Node<'A>) (currZipper : Zipper<'A>) : Zipper<'A> =
+            Zipper.Start
+        let rec zip (currZipper : Zipper<'A>) : option<Tree.Node<'A>> =
+            None
+        match zip(unzip node Zipper.Start) with None -> node | Some newNode -> newNode
+
+/////
+
+//module Graph =
+//
+//
+//    type Node<'A> =
+//        | Leaf of nodeVal : 'A
+//        | Internal of nodeVal : option<'A> * parent : option<Node<'A>> * childNodes : list<Node<'A>>
+//
+//
+//    let tryFindDft (f : Node<'A> -> bool) (node : Node<'A>) : option<Node<'A>> =
+//        None
+//
+//
+//    let tryFindBft (f : Node<'A> -> bool) (node : Node<'A>) : option<Node<'A>> =
+//        None
+
+/////
+
+treeSeq |> Tree.prettyPrint
+treeFull |> Tree.prettyPrint
+
+treeFull
+|> Tree.tryFindDft ((Tree.foldValDft (+) 0) >> ((=) 31))
+|> Option.map Tree.prettyPrint
+//|> (function None -> printfn "NONE" | Some(s, t) -> printfn "%A" s; Tree.prettyPrint t)
+
+/////
+
+let lst =
+    [(-1, 0, 0);
+    (0, 1, 0); (0, 1, 1);
+    (0, 2, 0); (0, 2, 1); (1, 2, 2); (1, 2, 3);
+    (0, 3, 0); (0, 3, 1); (1, 3, 2); (1, 3, 3); (2, 3, 4); (2, 3, 5)]
+
+let rLst = lst |> List.rev
