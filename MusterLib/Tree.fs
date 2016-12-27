@@ -10,7 +10,7 @@ module Tree =
     [<RequireQualifiedAccess>]
     type Node<'A> =
         | Leaf of nodeVal : 'A
-        | Internal of nodeVal : option<'A> * cnildNodes : list<Node<'A>>
+        | Internal of nodeVal : option<'A> * childNodes : list<Node<'A>>
 
 
     type Path = list<int>
