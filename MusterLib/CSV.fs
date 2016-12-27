@@ -17,10 +17,8 @@ module CSV =
                 parseLine ((h1.Replace(@"""", "")) :: acc) acc2 t1
             | h1 :: t1, [] when h1.Contains @"""" -> parseLine acc (h1 :: acc2) t1
             | h1 :: t1, _ :: _  when h1.Contains @"""" ->
-                parseLine
-                    (((String.Join(string delim, (h1 :: acc2) |> List.rev).Replace(@"""", "")).Trim()) :: acc)
-                    []
-                    t1
+                ((((String.Join(string delim, (h1 :: acc2) |> List.rev).Replace(@"""", "")).Trim()) :: acc), [], t1)
+                |||> parseLine
             | h1 :: t1, _ :: _ -> parseLine acc (h1 :: acc2) t1
             | h1 :: t1, _ -> parseLine (h1.Trim() :: acc) acc2 t1
         if lines |> Seq.isEmpty then Array.empty
