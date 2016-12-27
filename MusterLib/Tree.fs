@@ -165,10 +165,10 @@ module Tree =
 
 
     let genFullTree (f : int -> int -> 'A) (cd : list<int>) : option<Node<'A>> =
-        if List.isEmpty cd then None
+        if List.isEmpty cd then Some(Node.Leaf(f 0 0))
         else
             let rec g a c l = match l with [] -> List.rev a | _ -> g ((List.take c l) :: a) c (List.skip c l)
-            ((1, 1), cd) ||> List.scan (fun (s, _) t -> s * t, t) |> List.mapi (fun i s -> i, s)
+            ((1, 0), cd) ||> List.scan (fun (s, _) t -> s * t, t) |> List.mapi (fun i s -> i, s)
             |> (List.tail >> List.rev)
             |> (fun s ->
                 let d, (n, m) = s |> List.head
