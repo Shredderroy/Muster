@@ -218,6 +218,8 @@ type Zipper<'A> =
 treeSeq |> Tree.prettyPrint
 treeFull |> Tree.prettyPrint
 
+treeFull |> Tree.traverse [0; 8; 8; 8; 8; 8] |> Option.map Tree.prettyPrint
+
 treeFull
 |> Tree.tryFindPathBft ((Tree.foldValDft (+) 0) >> ((=) 31))
 |> (function None -> printfn "NONE" | Some(s, t) -> printfn "%A" s; Tree.prettyPrint t)
@@ -245,3 +247,5 @@ let g' (lst : list<int * int * int>) : list<int> =
 lst |> g' |> printfn "%A"
 
 /////
+
+[1; 2] |> List.skip (-1) |> printfn "%A"
