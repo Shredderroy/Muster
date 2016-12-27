@@ -52,9 +52,9 @@ module Tree =
     let tryFindPathDft (f : Node<'A> -> bool) (node : Node<'A>) : option<list<int> * Node<'A>> =
         let rec helper (acc : list<int * int * Node<'A>>) (pathAcc : list<int * int>) (currNode : Node<'A>) =
             match acc, pathAcc, currNode with
-            | _ when f currNode -> Some(pathAcc |> List.rev |> List.map snd, currNode)
+            | _ when f currNode -> Some(pathAcc |> (List.rev >> List.tail >> List.map snd), currNode)
             | _, (d', _) :: _, Node.Internal(_, c) ->
-                let d = d' + 1
+                let d = d' + 1 in
                 helper ((c |> List.tail |> List.mapi (fun i s -> d, i + 1, s)) @ acc) ((d, 0) :: pathAcc) (List.head c)
             | (d, i, n) :: t, (d', _) :: _, Node.Leaf _ -> helper t ((d, i) :: (pathAcc |> List.skip (d' - d + 1))) n
             | _ -> None
@@ -92,12 +92,40 @@ module Tree =
         let g s t = (f t) :: s in ([], node) ||> foldValBft g |> List.rev
 
 
+    let tryFindPathBft (f : Node<'A> -> bool) (node : Node<'A>) : option<list<int> * Node<'A>> =
+        let g (lst : list<int * int * int>) : int * int =
+            let (p, d, i) = lst |> List.head
+            lst |> List.takeWhile (fun (s, t, _) -> s = p && t = d)
+            |> (List.rev >> List.head) |> (fun (_, _, s) -> p, i - s)
+        let g' (lst : list<int * int * int>) : list<int> =
+            (([], lst), [(lst |> List.head |> fun (_, s, _) -> s - 1) .. -1 .. 0])
+            ||> List.fold (fun (s, t) u ->
+                let p, i = g t in i :: s, t |> List.skipWhile (fun (_, d', i') -> i' <> p || d' <> u)
+            ) |> fst
+        let rec helper
+            (us : list<int * int * int * Node<'A>>)
+            (ts : list<int * int * int * Node<'A>>)
+            (a : list<int * int * int>)
+            : option<list<int> * Node<'A>> =
+            match us, ts with
+            | [], [] -> None
+            | [], _ ->
+                ((ts |> List.rev
+                |> List.collect (function
+                    | _, d, i, Node.Internal(_, c) -> c |> List.map (fun s -> i, d + 1, s)
+                    | _ -> []
+                )) |> List.mapi (fun j (p, d, n) -> p, d, j, n), [], a) |||> helper
+            | (p, d, i, n) :: t, _ ->
+                let a' = (p, d, i) :: a in if f n then Some(g' a', n) else helper t ((p, d, i, n) :: ts) a'
+        helper [-1, 0, 0, node] [] []
+
+
     let tryFindBft (f : Node<'A> -> bool) (node : Node<'A>) : option<Node<'A>> =
         let rec helper (us : list<Node<'A>>) (ts : list<Node<'A>>) : option<Node<'A>> =
             match us, ts with
             | [], [] -> None
             | [], _ ->
-                helper (ts |> List.rev |> List.collect (function Node.Leaf _ -> [] | Node.Internal(_, c) -> c)) []
+                helper (ts |> List.rev |> List.collect (function Node.Internal(_, c) -> c | _ -> [])) []
             | h :: t, _ -> if f h then Some h else helper t (h :: ts)
         helper [node] []
 
