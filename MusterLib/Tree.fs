@@ -148,7 +148,7 @@ module Tree =
             (i, j, match t with Node.Leaf v | Node.Internal(Some v, _) -> v.ToString() | _ -> "NULL") :: s
         ([], node) ||> foldDfti f
         |> List.map (fun (s, _, t) -> String.concat "" [for i in 0 .. (d * s) - 1 -> c] + t)
-        |> (List.rev >> (String.concat System.Environment.NewLine))
+        |> (List.rev >> (String.concat Environment.NewLine))
         |> printfn "%s"
 
 
