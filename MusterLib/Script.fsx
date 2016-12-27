@@ -219,9 +219,8 @@ treeSeq |> Tree.prettyPrint
 treeFull |> Tree.prettyPrint
 
 treeFull
-|> Tree.tryFindDft ((Tree.foldValDft (+) 0) >> ((=) 31))
-|> Option.map Tree.prettyPrint
-//|> (function None -> printfn "NONE" | Some(s, t) -> printfn "%A" s; Tree.prettyPrint t)
+|> Tree.tryFindPathBft ((Tree.foldValDft (+) 0) >> ((=) 31))
+|> (function None -> printfn "NONE" | Some(s, t) -> printfn "%A" s; Tree.prettyPrint t)
 
 /////
 
@@ -230,5 +229,19 @@ let lst =
     (0, 1, 0); (0, 1, 1);
     (0, 2, 0); (0, 2, 1); (1, 2, 2); (1, 2, 3);
     (0, 3, 0); (0, 3, 1); (1, 3, 2); (1, 3, 3); (2, 3, 4); (2, 3, 5)]
+    |> List.rev
 
-let rLst = lst |> List.rev
+let g (lst : list<int * int * int>) : int * int =
+    let (p, d, i) = lst |> List.head
+    lst |> List.takeWhile (fun (s, t, _) -> s = p && t = d)
+    |> (List.rev >> List.head) |> (fun (_, _, s) -> p, i - s)
+
+let g' (lst : list<int * int * int>) : list<int> =
+    (([], lst), [(lst |> List.head |> fun (_, s, _) -> s - 1) .. -1 .. 0])
+    ||> List.fold (fun (s, t) u ->
+        let p, i = g t in i :: s, t |> List.skipWhile (fun (_, d', i') -> i' <> p || d' <> u)
+    ) |> fst
+
+lst |> g' |> printfn "%A"
+
+/////
