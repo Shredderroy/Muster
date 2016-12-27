@@ -13,6 +13,17 @@ module Tree =
         | Internal of nodeVal : option<'A> * cnildNodes : list<Node<'A>>
 
 
+    type Path = list<int>
+
+
+    let traverse (p : Path) (node : Node<'A>) : option<Node<'A>> =
+        let f (i : int) (n : Node<'A>) : option<Node<'A>> =
+            match n with
+            | Node.Internal(_, c) when (List.length c) >= i -> Some(c |> List.skip i |> List.head)
+            | _ -> None
+        match p with [] -> Some node | _ -> (Some node, p) ||> List.fold (fun s t -> Option.bind (f t) s)
+
+
     let map (f : 'A -> 'B) (node : Node<'A>) : Node<'B> =
         let rec helper (currNode : Node<'A>) : Node<'B> =
             match currNode with
@@ -21,22 +32,22 @@ module Tree =
         helper node
 
 
-    let foldDfti (f : int -> int -> 'B -> Node<'A> -> 'B) (initVal : 'B) (node : Node<'A>) : 'B =
-        let rec helper currDepth sibNum (currAcc : 'B) (currNode : Node<'A>) : 'B =
+    let foldDfti (f : Path -> 'B -> Node<'A> -> 'B) (initVal : 'B) (node : Node<'A>) : 'B =
+        let rec helper (currPath : Path) (currAcc : 'B) (currNode : Node<'A>) : 'B =
             match currNode with
-            | Node.Leaf _ -> f currDepth sibNum currAcc currNode
+            | Node.Leaf _ -> f currPath currAcc currNode
             | Node.Internal(_, c) ->
-                (f currDepth sibNum currAcc currNode, c |> List.mapi (fun i s -> i, s))
-                ||> List.fold (fun s (t, u) -> helper (currDepth + 1) t s u)
-        helper 0 0 initVal node
+                (f currPath currAcc currNode, c |> List.mapi (fun i s -> i, s))
+                ||> List.fold (fun s (t, u) -> helper (t :: currPath) s u)
+        helper [] initVal node
 
 
     let foldDft (f : 'B -> Node<'A> -> 'B) (initVal : 'B) (node : Node<'A>) : 'B =
-        let g _ _ s t = f s t in (initVal, node) ||> foldDfti g
+        let g _ s t = f s t in (initVal, node) ||> foldDfti g
 
 
-    let foldValDfti (f : int -> int -> 'B -> 'A -> 'B) (initVal : 'B) (node : Node<'A>) : 'B =
-        let g i j s t = match t with Node.Leaf v | Node.Internal(Some v, _) -> f i j s v | _ -> s
+    let foldValDfti (f : Path -> 'B -> 'A -> 'B) (initVal : 'B) (node : Node<'A>) : 'B =
+        let g p s t = match t with Node.Leaf v | Node.Internal(Some v, _) -> f p s v | _ -> s
         (initVal, node) ||> foldDfti g
 
 
@@ -49,7 +60,7 @@ module Tree =
         let g s t = (f t) :: s in ([], node) ||> foldValDft g |> List.rev
 
 
-    let tryFindPathDft (f : Node<'A> -> bool) (node : Node<'A>) : option<list<int> * Node<'A>> =
+    let tryFindPathDft (f : Node<'A> -> bool) (node : Node<'A>) : option<Path * Node<'A>> =
         let rec helper (acc : list<int * int * Node<'A>>) (pathAcc : list<int * int>) (currNode : Node<'A>) =
             match acc, pathAcc, currNode with
             | _ when f currNode -> Some(pathAcc |> (List.rev >> List.tail >> List.map snd), currNode)
@@ -92,7 +103,7 @@ module Tree =
         let g s t = (f t) :: s in ([], node) ||> foldValBft g |> List.rev
 
 
-    let tryFindPathBft (f : Node<'A> -> bool) (node : Node<'A>) : option<list<int> * Node<'A>> =
+    let tryFindPathBft (f : Node<'A> -> bool) (node : Node<'A>) : option<Path * Node<'A>> =
         let g (lst : list<int * int * int>) : int * int =
             let (p, d, i) = lst |> List.head
             lst |> List.takeWhile (fun (s, t, _) -> s = p && t = d)
@@ -106,7 +117,7 @@ module Tree =
             (us : list<int * int * int * Node<'A>>)
             (ts : list<int * int * int * Node<'A>>)
             (a : list<int * int * int>)
-            : option<list<int> * Node<'A>> =
+            : option<Path * Node<'A>> =
             match us, ts with
             | [], [] -> None
             | [], _ ->
@@ -132,7 +143,8 @@ module Tree =
 
     let prettyPrint (node : Node<'A>) : unit =
         let c, d = " . ", 2
-        let f i j (s : list<int * int * string>) t =
+        let f p (s : list<int * int * string>) t =
+            let i, j = match p with [] -> 0, 0 | _ -> List.length p, List.head p
             (i, j, match t with Node.Leaf v | Node.Internal(Some v, _) -> v.ToString() | _ -> "NULL") :: s
         ([], node) ||> foldDfti f
         |> List.map (fun (s, _, t) -> String.concat "" [for i in 0 .. (d * s) - 1 -> c] + t)
