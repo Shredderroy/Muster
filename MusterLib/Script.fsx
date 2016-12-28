@@ -103,6 +103,13 @@ treeFull
 /////
 
 printfn "STARTED"
-let treeFull2 = [for i in 1 .. 21 -> 2] |> Tree.genFullTree (fun i s -> i, s) |> Option.get
+#time
+let treeFull2 = [for i in 1 .. 23 -> 2] |> Tree.genFullTree (fun i s -> i, s) |> Option.get
+#time
 printfn "DONE"
-treeFull2 |> Tree.traverse [for i in 1 .. 18 -> 0] |> Option.get |> Tree.prettyPrint
+
+treeFull2 |> Tree.traverse [for i in 1 .. 20 -> 0] |> Option.get |> Tree.prettyPrint
+
+#time
+treeFull2 |> Tree.foldValDft (fun s (t, u)-> s + (int64 t) + (int64 u)) (int64 0) |> printfn "%d"
+#time
