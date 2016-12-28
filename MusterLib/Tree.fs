@@ -24,12 +24,15 @@ module Tree =
         match p with [] -> Some node | _ -> (Some node, p) ||> List.fold (fun s t -> Option.bind (f t) s)
 
 
-    let map (f : 'A -> 'B) (node : Node<'A>) : Node<'B> =
-        let rec helper (currNode : Node<'A>) : Node<'B> =
+    let mapi (f : Path -> 'A -> 'B) (node : Node<'A>) : Node<'B> =
+        let rec helper (p : Path) (currNode : Node<'A>) : Node<'B> =
             match currNode with
-            | Node.Leaf v -> Node.Leaf(f v)
-            | Node.Internal(v', c) -> Node.Internal(Option.map f v', c |> List.map helper)
-        helper node
+            | Node.Leaf v -> Node.Leaf(f p v)
+            | Node.Internal(v', c) -> Node.Internal(Option.map (f p) v', List.mapi (fun i s -> helper (i :: p) s) c)
+        helper [] node
+
+
+    let map (f : 'A -> 'B) (node : Node<'A>) : Node<'B> = let g _ s = f s in node |> mapi g
 
 
     let foldDfti (f : Path -> 'B -> Node<'A> -> 'B) (initVal : 'B) (node : Node<'A>) : 'B =
