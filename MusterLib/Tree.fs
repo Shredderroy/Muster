@@ -116,11 +116,7 @@ module Tree =
             ||> List.fold (fun (s, t) u ->
                 let p, i = g t in i :: s, t |> List.skipWhile (fun (_, d', i') -> i' <> p || d' <> u)
             ) |> fst
-        let rec helper
-            (us : list<int * int * int * Node<'A>>)
-            (ts : list<int * int * int * Node<'A>>)
-            (a : list<int * int * int>)
-            : option<Path * Node<'A>> =
+        let rec helper us ts acc : option<Path * Node<'A>> =
             match us, ts with
             | [], [] -> None
             | [], _ ->
@@ -128,9 +124,9 @@ module Tree =
                 |> List.collect (function
                     | _, d, i, Node.Internal(_, c) -> c |> List.map (fun s -> i, d + 1, s)
                     | _ -> []
-                )) |> List.mapi (fun j (p, d, n) -> p, d, j, n), [], a) |||> helper
+                )) |> List.mapi (fun j (p, d, n) -> p, d, j, n), [], acc) |||> helper
             | (p, d, i, n) :: t, _ ->
-                let a' = (p, d, i) :: a in if f n then Some(g' a', n) else helper t ((p, d, i, n) :: ts) a'
+                let acc' = (p, d, i) :: acc in if f n then Some(g' acc', n) else helper t ((p, d, i, n) :: ts) acc'
         helper [-1, 0, 0, node] [] []
 
 
@@ -167,8 +163,8 @@ module Tree =
         if xDep >= 0 then Some(helper 0 0) else None
 
 
-    let genFullTree (f : int -> int -> 'A) (cd : list<int>) : option<Node<'A>> =
-        if List.isEmpty cd then Some(Node.Leaf(f 0 0))
+    let genFullTree (f : int -> int -> 'A) (cd : list<int>) : Node<'A> =
+        if List.isEmpty cd then Node.Leaf(f 0 0)
         else
             let rec g a c l = match l with [] -> List.rev a | _ -> g ((List.take c l) :: a) c (List.skip c l)
             ((1, 0), cd) ||> List.scan (fun (s, _) t -> s * t, t) |> List.mapi (fun i s -> i, s)
@@ -177,5 +173,5 @@ module Tree =
                 let d, (n, m) = s |> List.head
                 ([for i in 0 .. (n / m) - 1 -> [for j in 0 .. m - 1 -> Node.Leaf(f d (i * m + j))]], s |> List.tail)
                 ||> List.fold (fun t (u, (_, v)) -> g [] v (List.mapi (fun i w -> Node.Internal(Some(f u i), w)) t))
-                |> (fun t -> Some(Node.Internal(Some(f 0 0), t |> List.collect id))))
+                |> (fun t -> Node.Internal(Some(f 0 0), t |> List.collect id)))
 
