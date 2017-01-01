@@ -134,8 +134,7 @@ module Tree =
         let rec helper (us : list<Node<'A>>) (ts : list<Node<'A>>) : option<Node<'A>> =
             match us, ts with
             | [], [] -> None
-            | [], _ ->
-                helper (ts |> List.rev |> List.collect (function Node.Internal(_, c) -> c | _ -> [])) []
+            | [], _ -> helper (ts |> List.rev |> List.collect (function Node.Internal(_, c) -> c | _ -> [])) []
             | h :: t, _ -> if f h then Some h else helper t (h :: ts)
         helper [node] []
 
