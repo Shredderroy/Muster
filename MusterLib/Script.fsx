@@ -48,7 +48,7 @@ let treeGen =
     Tree.genRandTree xDep bLeaf xCh flg f |> Option.get
 
 
-let treeFull = [2; 3; 3; 2] |> Tree.genFullTree (fun d i -> (pown 2 d) + i) |> Option.get
+let treeFull = [2; 3; 3; 2] |> Tree.genFullTree (fun d i -> (pown 2 d) + i)
 
 
 printfn "FINISHED LOADING TREES"
