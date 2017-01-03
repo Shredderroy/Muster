@@ -187,8 +187,7 @@ module Tree =
             |> Option.bind (fun u ->
                 match t with
                 | Node.Internal(v', c) -> Some(v', List.take s c, u, List.skip (s + 1) c)
-                | _ -> None
-            )
+                | _ -> None)
         let unzip () : option<Zipper<'A> * Node<'A>> =
             (Some(Zipper.Start, node), path)
             ||> List.fold (fun s' t ->
@@ -207,7 +206,7 @@ module Tree =
             match n with
             | Node.Internal(v', c) when (List.length c) > i ->
                 let s = let t, u = List.splitAt i c in t @ (List.tail u)
-                match s, v' with | h :: [], Some v -> Node.Leaf v | h :: _, _ -> Node.Internal(v', s) | _ -> n
+                match s, v' with [], Some v -> Node.Leaf v | h :: _, _ -> Node.Internal(v', s) | _ -> n
             | _ -> n
         match path with
         | [] -> None
