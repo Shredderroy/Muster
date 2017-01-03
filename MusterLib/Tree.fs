@@ -181,7 +181,7 @@ module Tree =
                 |> (fun t -> Node.Internal(Some(f 0 0), t |> List.collect id)))
 
 
-    let modify (path : Path) (mf : Node<'A> -> 'B -> Node<'A>) (prms : 'B) (node : Node<'A>) =
+    let modify (path : Path) (mf : Node<'A> -> 'B -> Node<'A>) (prms : 'B) (node : Node<'A>) : option<Node<'A>> =
         let f (s : int) (t : Node<'A>) =
             t |> traverse [s]
             |> Option.bind (fun u ->
@@ -200,4 +200,16 @@ module Tree =
             | Zipper.Internal(s, t, u, v) -> (v, Node.Internal(s, t @ [currNode] @ u)) |> zip
             | Zipper.Start -> currNode
         () |> unzip |> Option.map zip
+
+
+    let removeAt (path : Path) (node : Node<'A>) : option<Node<'A>> =
+        let mf (n : Node<'A>) (i : int) : Node<'A> =
+            match n with
+            | Node.Internal(v', c) when (List.length c) > i ->
+                let s = let t, u = List.splitAt i c in t @ (List.tail u)
+                match s, v' with | h :: [], Some v -> Node.Leaf v | h :: _, _ -> Node.Internal(v', s) | _ -> n
+            | _ -> n
+        match path with
+        | [] -> None
+        | _ -> let s, t = (let u = List.rev path in List.head u, u |> List.tail |> List.rev) in modify t mf s node
 
