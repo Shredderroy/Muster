@@ -29,16 +29,13 @@ printfn "FINISHED LOADING TREES"
 
 treeFull |> prettyPrint
 
-treeFull |> traverse [0; 2] |> Option.map prettyPrint
+// treeFull |> traverse [0; 2] |> Option.map prettyPrint
+
+treeFull |> removeAt [0; 2] |> Option.map prettyPrint
 
 /////
 
-let t2 =
-    treeFull
-    |> modify
-        [0; 1]
-        (fun _ _ -> Node.Leaf (-1))
-        0
+let t2 = treeFull |> modify [0; 1] (fun _ _ -> Node.Leaf (-1)) 0
 
 t2 |> Option.map prettyPrint
 
