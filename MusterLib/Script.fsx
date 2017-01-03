@@ -5,7 +5,7 @@
 #load "CSV.fs"
 #load "Tree.fs"
 
-open MusterLib
+open MusterLib.Tree
 
 /////
 
@@ -23,54 +23,24 @@ open MusterLib
 
 /////
 
-let treeSeq =
-    Tree.Node.Internal(
-        Some 0, [
-            Tree.Node.Internal(
-                Some 1, [
-                    Tree.Node.Leaf 5;
-                    Tree.Node.Internal(
-                        Some 3,
-                        [Tree.Node.Leaf 4])]);
-            Tree.Node.Internal(
-                Some 5, [
-                    Tree.Node.Internal(
-                        Some 6, [
-                            Tree.Node.Leaf 7]);
-                    Tree.Node.Internal(
-                        Some 8,
-                        [Tree.Node.Leaf 9])])])
-
-
-let treeGen =
-    let xDep, bLeaf, xCh, flg = 4, 2, 4, true
-    let f (i : int) (j : int) = i, j
-    Tree.genRandTree xDep bLeaf xCh flg f |> Option.get
-
-
-let treeFull = [2; 3; 3; 2] |> Tree.genFullTree (fun d i -> (pown 2 d) + i)
-
+let treeFull = [2; 3; 3; 2] |> genFullTree (fun d i -> (pown 2 d) + i)
 
 printfn "FINISHED LOADING TREES"
 
+treeFull |> prettyPrint
+
+treeFull |> traverse [0; 2] |> Option.map prettyPrint
+
 /////
 
-[<RequireQualifiedAccess>]
-type Zipper<'A> =
-    | Start
-    | Internal of Tree.Node<'A> * int * Zipper<'A>
-    | End of Tree.Node<'A> * Zipper<'A>
-    static member apply
-        (node : Tree.Node<'A>)
-        (path : Tree.Path)
-        (mf : Tree.Node<'A> -> 'B -> Tree.Node<'A>)
-        (prms : 'B)
-        : Tree.Node<'A> =
-        let rec unzip (currNode : Tree.Node<'A>) (currZipper : Zipper<'A>) : Zipper<'A> =
-            Zipper.Start
-        let rec zip (currZipper : Zipper<'A>) : option<Tree.Node<'A>> =
-            None
-        match zip(unzip node Zipper.Start) with None -> node | Some newNode -> newNode
+let t2 =
+    treeFull
+    |> modify
+        [0; 1]
+        (fun _ _ -> Node.Leaf (-1))
+        0
+
+t2 |> Option.map prettyPrint
 
 /////
 
@@ -91,25 +61,20 @@ type Zipper<'A> =
 
 /////
 
-treeSeq |> Tree.prettyPrint
-treeFull |> Tree.prettyPrint
-
-treeFull |> Tree.traverse [0; 8; 8; 8; 8; 8] |> Option.map Tree.prettyPrint
-
 treeFull
-|> Tree.tryFindPathBft ((Tree.foldValDft (+) 0) >> ((=) 31))
-|> (function None -> printfn "NONE" | Some(s, t) -> printfn "%A" s; Tree.prettyPrint t)
+|> tryFindPathBft ((foldValDft (+) 0) >> ((=) 31))
+|> (function None -> printfn "NONE" | Some(s, t) -> printfn "%A" s; prettyPrint t)
 
 /////
 
-printfn "STARTED"
-#time
-let treeFull2 = [for i in 1 .. 23 -> 2] |> Tree.genFullTree (fun i s -> i, s) |> Option.get
-#time
-printfn "DONE"
-
-treeFull2 |> Tree.traverse [for i in 1 .. 20 -> 0] |> Option.get |> Tree.prettyPrint
-
-#time
-treeFull2 |> Tree.foldValDft (fun s (t, u)-> s + (int64 t) + (int64 u)) (int64 0) |> printfn "%d"
-#time
+//printfn "STARTED"
+//#time
+//let treeFull2 = [for i in 1 .. 23 -> 2] |> genFullTree (fun i s -> i, s)
+//#time
+//printfn "DONE"
+//
+//treeFull2 |> traverse [for i in 1 .. 20 -> 0] |> Option.get |> prettyPrint
+//
+//#time
+//treeFull2 |> foldValDft (fun s (t, u)-> s + (int64 t) + (int64 u)) (int64 0) |> printfn "%d"
+//#time

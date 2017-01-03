@@ -16,10 +16,16 @@ module Tree =
     type Path = list<int>
 
 
+    [<RequireQualifiedAccess>]
+    type Zipper<'A> =
+        | Start
+        | Internal of option<'A> * list<Node<'A>> * list<Node<'A>> * Zipper<'A>
+
+
     let traverse (p : Path) (node : Node<'A>) : option<Node<'A>> =
         let f (i : int) (n : Node<'A>) : option<Node<'A>> =
             match n with
-            | Node.Internal(_, c) when (List.length c) >= i -> Some(c |> List.skip i |> List.head)
+            | Node.Internal(_, c) when (List.length c) > i -> Some(c |> List.skip i |> List.head)
             | _ -> None
         match p with [] -> Some node | _ -> (Some node, p) ||> List.fold (fun s t -> Option.bind (f t) s)
 
@@ -173,4 +179,25 @@ module Tree =
                 ([for i in 0 .. (n / m) - 1 -> [for j in 0 .. m - 1 -> Node.Leaf(f d (i * m + j))]], s |> List.tail)
                 ||> List.fold (fun t (u, (_, v)) -> g [] v (List.mapi (fun i w -> Node.Internal(Some(f u i), w)) t))
                 |> (fun t -> Node.Internal(Some(f 0 0), t |> List.collect id)))
+
+
+    let modify (path : Path) (mf : Node<'A> -> 'B -> Node<'A>) (prms : 'B) (node : Node<'A>) =
+        let f (s : int) (t : Node<'A>) =
+            t |> traverse [s]
+            |> Option.bind (fun u ->
+                match t with
+                | Node.Internal(v', c) -> Some(v', List.take s c, u, List.skip (s + 1) c)
+                | _ -> None
+            )
+        let unzip () : option<Zipper<'A> * Node<'A>> =
+            (Some(Zipper.Start, node), path)
+            ||> List.fold (fun s' t ->
+                s' |> Option.bind (fun (s1, s2) ->
+                        s2 |> f t |> Option.map (fun (u', v, w, x) ->  Zipper.Internal(u', v, x, s1), w))
+            ) |> Option.map (fun (s, t) -> s, mf t prms)
+        let rec zip (currZipper : Zipper<'A>, currNode : Node<'A>) : Node<'A> =
+            match currZipper with
+            | Zipper.Internal(s, t, u, v) -> (v, Node.Internal(s, t @ [currNode] @ u)) |> zip
+            | Zipper.Start -> currNode
+        () |> unzip |> Option.map zip
 
