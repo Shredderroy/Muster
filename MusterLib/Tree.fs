@@ -11,8 +11,8 @@ module Tree =
     type Node<'A> =
         | Leaf of nodeVal : 'A
         | Internal of nodeVal : 'A * childNodes : list<Node<'A>>
-        static member getVal (node : Node<'A>) = match node with  Node.Leaf v -> v | Node.Internal(v, _) -> v
-        static member getChildren (node : Node<'A>) = match node with Node.Internal(_, c) -> c | _ -> []
+        static member getNodeVal (node : Node<'A>) = match node with  Node.Leaf v -> v | Node.Internal(v, _) -> v
+        static member getChildNodes (node : Node<'A>) = match node with Node.Internal(_, c) -> c | _ -> []
 
 
     type Path = list<int>
@@ -58,12 +58,12 @@ module Tree =
 
 
     let foldValDfti (f : Path -> 'B -> 'A -> 'B) (initVal : 'B) (node : Node<'A>) : 'B =
-        let g p s t = f p s (t |> Node.getVal)
+        let g p s t = f p s (t |> Node.getNodeVal)
         (initVal, node) ||> foldDfti g
 
 
     let foldValDft (f : 'B -> 'A -> 'B) (initVal : 'B) (node : Node<'A>) : 'B =
-        let g s t = f s (t |> Node.getVal)
+        let g s t = f s (t |> Node.getNodeVal)
         (initVal, node) ||> foldDft g
 
 
@@ -87,7 +87,7 @@ module Tree =
 
 
     let foldBfti (f : int -> int -> 'B -> Node<'A> -> 'B) (initVal : 'B) (node : Node<'A>) : 'B =
-        let g = List.rev >> (List.collect Node.getChildren)
+        let g = List.rev >> (List.collect Node.getChildNodes)
         let rec helper currDepth (currAcc : 'B) (us : list<int * Node<'A>>) (ts : list<Node<'A>>) : 'B =
             match us, ts with
             | [], [] -> currAcc
@@ -101,12 +101,12 @@ module Tree =
 
 
     let foldValBfti (f : int -> int -> 'B -> 'A -> 'B) (initVal : 'B) (node : Node<'A>) : 'B =
-        let g i j s t = f i j s (t |> Node.getVal)
+        let g i j s t = f i j s (t |> Node.getNodeVal)
         (initVal, node) ||> foldBfti g
 
 
     let foldValBft (f : 'B -> 'A -> 'B) (initVal : 'B) (node : Node<'A>) : 'B =
-        let g s t = f s (t |> Node.getVal)
+        let g s t = f s (t |> Node.getNodeVal)
         (initVal, node) ||> foldBft g
 
 
@@ -143,7 +143,7 @@ module Tree =
         let rec helper (us : list<Node<'A>>) (ts : list<Node<'A>>) : option<Node<'A>> =
             match us, ts with
             | [], [] -> None
-            | [], _ -> helper (ts |> List.rev |> List.collect Node.getChildren) []
+            | [], _ -> helper (ts |> List.rev |> List.collect Node.getChildNodes) []
             | h :: t, _ -> if f h then Some h else helper t (h :: ts)
         helper [node] []
 
@@ -152,7 +152,7 @@ module Tree =
         let c, d = " . ", 2
         let f p (s : list<int * int * string>) t =
             let i, j = match p with [] -> 0, 0 | _ -> List.length p, List.head p
-            (i, j, (t |> Node.getVal).ToString()) :: s
+            (i, j, (t |> Node.getNodeVal).ToString()) :: s
         ([], node) ||> foldDfti f
         |> List.map (fun (s, _, t) -> String.concat "" [for i in 0 .. (d * s) - 1 -> c] + t)
         |> (List.rev >> (String.concat Environment.NewLine))
