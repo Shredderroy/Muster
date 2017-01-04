@@ -31,7 +31,7 @@ treeFull |> prettyPrint
 
 // treeFull |> traverse [0; 2] |> Option.map prettyPrint
 
-treeFull |> removeAt [0; 1; 2] |> Option.map prettyPrint
+treeFull |> removeChild [0; 1; 2] |> Option.map prettyPrint
 
 /////
 

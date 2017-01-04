@@ -10,7 +10,9 @@ module Tree =
     [<RequireQualifiedAccess>]
     type Node<'A> =
         | Leaf of nodeVal : 'A
-        | Internal of nodeVal : option<'A> * childNodes : list<Node<'A>>
+        | Internal of nodeVal : 'A * childNodes : list<Node<'A>>
+        static member getVal (node : Node<'A>) = match node with  Node.Leaf v -> v | Node.Internal(v, _) -> v
+        static member getChildren (node : Node<'A>) = match node with Node.Internal(_, c) -> c | _ -> []
 
 
     type Path = list<int>
@@ -19,7 +21,7 @@ module Tree =
     [<RequireQualifiedAccess>]
     type Zipper<'A> =
         | Start
-        | Internal of option<'A> * list<Node<'A>> * list<Node<'A>> * Zipper<'A>
+        | Internal of 'A * list<Node<'A>> * list<Node<'A>> * Zipper<'A>
 
 
     let traverse (p : Path) (node : Node<'A>) : option<Node<'A>> =
@@ -34,7 +36,7 @@ module Tree =
         let rec helper (p : Path) (currNode : Node<'A>) : Node<'B> =
             match currNode with
             | Node.Leaf v -> Node.Leaf(f p v)
-            | Node.Internal(v', c) -> Node.Internal(Option.map (f p) v', List.mapi (fun i s -> helper (i :: p) s) c)
+            | Node.Internal(v, c) -> Node.Internal(f p v, List.mapi (fun i s -> helper (i :: p) s) c)
         helper [] node
 
 
@@ -56,12 +58,12 @@ module Tree =
 
 
     let foldValDfti (f : Path -> 'B -> 'A -> 'B) (initVal : 'B) (node : Node<'A>) : 'B =
-        let g p s t = match t with Node.Leaf v | Node.Internal(Some v, _) -> f p s v | _ -> s
+        let g p s t = f p s (t |> Node.getVal)
         (initVal, node) ||> foldDfti g
 
 
     let foldValDft (f : 'B -> 'A -> 'B) (initVal : 'B) (node : Node<'A>) : 'B =
-        let g s t = match t with Node.Leaf v | Node.Internal(Some v, _) -> f s v | _ -> s
+        let g s t = f s (t |> Node.getVal)
         (initVal, node) ||> foldDft g
 
 
@@ -85,7 +87,7 @@ module Tree =
 
 
     let foldBfti (f : int -> int -> 'B -> Node<'A> -> 'B) (initVal : 'B) (node : Node<'A>) : 'B =
-        let g = List.rev >> (List.collect (function Node.Leaf _ -> [] | Node.Internal(_, c) -> c))
+        let g = List.rev >> (List.collect Node.getChildren)
         let rec helper currDepth (currAcc : 'B) (us : list<int * Node<'A>>) (ts : list<Node<'A>>) : 'B =
             match us, ts with
             | [], [] -> currAcc
@@ -99,12 +101,12 @@ module Tree =
 
 
     let foldValBfti (f : int -> int -> 'B -> 'A -> 'B) (initVal : 'B) (node : Node<'A>) : 'B =
-        let g i j s t = match t with Node.Leaf v | Node.Internal(Some v, _) -> f i j s v | _ -> s
+        let g i j s t = f i j s (t |> Node.getVal)
         (initVal, node) ||> foldBfti g
 
 
     let foldValBft (f : 'B -> 'A -> 'B) (initVal : 'B) (node : Node<'A>) : 'B =
-        let g s t = match t with Node.Leaf v | Node.Internal(Some v, _) -> f s v | _ -> s
+        let g s t = f s (t |> Node.getVal)
         (initVal, node) ||> foldBft g
 
 
@@ -132,7 +134,8 @@ module Tree =
                     | _ -> []
                 )) |> List.mapi (fun j (p, d, n) -> p, d, j, n), [], acc) |||> helper
             | (p, d, i, n) :: t, _ ->
-                let acc' = (p, d, i) :: acc in if f n then Some(g' acc', n) else helper t ((p, d, i, n) :: ts) acc'
+                let acc' = (p, d, i) :: acc
+                if f n then Some(g' acc', n) else helper t ((p, d, i, n) :: ts) acc'
         helper [-1, 0, 0, node] [] []
 
 
@@ -140,7 +143,7 @@ module Tree =
         let rec helper (us : list<Node<'A>>) (ts : list<Node<'A>>) : option<Node<'A>> =
             match us, ts with
             | [], [] -> None
-            | [], _ -> helper (ts |> List.rev |> List.collect (function Node.Internal(_, c) -> c | _ -> [])) []
+            | [], _ -> helper (ts |> List.rev |> List.collect Node.getChildren) []
             | h :: t, _ -> if f h then Some h else helper t (h :: ts)
         helper [node] []
 
@@ -149,7 +152,7 @@ module Tree =
         let c, d = " . ", 2
         let f p (s : list<int * int * string>) t =
             let i, j = match p with [] -> 0, 0 | _ -> List.length p, List.head p
-            (i, j, match t with Node.Leaf v | Node.Internal(Some v, _) -> v.ToString() | _ -> "NULL") :: s
+            (i, j, (t |> Node.getVal).ToString()) :: s
         ([], node) ||> foldDfti f
         |> List.map (fun (s, _, t) -> String.concat "" [for i in 0 .. (d * s) - 1 -> c] + t)
         |> (List.rev >> (String.concat Environment.NewLine))
@@ -157,12 +160,12 @@ module Tree =
 
 
     let genRandTree (xDep : int) (bLeaf : int) (xCh : int) (flg : bool) (f : int -> int -> 'A) : option<Node<'A>> =
-        let rnd, vb = Random(), 8
+        let rnd = Random()
         let rec helper (i : int) (j : int) : Node<'A> =
             match (i < xDep), ((rnd.Next() % 10) < bLeaf) with
             | true, false ->
                 Node.Internal(
-                    (if (rnd.Next() % 10 < vb) then Some(f i j) else None),
+                    f i j,
                     [for k in 1 .. (if flg then (1 + rnd.Next() % xCh) else xCh) -> helper (i + 1) k])
             | _ -> Node.Leaf(f i j)
         if xDep >= 0 then Some(helper 0 0) else None
@@ -177,22 +180,20 @@ module Tree =
             |> (fun s ->
                 let d, (n, m) = s |> List.head
                 ([for i in 0 .. (n / m) - 1 -> [for j in 0 .. m - 1 -> Node.Leaf(f d (i * m + j))]], s |> List.tail)
-                ||> List.fold (fun t (u, (_, v)) -> g [] v (List.mapi (fun i w -> Node.Internal(Some(f u i), w)) t))
-                |> (fun t -> Node.Internal(Some(f 0 0), t |> List.collect id)))
+                ||> List.fold (fun t (u, (_, v)) -> g [] v (List.mapi (fun i w -> Node.Internal(f u i, w)) t))
+                |> (fun t -> Node.Internal(f 0 0, t |> List.collect id)))
 
 
     let modify (path : Path) (mf : Node<'A> -> 'B -> Node<'A>) (prms : 'B) (node : Node<'A>) : option<Node<'A>> =
         let f (s : int) (t : Node<'A>) =
             t |> traverse [s]
             |> Option.bind (fun u ->
-                match t with
-                | Node.Internal(v', c) -> Some(v', List.take s c, u, List.skip (s + 1) c)
-                | _ -> None)
+                match t with Node.Internal(v, c) -> Some(v, List.take s c, u, List.skip (s + 1) c) | _ -> None)
         let unzip () : option<Zipper<'A> * Node<'A>> =
             (Some(Zipper.Start, node), path)
             ||> List.fold (fun s' t ->
                 s' |> Option.bind (fun (s1, s2) ->
-                        s2 |> f t |> Option.map (fun (u', v, w, x) ->  Zipper.Internal(u', v, x, s1), w))
+                        s2 |> f t |> Option.map (fun (u, v, w, x) -> Zipper.Internal(u, v, x, s1), w))
             ) |> Option.map (fun (s, t) -> s, mf t prms)
         let rec zip (currZipper : Zipper<'A>, currNode : Node<'A>) : Node<'A> =
             match currZipper with
@@ -201,14 +202,22 @@ module Tree =
         () |> unzip |> Option.map zip
 
 
-    let removeAt (path : Path) (node : Node<'A>) : option<Node<'A>> =
+    let removeChild (path : Path) (node : Node<'A>) : option<Node<'A>> =
         let mf (n : Node<'A>) (i : int) : Node<'A> =
             match n with
-            | Node.Internal(v', c) when (List.length c) > i ->
+            | Node.Internal(v, c) when (List.length c) > i ->
                 let s = let t, u = List.splitAt i c in t @ (List.tail u)
-                match s, v' with [], Some v -> Node.Leaf v | h :: _, _ -> Node.Internal(v', s) | _ -> n
+                match s with [] -> Node.Leaf v | h :: _ -> Node.Internal(v, s)
             | _ -> n
         match path with
         | [] -> None
         | _ -> let s, t = (let u = List.rev path in List.head u, u |> List.tail |> List.rev) in modify t mf s node
+
+
+    let appendChild (path : Path) (newNode : Node<'A>) (node : Node<'A>) : option<Node<'A>> =
+        let mf (m : Node<'A>) (n : Node<'A>) : Node<'A> =
+            match m with
+            | Node.Internal(v, c) -> Node.Internal(v, c @ [n])
+            | Node.Leaf v -> Node.Internal(v, [n])
+        modify path mf newNode node
 
