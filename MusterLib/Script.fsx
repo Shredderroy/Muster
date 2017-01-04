@@ -31,7 +31,10 @@ treeFull |> prettyPrint
 
 // treeFull |> traverse [0; 2] |> Option.map prettyPrint
 
-treeFull |> removeChild [0; 1; 2] |> Option.map prettyPrint
+treeFull
+|> removeChild [0; 1]
+|> Option.bind (appendChild [0] (Node.Leaf (-1)))
+|> Option.map prettyPrint
 
 /////
 
