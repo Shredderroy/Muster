@@ -156,7 +156,8 @@ module Program =
                 ANN.defaultDOutputActivation
                 learningParam
         let trainingSet = ANN.importTrainingSetFromFile
-                            (@"..\..\..\Muster\SampleData\ANN\" + fnName + ".txt")
+                            ([|__SOURCE_DIRECTORY__; ".."; "Muster"; "SampleData"; "ANN"; fnName + ".txt"|]
+                            |> Path.Combine)
                             inputDim
                             outputDim
         let trainingMode = ANN.TrainingMode.Single
@@ -344,7 +345,9 @@ module Program =
 
 
     let tf16 () : unit =
-        let filePath = @"..\..\..\Muster\SampleData\DecisionTree\SampleID3Data.txt"
+        let filePath =
+            [|__SOURCE_DIRECTORY__; ".."; "Muster"; "SampleData"; "DecisionTree"; "SampleID3Data.txt"|]
+            |> Path.Combine
         let impurityFn = DecisionTree.entropy
         let c45Tree = DecisionTree.buildC45FromFile filePath impurityFn None
         let inputMap =
@@ -366,7 +369,9 @@ module Program =
 
 
     let tf17 () : unit =
-        let filePath = @"..\..\..\Muster\SampleData\DecisionTree\SampleC45Data.txt"
+        let filePath =
+            [|__SOURCE_DIRECTORY__; ".."; "Muster"; "SampleData"; "DecisionTree"; "SampleC45Data.txt"|]
+            |> Path.Combine
         let impurityFn = DecisionTree.entropy
         let splitStopCriterion = DecisionTree.defSplitStopCriterion
         let c45Tree = DecisionTree.buildC45FromFile filePath impurityFn (Some splitStopCriterion)
@@ -379,7 +384,9 @@ module Program =
 
 
     let tf18 () : unit =
-        let filePath = @"..\..\..\Muster\SampleData\DecisionTree\SampleC45Data.txt"
+        let filePath =
+            [|__SOURCE_DIRECTORY__; ".."; "Muster"; "SampleData"; "DecisionTree"; "SampleC45Data.txt"|]
+            |> Path.Combine
         let numOfTrees = 4
         let forest = RandomForest.buildDefaultFromFile filePath numOfTrees
         printfn "forest = %A" forest
@@ -392,7 +399,9 @@ module Program =
 
 
     let tf19 () : unit =
-        let filePath = @"..\..\..\Muster\SampleData\DecisionTree\SampleC45Data_2.txt"
+        let filePath =
+            [|__SOURCE_DIRECTORY__; ".."; "Muster"; "SampleData"; "DecisionTree"; "SampleC45Data_2.txt"|]
+            |> Path.Combine
         let tbl = DecisionTree.parseDataTableFromFile filePath
         let impurityFn = DecisionTree.stdDevError
         let splitStopCriterion = DecisionTree.defSplitStopCriterion
