@@ -15,7 +15,7 @@ module PCA =
     let useNativeMKLProvider () =
         Control.NativeProviderPath <- (
             Path.Combine [|
-                __SOURCE_DIRECTORY__; ".."; "packages"; "MathNet.Numerics.MKL.Win-x64.2.1.0"; "build"; "x64"
+                __SOURCE_DIRECTORY__; ".."; "packages"; "MathNet.Numerics.MKL.Win-x64.2.2.0"; "build"; "x64"
             |])
         Control.UseNativeMKL()
 

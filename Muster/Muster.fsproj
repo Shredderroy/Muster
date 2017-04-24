@@ -9,12 +9,13 @@
     <OutputType>Library</OutputType>
     <RootNamespace>Muster</RootNamespace>
     <AssemblyName>Muster</AssemblyName>
-    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
     <TargetFSharpCoreVersion>4.4.0.0</TargetFSharpCoreVersion>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Name>Muster</Name>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -34,6 +35,9 @@
     <DefineConstants>TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
     <DocumentationFile>bin\Release\Muster.XML</DocumentationFile>
+    <PlatformTarget>x64</PlatformTarget>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <WarningsAsErrors />
   </PropertyGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>
@@ -65,21 +69,26 @@
     <Compile Include="RandomForest.fs" />
     <None Include="Script.fsx" />
     <Content Include="packages.config" />
+    <None Include="any\netstandard1.6\FSharp.Core.sigdata" />
+    <None Include="any\netstandard1.6\FSharp.Core.optdata" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="FSharp.Core, Version=4.4.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+    <Reference Include="FSharp.Core">
+      <HintPath>..\packages\FSharp.Core.4.1.12\lib\net45\FSharp.Core.dll</HintPath>
+    </Reference>
     <Reference Include="MathNet.Numerics">
-      <HintPath>..\packages\MathNet.Numerics.3.16.0\lib\net40\MathNet.Numerics.dll</HintPath>
-      <Private>True</Private>
+      <HintPath>..\packages\MathNet.Numerics.3.18.0\lib\net40\MathNet.Numerics.dll</HintPath>
     </Reference>
     <Reference Include="MathNet.Numerics.FSharp">
-      <HintPath>..\packages\MathNet.Numerics.FSharp.3.16.0\lib\net40\MathNet.Numerics.FSharp.dll</HintPath>
-      <Private>True</Private>
+      <HintPath>..\packages\MathNet.Numerics.FSharp.3.18.0\lib\net40\MathNet.Numerics.FSharp.dll</HintPath>
     </Reference>
     <Reference Include="mscorlib" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
+    <Reference Include="System.ValueTuple">
+      <HintPath>..\packages\System.ValueTuple.4.3.0\lib\netstandard1.0\System.ValueTuple.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MusterLib\MusterLib.fsproj">
