@@ -33,6 +33,12 @@ module CSV =
             ) |> Array.ofSeq
 
 
+    let parseDefault (lines : #seq<string>) = parse ',' true lines
+
+
     let parseFile (delim : char) (hasHdrs : bool) (filePath : string) : array<Map<string, string>> =
         filePath |> File.ReadAllLines |> parse delim hasHdrs
+
+
+    let parseFileDefault (filePath : string) = parseFile ',' true filePath
 
