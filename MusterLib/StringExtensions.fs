@@ -8,6 +8,18 @@ open System.Text.RegularExpressions
 module StringExtensions =
 
 
+    let genWord (rnd : Random) (wordLen : int) : string =
+        [|1 .. wordLen|]
+        |> Array.map (fun _ -> (97 + (rnd.Next() % 26)) |> (char >> string))
+        |> String.concat ""
+
+
+    let genSentence (rnd : Random) (numWords : int) (maxWordLen : int) : string =
+        [1 .. numWords]
+        |> List.map (fun _ -> genWord rnd (rnd.Next() % maxWordLen))
+        |> String.concat " "
+
+
     let getTokens (str : string) =
         [for s in str.Split([|' '|]) do let t = s.Trim() in if not(String.IsNullOrEmpty t) then yield t]
 
