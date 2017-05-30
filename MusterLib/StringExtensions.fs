@@ -49,3 +49,9 @@ module StringExtensions =
 
     let removeApostrophe (str : string) : string = compress(str.Replace('\'', ' '))
 
+
+    let isInteger (str : string) : bool = (new Regex(@"^[0-9]+$")).IsMatch str
+
+
+    let isFloat (str : string) : bool = (new Regex(@"(^[0-9]?\.[0-9]+$)|(^[0-9]+)")).IsMatch str
+
