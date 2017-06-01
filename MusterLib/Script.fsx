@@ -23,13 +23,13 @@ open MusterLib.Tree
 
 /////
 
+printfn "BUILDING FULL TREE"
 let treeFull = [2; 3; 3; 2] |> genFullTree (fun d i -> (pown 2 d) + i)
-
-printfn "FINISHED LOADING TREES"
+printfn "DONE"
 
 treeFull |> prettyPrint
 
-// treeFull |> traverse [0; 2] |> Option.map prettyPrint
+treeFull |> traverse [0; 2] |> Option.map prettyPrint
 
 treeFull
 |> removeChild [0; 1]
@@ -60,7 +60,7 @@ treeFull |> modify [0] (fun _ _ -> Node.Leaf (-1)) 0 |> Option.map prettyPrint
 /////
 
 treeFull
-|> tryFindPathBft ((foldValDft (+) 0) >> ((=) 31))
+|> tryFindPathBft ((foldValDft (+) 0) >> ((=) 76))
 |> (function None -> printfn "NONE" | Some(s, t) -> printfn "%A" s; prettyPrint t)
 
 /////
