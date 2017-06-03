@@ -2,9 +2,11 @@
 // for more guidance on F# programming.
 
 #load "ListExtensions.fs"
+#load "StringExtensions.fs"
 #load "CSV.fs"
 #load "Tree.fs"
 
+open MusterLib.StringExtensions
 open MusterLib.Tree
 
 /////
@@ -76,3 +78,17 @@ treeFull
 //#time
 //treeFull2 |> foldValDft (fun s (t, u)-> s + (int64 t) + (int64 u)) (int64 0) |> printfn "%d"
 //#time
+
+/////
+
+let str = "GFEFEEFGHFFEGCHFDFBCAGGGBBGDGADDEDFBDBAGCDAAHFDGDEHCGCDHGGDDGCHG"
+let str2 = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+let str3 = "ABABABABABABABABZABABABABABABABAB"
+let str4 = "AAAAAABBB"
+let str5 = "AAAAABBBCCCCCDDD"
+
+(List.iter (printfn "%s") (getAllLongestSubstrs 2 false str5)) // ["AAAAABBB"; "BBBCCCCC"; "CCCCCDDD"]
+getAllLongestSubstrs 3 true str5 // ["AAAAABBBCCCCC"]
+getAllLongestSubstrs 4 true str5 // ["AAAAABBBCCCCCDDD"]
+getAllLongestSubstrs 5 true str5 // ["AAAAABBBCCCCCDDD"]
+(List.iter (printfn "%s") (getAllLongestSubstrs 5 false str5)) // []
