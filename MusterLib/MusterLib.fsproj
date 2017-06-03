@@ -60,6 +60,7 @@
     <Compile Include="StringExtensions.fs" />
     <Compile Include="CSV.fs" />
     <Compile Include="Tree.fs" />
+    <Compile Include="Scraper.fs" />
     <None Include="Script.fsx" />
     <Content Include="packages.config" />
   </ItemGroup>
