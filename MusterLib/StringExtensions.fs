@@ -70,6 +70,20 @@ module StringExtensions =
         |> List.rev
 
 
+    let replaceGroups (openTag : string) (closeTag : string) (repStr : string) (str : string) : string =
+        let rec helper (sIdx : int) (currStr : string) : string =
+            if sIdx > currStr.Length then currStr
+            else
+                let idxC = (currStr.Substring(sIdx).IndexOf closeTag) + sIdx
+                if idxC <= sIdx then currStr
+                else
+                    let idxO = currStr.Substring(0, idxC).LastIndexOf(openTag)
+                    if (idxO = -1) then currStr
+                    elif idxO >= idxC then helper (idxO + 1) currStr
+                    else helper (idxO + 1) (currStr.Replace(currStr.Substring(idxO, idxC - idxO + 1), repStr))
+        helper 0 str
+
+
     let compress (str : string) : string = (new Regex(@"\s+")).Replace(str, " ")
 
 
