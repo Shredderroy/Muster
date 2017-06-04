@@ -87,8 +87,9 @@ let str3 = "ABABABABABABABABZABABABABABABABAB"
 let str4 = "AAAAAABBB"
 let str5 = "AAAAABBBCCCCCDDD"
 
-(List.iter (printfn "%s") (getAllLongestSubstrs 2 false str5)) // ["AAAAABBB"; "BBBCCCCC"; "CCCCCDDD"]
-getAllLongestSubstrs 3 true str5 // ["AAAAABBBCCCCC"]
-getAllLongestSubstrs 4 true str5 // ["AAAAABBBCCCCCDDD"]
-getAllLongestSubstrs 5 true str5 // ["AAAAABBBCCCCCDDD"]
-(List.iter (printfn "%s") (getAllLongestSubstrs 5 false str5)) // []
+(List.iter (printfn "%s") (getAllLongestSubstrings 2 false str5)) // ["AAAAABBB"; "BBBCCCCC"; "CCCCCDDD"]
+getAllLongestSubstrings 3 true str5 // ["AAAAABBBCCCCC"]
+(List.iter (printfn "%s")) (getAllLongestSubstrings 3 false str5) // ["AAAAABBBCCCCC"]
+getAllLongestSubstrings 4 true str5 // ["AAAAABBBCCCCCDDD"]
+getAllLongestSubstrings 5 true str5 // ["AAAAABBBCCCCCDDD"]
+(List.iter (printfn "%s") (getAllLongestSubstrings 5 false str5)) // []
