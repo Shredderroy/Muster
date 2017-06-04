@@ -72,7 +72,7 @@ module StringExtensions =
 
     let replaceGroups (openTag : string) (closeTag : string) (repStr : string) (str : string) : string =
         let rec helper (sIdx : int) (currStr : string) : string =
-            if sIdx > currStr.Length then currStr
+            if sIdx >= currStr.Length then currStr
             else
                 let idxC = (currStr.Substring(sIdx).IndexOf closeTag) + sIdx
                 if idxC <= sIdx then currStr
