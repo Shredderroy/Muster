@@ -9,15 +9,14 @@ module StringExtensions =
 
 
     let genWord (rnd : Random) (wordLen : int) : string =
-        [|1 .. wordLen|]
-        |> Array.map (fun _ -> (97 + (rnd.Next() % 26)) |> (char >> string))
-        |> String.concat ""
+        fun _ -> (97 + (rnd.Next() % 26)) |> (char >> string)
+        |> ((List.init wordLen) >> (String.concat ""))
 
 
     let genSentence (rnd : Random) (numWords : int) (maxWordLen : int) : string =
-        [1 .. numWords]
-        |> List.map (fun _ -> genWord rnd (rnd.Next() % maxWordLen))
-        |> String.concat " "
+        fun _ -> genWord rnd (1 + (rnd.Next() % maxWordLen))
+        |> ((List.init numWords) >> (String.concat " "))
+        |> fun s -> (s |> (Seq.head >> int >> ((+) (-32)) >> char >> string)) + (s.Substring 1) + "."
 
 
     let getTokens (str : string) =
