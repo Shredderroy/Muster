@@ -40,35 +40,6 @@ module StringExtensions =
         [for (s, t) in zLst do if g (Seq.take s lst) (Seq.skip (s + 1) lst) t then yield t]
 
 
-    let getAllLongestSubstrings (numChrs : int) (ltOrEqFlg : bool) (str : string) : list<string> =
-        let rec helper
-            (resAcc : list<int * int * int>)
-            (currStartIdx : int) (currIdx : int)
-            (currAcc : Set<char>) (chrsArr : array<char>) : list<int * int * int> =
-            if currIdx = Array.length chrsArr then resAcc
-            else
-                let bestLen = match resAcc with [] -> 0 | (_, h2, _) :: _ -> h2
-                let newAcc = Set.add (Array.get chrsArr currIdx) currAcc
-                let newAccLen = Set.count newAcc
-                let currLen = currIdx - currStartIdx + 1
-                let notOverflow, newMatchAsGoodOrBetter = (newAccLen <= numChrs), (currLen >= bestLen)
-                if notOverflow && newMatchAsGoodOrBetter then
-                    helper
-                        (match resAcc with
-                        | (_, h2, _) :: _ when h2 < currLen -> [currStartIdx, currLen, newAccLen]
-                        | _ -> ((currStartIdx, currLen, newAccLen) :: resAcc))
-                        currStartIdx
-                        (currIdx + 1)
-                        newAcc
-                        chrsArr
-                elif not notOverflow then helper resAcc (currStartIdx + 1) (currStartIdx + 1) Set.empty chrsArr
-                else helper resAcc currStartIdx (currIdx + 1) newAcc chrsArr
-        str.ToCharArray() |> helper [] 0 0 Set.empty
-        |> List.filter (fun (_, _, s) -> ltOrEqFlg || (s = numChrs))
-        |> List.map (fun (s, t, _) -> str.Substring(s, t))
-        |> List.rev
-
-
     let replaceGroups (openTag : string) (closeTag : string) (repStr : string) (str : string) : string =
         let rec helper (sIdx : int) (currStr : string) : string =
             if sIdx >= currStr.Length then currStr
