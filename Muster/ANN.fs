@@ -143,7 +143,7 @@ module ANN =
 
 
     let makeForwardPass (aNN : Network) (scaledInputVecsMat : Matrix<double>) : ForwardPassOutput =
-        (aNN.Layers, ([for _ in 1 .. ((List.length aNN.Layers) - 1) -> aNN.InputActivation] @ [aNN.OutputActivation]))
+        (aNN.Layers, ([for _ in 1..((List.length aNN.Layers) - 1) -> aNN.InputActivation] @ [aNN.OutputActivation]))
         ||> List.zip
         |> List.scan
             (fun (_, (s : Matrix<double>)) (t, u) -> let prod = s * t in (prod, (Matrix.map u prod)))

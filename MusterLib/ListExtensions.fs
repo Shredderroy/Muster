@@ -65,3 +65,7 @@ module ListExtensions =
                 |> List.concat |> Seq.distinct |> List.ofSeq |> helper
         helper []
 
+
+    let cartesianProduct (lst1 : list<'A>) (lst2 : list<'B>) : list<'A * 'B> =
+        [for i in lst1 do for j in lst2 -> i, j]
+
