@@ -6,7 +6,7 @@ open System
 open System.Net
 
 
-module MainScraper =
+module Scraper =
 
 
     type URL = string
