@@ -1,4 +1,4 @@
-﻿namespace NoodleScraper
+﻿namespace MusterLib
 
 
 open Microsoft.FSharp.Control.WebExtensions
@@ -13,6 +13,10 @@ module MainScraper =
 
 
     type HTML = string
+
+
+    [<RequireQualifiedAccess>]
+    type Index = | First | Last | N of int
 
 
     let strSplit (chrs : array<char>) (flg : bool) (str : string) : list<string> =
@@ -37,7 +41,7 @@ module MainScraper =
 
 
     let removeWords (words : list<string>) (html : HTML) : string =
-        List.fold (fun s t -> s.Replace(t, "")) html words
+        (html, words) ||> List.fold (fun s t -> s.Replace(t, ""))
 
 
     let extractInnermostTags (tags : list<string>) (html : HTML) : Map<string, list<HTML>> =
@@ -78,6 +82,16 @@ module MainScraper =
         else
             let endIdx = tag.IndexOf('<', startIdx)
             if endIdx = -1 then "" else tag.Substring(startIdx + 1, endIdx - startIdx - 1)
+
+
+    let getTagAtIndex (tag : string) (idx : Index) (extractedTags : Map<string, list<HTML>>) : HTML =
+        if extractedTags |> Map.containsKey tag then
+            match idx, extractedTags.[tag], List.length extractedTags.[tag] with
+            | Index.First, h :: _, _ -> h
+            | Index.Last, s, l when l > 0 -> s |> List.last
+            | Index.N n, s, l when n < l -> s |> (List.head << (List.skip n))
+            | _ -> ""
+        else ""
 
 
     let fetchHtmlAsync (url : URL) : HTML =
