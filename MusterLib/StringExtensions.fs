@@ -85,6 +85,14 @@ module StringExtensions =
         |> List.rev
 
 
+    let getPronounceableWord (minSyll : int) (maxSyll :int) : string =
+        (Random(), "aeiouybcdfghjklmnpqrstvwxz")
+        |> fun (r, s) ->
+            [0..(minSyll + r.Next() % (maxSyll - minSyll + 1))]
+            |> List.collect (fun t -> [s.Substring(6 + r.Next() % 20, 1); s.Substring(r.Next() % 6, 1)])
+        |> String.concat ""
+
+
     let compress (str : string) : string = (new Regex(@"\s+")).Replace(str, " ")
 
 
