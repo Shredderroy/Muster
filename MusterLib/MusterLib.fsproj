@@ -72,10 +72,10 @@
       <HintPath>..\packages\FSharp.Core.4.2.3\lib\net45\FSharp.Core.dll</HintPath>
     </Reference>
     <Reference Include="FsPickler">
-      <HintPath>..\packages\FsPickler.4.0.1\lib\net45\FsPickler.dll</HintPath>
+      <HintPath>..\packages\FsPickler.4.5\lib\net45\FsPickler.dll</HintPath>
     </Reference>
     <Reference Include="FsPickler.Json">
-      <HintPath>..\packages\FsPickler.Json.4.0.1\lib\net45\FsPickler.Json.dll</HintPath>
+      <HintPath>..\packages\FsPickler.Json.4.5\lib\net45\FsPickler.Json.dll</HintPath>
     </Reference>
     <Reference Include="mscorlib" />
     <Reference Include="Newtonsoft.Json">
