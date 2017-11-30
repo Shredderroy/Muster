@@ -1,13 +1,16 @@
 ﻿// Learn more about F# at http://fsharp.org. See the 'F# Tutorial' project
 // for more guidance on F# programming.
 
+#load "MapExtensions.fs"
 #load "ListExtensions.fs"
 #load "StringExtensions.fs"
 #load "CSV.fs"
 #load "Tree.fs"
 
+open MusterLib.MapExtensions
 open MusterLib.StringExtensions
 open MusterLib.Tree
+open MusterLib
 
 /////
 
@@ -93,3 +96,18 @@ getAllLongestSubstrings 3 true str5 // ["AAAAABBBCCCCC"]
 getAllLongestSubstrings 4 true str5 // ["AAAAABBBCCCCCDDD"]
 getAllLongestSubstrings 5 true str5 // ["AAAAABBBCCCCCDDD"]
 (List.iter (printfn "%s") (getAllLongestSubstrings 5 false str5)) // []
+
+/////
+
+let m0 = [for i in 1 .. 5 -> i, i + 1] |> Map.ofList
+let m1 = [for i in 2 .. 6 -> i, 2 * i] |> Map.ofList
+
+let f (i' : option<int>) (j' : option<int>) : list<int> =
+    match i', j' with
+    | Some i, Some j -> [i; j]
+    | Some i, None -> [i]
+    | None, Some j -> [j]
+    | _ -> []
+
+m0 |> MapExtensions.mergeWith m1 f
+|> printfn "%A"

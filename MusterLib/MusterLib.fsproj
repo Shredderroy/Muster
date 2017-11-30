@@ -59,6 +59,7 @@
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="Pickle.fs" />
+    <Compile Include="MapExtensions.fs" />
     <Compile Include="ListExtensions.fs" />
     <Compile Include="StringExtensions.fs" />
     <Compile Include="CSV.fs" />
