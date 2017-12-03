@@ -33,7 +33,7 @@ module StringExtensions =
         List.fold f [] (let toks = getTokens str in List.zip [0 .. (List.length toks) - 1] (List.rev toks))
 
 
-    let getMaximalItems (lst : list<string>) : list<string> =
+    let getMaximalStrs (lst : list<string>) : list<string> =
         let f = (fun s t -> (Seq.tryFind(fun (u : string) -> u.Contains t) s) |> Option.isSome)
         let g = (fun s t u -> not ((f s u) || (f t u)))
         let zLst = Seq.mapi (fun i s -> (i, s)) lst
