@@ -88,7 +88,7 @@ module StringExtensions =
     let getPronounceableWord (rnd : Random) (minSyll : int) (maxSyll :int) : string =
         (rnd, "aeiouybcdfghjklmnpqrstvwxz")
         |> fun (r, s) ->
-            [0..(minSyll + r.Next() % (maxSyll - minSyll + 1))]
+            [1..(minSyll + r.Next() % (maxSyll - minSyll + 1))]
             |> List.collect (fun t -> [s.Substring(6 + r.Next() % 20, 1); s.Substring(r.Next() % 6, 1)])
         |> String.concat ""
 
