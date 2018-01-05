@@ -89,7 +89,7 @@ module StringExtensions =
         (rnd, "aeiouybcdfghjklmnpqrstvwxz")
         |> fun (r, s) ->
             [1..(minSyll + r.Next() % (maxSyll - minSyll + 1))]
-            |> List.collect (fun t -> [s.Substring(6 + r.Next() % 20, 1); s.Substring(r.Next() % 6, 1)])
+            |> List.collect (fun _ -> [s.Substring(6 + r.Next() % 20, 1); s.Substring(r.Next() % 6, 1)])
         |> String.concat ""
 
 
