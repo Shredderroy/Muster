@@ -101,7 +101,7 @@ getAllLongestSubstrings 4 true str5 // ["AAAAABBBCCCCCDDD"]
 getAllLongestSubstrings 5 true str5 // ["AAAAABBBCCCCCDDD"]
 (List.iter (printfn "%s") (getAllLongestSubstrings 5 false str5)) // []
 
-StringExtensions.getPronounceableWord (System.Random()) 2 4
+StringExtensions.getPronounceableWord (System.Random()) 2 5
 |> printfn "%s"
 
 /////
